@@ -53,17 +53,17 @@ typedef enum {
 } MenuOptions;
 
 // Function prototypes
-void find_logs_command(char *buffer, size_t size);
+void find_logs_command(char *buffer, size_t size, const char *search_path);
 void display_buffer_with_less(const char *buffer, size_t length);
 void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *, size_t));
-void live_auth_log();
-void live_error_log();
-void live_log();
-void live_network_log();
-void run_regex();
-void search_ip();
-void edit_log_paths();
-void export_search_results_to_json();
+void live_auth_log(const char *log_search_path);
+void live_error_log(const char *log_search_path);
+void live_log(const char *log_search_path);
+void live_network_log(const char *log_search_path);
+void run_regex(const char *log_search_path);
+void search_ip(const char *log_search_path);
+void edit_log_paths(char *log_search_path);
+void export_search_results_to_json(const char *log_search_path);
 void display_help();
 void main_menu();
 void sigint_handler(int sig);
@@ -71,10 +71,21 @@ void sigint_handler(int sig);
 // Global search paths
 char log_search_path[BUFFER_SIZE] = "/var/lib/docker /var/log";
 
-void find_logs_command(char *buffer, size_t size) {
-    snprintf(buffer, size, "find %s -type f \\( -name '*.log' -o -name 'messages' -o -name 'cron' -o -name 'maillog' -o -name 'secure' -o -name 'firewalld' \\) -exec tail -f -n +1 {} +", log_search_path);
+/**
+ * Creates a find command to search for log files in the specified path.
+ * @param buffer Output buffer to store the generated find command.
+ * @param size Size of the output buffer.
+ * @param search_path Path(s) to search logs in.
+ */
+void find_logs_command(char *buffer, size_t size, const char *search_path) {
+    snprintf(buffer, size, "find %s -type f \\( -name '*.log' -o -name 'messages' -o -name 'cron' -o -name 'maillog' -o -name 'secure' -o -name 'firewalld' \\) -exec tail -f -n +1 {} +", search_path);
 }
 
+/**
+ * Displays a text buffer in the 'less' pager for convenient viewing.
+ * @param buffer The text buffer to display.
+ * @param length Length of the text buffer.
+ */
 void display_buffer_with_less(const char *buffer, size_t length) {
     char tmp_filename[] = "/tmp/logsearchXXXXXX";
     int tmp_fd = mkstemp(tmp_filename);
@@ -101,6 +112,11 @@ void display_buffer_with_less(const char *buffer, size_t length) {
     remove(tmp_filename);
 }
 
+/**
+ * Runs a shell command and processes the output using a specified action function.
+ * @param cmd The command to run.
+ * @param buffer_action Function to process the command output.
+ */
 void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *, size_t)) {
     FILE *proc = popen(cmd, "r");
     if (!proc) {
@@ -108,22 +124,12 @@ void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *
         return;
     }
 
-    char buffer[BUFFER_SIZE];
+    char *output = NULL;
     size_t total_length = 0;
-    char *output = malloc(BUFFER_SIZE);
-    if (!output) {
-        perror("malloc");
-        pclose(proc);
-        return;
-    }
-
-    output[0] = '\0';
-
+    char buffer[BUFFER_SIZE];
     while (fgets(buffer, sizeof(buffer), proc)) {
         size_t buffer_length = strlen(buffer);
-        total_length += buffer_length;
-
-        char *temp = realloc(output, total_length + 1);
+        char *temp = realloc(output, total_length + buffer_length + 1);
         if (!temp) {
             perror("realloc");
             free(output);
@@ -131,53 +137,75 @@ void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *
             return;
         }
         output = temp;
-        strcat(output, buffer);
+        memcpy(output + total_length, buffer, buffer_length);
+        total_length += buffer_length;
+        output[total_length] = '\0';
 
         fputs(buffer, stdout);
         fflush(stdout);
     }
-
-    pclose(proc);
 
     if (buffer_action) {
         buffer_action(output, total_length);
     }
 
     free(output);
+    pclose(proc);
 }
 
-void live_auth_log() {
+/**
+ * Searches logs for authentication-related issues and displays them using 'less'.
+ * @param log_search_path Paths to search for logs.
+ */
+void live_auth_log(const char *log_search_path) {
     char cmd[BUFFER_SIZE];
     char find_cmd[BUFFER_SIZE];
-    find_logs_command(find_cmd, sizeof(find_cmd));
+    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
     snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i \"authentication(\\s*failed)?|permission(\\s*denied)?|invalid\\s*(user|password|token)|(unauthorized|illegal)\\s*(access|attempt)|SQL\\s*injection|cross-site\\s*(scripting|request\\s*Forgery)|directory\\s*traversal|(brute-?force|DoS|DDoS)\\s*attack|(vulnerability|exploit)\\s*(detected|scan)\"", find_cmd);
     run_command_with_buffer(cmd, display_buffer_with_less);
 }
 
-void live_error_log() {
+/**
+ * Searches logs for error-related issues and displays them using 'less'.
+ * @param log_search_path Paths to search for logs.
+ */
+void live_error_log(const char *log_search_path) {
     char cmd[BUFFER_SIZE];
     char find_cmd[BUFFER_SIZE];
-    find_logs_command(find_cmd, sizeof(find_cmd));
+    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
     snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i \"\\b(?:error|fail(?:ed|ure)?|warn(?:ing)?|critical|socket|denied|refused|retry|reset|timeout|dns|network)\"", find_cmd);
     run_command_with_buffer(cmd, display_buffer_with_less);
 }
 
-void live_log() {
+/**
+ * Displays all logs using 'less'.
+ * @param log_search_path Paths to search for logs.
+ */
+void live_log(const char *log_search_path) {
     char cmd[BUFFER_SIZE];
     char find_cmd[BUFFER_SIZE];
-    find_logs_command(find_cmd, sizeof(find_cmd));
+    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
     snprintf(cmd, sizeof(cmd), "%s", find_cmd);
     run_command_with_buffer(cmd, display_buffer_with_less);
 }
 
-void live_network_log() {
+/**
+ * Searches logs for network protocol-related issues and displays them using 'less'.
+ * @param log_search_path Paths to search for logs.
+ */
+void live_network_log(const char *log_search_path) {
     char cmd[BUFFER_SIZE];
     char find_cmd[BUFFER_SIZE];
-    find_logs_command(find_cmd, sizeof(find_cmd));
+    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
     snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i 'https?://|ftps?://|telnet://|ssh://|sftp://|ldap(s)?://|nfs://|tftp://|gopher://|imap(s)?://|pop3(s)?://|smtp(s)?://|rtsp://|rtmp://|mms://|xmpp://|ipp://|xrdp://'", find_cmd);
     run_command_with_buffer(cmd, display_buffer_with_less);
 }
 
+/**
+ * Prompts user for input and returns the input string.
+ * @param prompt Prompt message to display.
+ * @return The user input string.
+ */
 char *get_user_input(const char *prompt) {
     char *input = readline(prompt);
     if (input && *input) {
@@ -186,43 +214,70 @@ char *get_user_input(const char *prompt) {
     return input;
 }
 
-void run_regex() {
+/**
+ * Validates the user input to ensure it is within bounds.
+ * @param input Input string to validate.
+ * @return 1 if valid, 0 otherwise.
+ */
+int sanitize_input(char *input) {
+    if (input == NULL || strlen(input) == 0) {
+        return 0;
+    }
+
+    // Ensure the input does not exceed the buffer size
+    if (strlen(input) >= BUFFER_SIZE) {
+        printf(ANSI_COLOR_RED "Input too long. Please try again.\n" ANSI_COLOR_RESET);
+        return 0;
+    }
+
+    return 1;
+}
+
+/**
+ * Prompts the user to enter a regular expression and searches the logs.
+ * @param log_search_path Paths to search for logs.
+ */
+void run_regex(const char *log_search_path) {
     char *egrep_args = get_user_input("\nRegEX > ");
-    if (!egrep_args || strlen(egrep_args) == 0) {
-        printf(ANSI_COLOR_RED "Invalid input.\n" ANSI_COLOR_RESET);
+    if (!sanitize_input(egrep_args)) {
         free(egrep_args);
         return;
     }
 
     char cmd[BUFFER_SIZE];
     char find_cmd[BUFFER_SIZE];
-    find_logs_command(find_cmd, sizeof(find_cmd));
+    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
     snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i \"%s\"", find_cmd, egrep_args);
     run_command_with_buffer(cmd, display_buffer_with_less);
     free(egrep_args);
 }
 
-void search_ip() {
+/**
+ * Prompts the user to enter an IP or regex pattern and searches the logs.
+ * @param log_search_path Paths to search for logs.
+ */
+void search_ip(const char *log_search_path) {
     char *ip_regex = get_user_input("\nIP / RegEX > ");
-    if (!ip_regex || strlen(ip_regex) == 0) {
-        printf(ANSI_COLOR_RED "Returning to menu...\n" ANSI_COLOR_RESET);
+    if (!sanitize_input(ip_regex)) {
         free(ip_regex);
         return;
     }
 
     char cmd[BUFFER_SIZE];
     char find_cmd[BUFFER_SIZE];
-    find_logs_command(find_cmd, sizeof(find_cmd));
+    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
     snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i \"%s\"", find_cmd, ip_regex);
     run_command_with_buffer(cmd, display_buffer_with_less);
     free(ip_regex);
 }
 
-void edit_log_paths() {
+/**
+ * Allows the user to edit the log search paths.
+ * @param log_search_path Paths to search for logs.
+ */
+void edit_log_paths(char *log_search_path) {
     char *new_paths = get_user_input("\nCurrent log paths: /var/lib/docker /var/log\nEnter new log paths (separated by spaces) > ");
-    if (!new_paths || strlen(new_paths) == 0) {
-        printf(ANSI_COLOR_RED "Invalid input.\n" ANSI_COLOR_RESET);
-        strcpy(log_search_path, "/var/lib/docker /var/log");
+    if (!sanitize_input(new_paths)) {
         free(new_paths);
         return;
     }
@@ -233,17 +288,20 @@ void edit_log_paths() {
     printf(ANSI_COLOR_GREEN "Updated log paths: %s\n" ANSI_COLOR_RESET, log_search_path);
 }
 
-void export_search_results_to_json() {
+/**
+ * Prompts the user to enter a regex or pattern and exports the results to a JSON file.
+ * @param log_search_path Paths to search for logs.
+ */
+void export_search_results_to_json(const char *log_search_path) {
     char *egrep_args = get_user_input("\nRegEX / Text > ");
-    if (!egrep_args || strlen(egrep_args) == 0) {
-        printf(ANSI_COLOR_RED "Invalid input.\n" ANSI_COLOR_RESET);
+    if (!sanitize_input(egrep_args)) {
         free(egrep_args);
         return;
     }
 
     char cmd[BUFFER_SIZE];
     char find_cmd[BUFFER_SIZE];
-    find_logs_command(find_cmd, sizeof(find_cmd));
+    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
     snprintf(cmd, sizeof(cmd), "%s | egrep --color=never -i \"%s\"", find_cmd, egrep_args);
 
     FILE *proc = popen(cmd, "r");
@@ -290,6 +348,9 @@ void export_search_results_to_json() {
     free(egrep_args);
 }
 
+/**
+ * Displays the help information for the tool.
+ */
 void display_help() {
     const char *help_text =
         ANSI_COLOR_LIGHT_GRAY "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n" ANSI_COLOR_RESET
@@ -368,6 +429,9 @@ void display_help() {
     display_buffer_with_less(help_text, strlen(help_text));
 }
 
+/**
+ * Displays the main menu and handles user input.
+ */
 void main_menu() {
     char *option;
     while (1) {
@@ -394,35 +458,35 @@ void main_menu() {
         switch (opt) {
             case 'A':
             case 'a':
-                live_auth_log();
+                live_auth_log(log_search_path);
                 break;
             case 'E':
             case 'e':
-                live_error_log();
+                live_error_log(log_search_path);
                 break;
             case 'L':
             case 'l':
-                live_log();
+                live_log(log_search_path);
                 break;
             case 'N':
             case 'n':
-                live_network_log();
+                live_network_log(log_search_path);
                 break;
             case 'R':
             case 'r':
-                run_regex();
+                run_regex(log_search_path);
                 break;
             case 'I':
             case 'i':
-                search_ip();
+                search_ip(log_search_path);
                 break;
             case 'S':
             case 's':
-                edit_log_paths();
+                edit_log_paths(log_search_path);
                 break;
             case 'J':
             case 'j':
-                export_search_results_to_json();
+                export_search_results_to_json(log_search_path);
                 break;
             case 'H':
             case 'h':
@@ -430,6 +494,7 @@ void main_menu() {
                 break;
             case 'Q':
             case 'q':
+                free(option);
                 exit(0);
                 break;
             default:
@@ -439,11 +504,19 @@ void main_menu() {
     }
 }
 
+/**
+ * Handles the SIGINT signal to return to the main menu.
+ * @param sig Signal number.
+ */
 void sigint_handler(int sig) {
     printf("\nReturning to menu...\n");
     fflush(stdout);
 }
 
+/**
+ * Main entry point of the application.
+ * @return Exit status code.
+ */
 int main() {
     signal(SIGINT, sigint_handler);
     main_menu();
