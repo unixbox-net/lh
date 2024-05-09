@@ -1,4 +1,3 @@
-# LogHOG: The NO Nonsense Log Search Tool
 
 ![loghog](https://github.com/unixbox-net/loghog/assets/104218206/2bbeb582-647a-4f3c-888a-9013227b8784)
 
