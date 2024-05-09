@@ -9,6 +9,5 @@
                        888
                   Y8b d88P  The NO Nonsense Log Search Tool
                    "Y88P"
-
 # loghog
 custom log management tools
