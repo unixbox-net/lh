@@ -35,7 +35,7 @@ ANSI_COLOR_MAGENTA " 888     888  888 888  888 888    888 888     888 888    888
 ANSI_COLOR_MAGENTA " 888     Y88..88P Y88b 888 888    888 Y88b. .d88P Y88b  d88P" ANSI_COLOR_RESET "\n" \
 ANSI_COLOR_MAGENTA " 88888888 \"Y88P\"   \"Y88888 888    888  \"Y88888P\"   \"Y8888P88" ANSI_COLOR_RESET "\n" \
 ANSI_COLOR_MAGENTA "                       888" ANSI_COLOR_RESET "\n" \
-ANSI_COLOR_MAGENTA "                  Y8b d88P " ANSI_COLOR_LIGHT_GREEN " NO " ANSI_COLOR_LIGHT_GRAY "Nonsense digital forensics" ANSI_COLOR_RESET "\n" \
+ANSI_COLOR_MAGENTA "                  Y8b d88P " ANSI_COLOR_RED " NO" ANSI_COLOR_LIGHT_GRAY "-nonsense digital forensics" ANSI_COLOR_RESET "\n" \
 ANSI_COLOR_MAGENTA "                   \"Y88P\"" ANSI_COLOR_RESET "\n"
 
 // Menu option definitions
@@ -397,18 +397,19 @@ void display_help() {
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "R" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "egex (Tail)\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN " - Search EVERYTHING using standard regular expressions.\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'error|failure'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     '\\bREGEX_PATTERN\\b'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     '\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_BLUE "     'REGEX_PATTERN'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_BLUE "     '(?:[0-9]{1,3}\\.){3}[0-9]{1,3}'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     '(authentication|permission|invalid user)'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     '(DoS|DDoS attack)'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'brute-?force|directory traversal'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     '(SQL injection|cross-site scripting)'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_BLUE "     '(192.168.???.*) or ranges (192.168.[1..10].[1..100])\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     '(GET|POST|PUT|DELETE|PATCH) /[a-zA-Z0-9/_-]*'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'cron.*\\((root|admin)\\)'\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "I" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "P (Log Search)\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN " - Filters logs by ip, ranges, and regular expressions.\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     '\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_BLUE "     '(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     '(192\\.168\\.[0-9]+\\.[0-9]+)'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     '\\b(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\\b'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     '(::|(?:[A-Fa-f0-9]{1,4}:){1,7}:)'\n" ANSI_COLOR_RESET
