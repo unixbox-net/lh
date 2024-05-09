@@ -1,17 +1,20 @@
 ![loghog](https://github.com/unixbox-net/loghog/assets/104218206/351322c5-0962-427c-bb4c-2eb3ac3244c1)
 
 # How to Install
-The inital release has been prepackageed for dnf/yum, however there source is there.. fill your boots.
+The inital release has been prepackageed for rhel v8 dnf/yum
 
 ```bash
 git clone https://github.com/unixbox-net/loghog.git
 cd loghog
 dnf install -y loghog-1.0.0-1.el8.x86_64.rpm
 ````
-or
+
+or compile with clang
 ```bash
 clang loghog.c -o loghog -lreadline -ljson-c
 ```
+
+There are NO additional packages required
 
 ## Purpose
 LogHOG is a **FAST** and comprehensive log search tool designed to simplify log analysis. It offers two modes for reviewing and analyzing logs:
