@@ -20,4 +20,7 @@ LogHOG is a **FAST** and comprehensive log search tool designed to simplify log 
 - **JSON Export:** Export filtered logs to JSON for further analysis.
 
 ## Speed
-LogHOG uses efficient log collection and filtering methods, allowing you to swiftly process vast amounts of log data without breaking a sweat.
+Not only is LogHOG efficient and fast it makes most common system problems.  "plain" removing the mystisim of trying to "stitch logs together" and elminating the need for 
+multiple windows / terminals. 
+
+all in a package format that anyone can use/enjoy
