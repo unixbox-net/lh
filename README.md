@@ -23,6 +23,3 @@ LogHOG is a **FAST** and comprehensive log search tool designed to simplify log 
 
 ## Speed
 LogHOG uses efficient log collection and filtering methods, allowing you to swiftly process vast amounts of log data without breaking a sweat.
-
-## Menu Overview
-
