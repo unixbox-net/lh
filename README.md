@@ -12,7 +12,10 @@ or compile with clang
 clang loghog.c -o loghog -lreadline -ljson-c
 ```
 
-There are NO additional packages required
+The only requirements are:
+```bash
+sudo dnf install json-c readline -y
+```
 
 ## Purpose
 LogHOG is a **FAST** and comprehensive log search tool designed to simplify log analysis. It offers two modes for reviewing and analyzing logs:
