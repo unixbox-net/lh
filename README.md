@@ -1,6 +1,5 @@
 
-![loghog](https://github.com/unixbox-net/loghog/assets/104218206/2bbeb582-647a-4f3c-888a-9013227b8784)
-
+![loghog](https://github.com/unixbox-net/loghog/assets/104218206/351322c5-0962-427c-bb4c-2eb3ac3244c1)
 
 ## Purpose
 LogHOG is a **FAST** and comprehensive log search tool designed to simplify log analysis. It offers two modes for reviewing and analyzing logs:
