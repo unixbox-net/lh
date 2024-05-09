@@ -4,9 +4,7 @@
 The inital release has been prepackageed for rhel v8 dnf/yum
 
 ```bash
-git clone https://github.com/unixbox-net/loghog.git
-cd loghog
-dnf install -y loghog-1.0.0-1.el8.x86_64.rpm
+git clone https://github.com/unixbox-net/loghog.git && cd loghog/ && dnf install -y loghog-1.0.0-1.el8.x86_64.rpm
 ````
 
 or compile with clang
