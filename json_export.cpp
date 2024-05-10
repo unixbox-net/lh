@@ -27,14 +27,15 @@ void export_search_results_to_json(const char* log_search_path) {
     bool first = true;
     char buffer[BUFFER_SIZE];
     while (fgets(buffer, sizeof(buffer), proc)) {
+        std::string line = buffer;
+        if (!sanitize_input(line)) continue;
+
         if (!first) {
             ofs << ",\n";
         }
         first = false;
 
-        std::string line = buffer;
-        std::string sanitized = sanitize_input(line);
-        ofs << "  { \"log\": \"" << sanitized << "\" }";
+        ofs << "  { \"log\": \"" << line << "\" }";
     }
 
     ofs << "\n]\n";
