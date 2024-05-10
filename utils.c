@@ -4,7 +4,6 @@
 #include <errno.h>
 #include <unistd.h>
 #include "utils.h"
-#include <ctype.h>
 
 /**
  * Creates a find command to search for log files in the specified path.
@@ -102,7 +101,7 @@ char *get_user_input(const char *prompt) {
 }
 
 /**
- * Validates the user input to ensure it is within bounds.
+ * Validates the user input to ensure it is within bounds and allows specific regex characters.
  * @param input Input string to validate.
  * @return 1 if valid, 0 otherwise.
  */
