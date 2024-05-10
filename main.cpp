@@ -4,7 +4,7 @@
 #include "utils.hpp"
 
 #define BUFFER_SIZE 1024
-char log_search_path[BUFFER_SIZE] = "/var/log/messages";
+char log_search_path[BUFFER_SIZE] = "/var/log/messages /var/log/secure /var/log/audit/audit.log";
 
 void main_menu() {
     int choice = -1;
@@ -19,6 +19,7 @@ void main_menu() {
                   << "8) Export to JSON\n"
                   << "9) Quit\n> ";
         std::cin >> choice;
+        std::cin.ignore(); // Ignore newline character
 
         switch (choice) {
             case 1:
