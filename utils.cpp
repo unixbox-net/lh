@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include "utils.hpp"
 
+static std::string global_output_buffer;
+
 void find_logs_command(char *buffer, size_t size, const char *search_path) {
     snprintf(buffer, size, "find %s -type f \\( -name '*.log' -o -name 'messages' -o -name 'cron' -o -name 'maillog' -o -name 'secure' -o -name 'firewalld' \\) -exec tail -f -n +1 {} +", search_path);
 }
@@ -44,18 +46,28 @@ void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *
         return;
     }
 
-    std::string output;
+    global_output_buffer.clear(); // Reset the global output buffer
     char buffer[BUFFER_SIZE];
     while (fgets(buffer, BUFFER_SIZE, proc) != nullptr) {
-        output += buffer;
+        global_output_buffer += buffer;
         std::cout << buffer;  // Immediate output to the console
         std::cout.flush();
     }
 
-    if (!output.empty()) {
-        buffer_action(output.c_str(), output.size());
-    }
     pclose(proc);
+
+    if (buffer_action) {
+        buffer_action(global_output_buffer.c_str(), global_output_buffer.size());
+    }
+}
+
+void sigint_handler(int sig) {
+    std::cout << "\nCaught signal " << sig << ", returning to menu...\n";
+    std::cout.flush();
+    if (!global_output_buffer.empty()) {
+        display_buffer_with_less(global_output_buffer.c_str(), global_output_buffer.size());
+    }
+    exit(0);
 }
 
 std::string get_user_input(const std::string &prompt) {
@@ -83,12 +95,6 @@ bool sanitize_input(std::string &input) {
     return true;
 }
 
-void sigint_handler(int sig) {
-    std::cout << "\nCaught signal " << sig << ", returning to menu...\n";
-    std::cout.flush();
-    exit(0);  // Exit gracefully on SIGINT
-}
-
 void save_log_paths(const char *log_search_path) {
     std::ofstream config_file(CONFIG_FILE);
     if (!config_file) {
@@ -109,9 +115,9 @@ void load_log_paths(char *log_search_path, size_t buffer_size) {
     std::string line;
     if (std::getline(config_file, line)) {
         strncpy(log_search_path, line.c_str(), buffer_size - 1);
-        log_search_path[buffer_size - 1] = '\0';
+        log_search_path[BUFFER_SIZE - 1] = '\0';
     } else {
         strncpy(log_search_path, "/var/lib/docker /var/log", buffer_size - 1);
-        log_search_path[buffer_size - 1] = '\0';
+        log_search_path[BUFFER_SIZE - 1] = '\0';
     }
 }
