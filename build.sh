@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# copy this script to ~\ and chmod +x and ./run.sh to build from source
+
 # Variables
 REPO_URL="https://github.com/unixbox-net/loghog.git"
 REPO_NAME="loghog"
