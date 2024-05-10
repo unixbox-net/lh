@@ -53,10 +53,8 @@ void export_search_results_to_json(const char *log_search_path) {
             fclose(output);
             printf("\nExported search results to %s\n", output_file);
 
-            // Print the results to the screen using `less`
-            char all_entries[BUFFER_SIZE * 10] = "";
-            strcat(all_entries, json_object_to_json_string_ext(json_arr, JSON_C_TO_STRING_PRETTY));
-            display_buffer_with_less(all_entries, strlen(all_entries));
+            // Print JSON directly using `less`
+            display_buffer_with_less(json_object_to_json_string_ext(json_arr, JSON_C_TO_STRING_PRETTY), strlen(json_object_to_json_string_ext(json_arr, JSON_C_TO_STRING_PRETTY)));
         } else {
             perror("fopen");
         }
