@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include "utils.hpp"
 
+const char *CONFIG_FILE = "/etc/loghog.conf";
 static std::string global_output_buffer;
 static bool is_in_menu = false;
 
