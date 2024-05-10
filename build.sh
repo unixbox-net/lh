@@ -1,6 +1,3 @@
-
-### `build.sh`
-```bash
 #!/bin/bash
 
 # Remove old directories
