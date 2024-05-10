@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include "utils.h"
 
+#define CONFIG_FILE "/etc/loghog.conf"
+
 /**
  * Creates a find command to search for log files in the specified path.
  * @param buffer Output buffer to store the generated find command.
@@ -141,6 +143,45 @@ int sanitize_input(char *input) {
         }
     }
     return 1;
+}
+
+/**
+ * Saves the current log search paths to a configuration file.
+ * @param log_search_path The log search paths to save.
+ */
+void save_log_paths(const char *log_search_path) {
+    FILE *config_file = fopen(CONFIG_FILE, "w");
+    if (config_file == NULL) {
+        perror("fopen");
+        return;
+    }
+    fprintf(config_file, "%s\n", log_search_path);
+    fclose(config_file);
+}
+
+/**
+ * Loads the log search paths from a configuration file.
+ * @param log_search_path Buffer to store the loaded log search paths.
+ * @param buffer_size Size of the output buffer.
+ */
+void load_log_paths(char *log_search_path, size_t buffer_size) {
+    FILE *config_file = fopen(CONFIG_FILE, "r");
+    if (config_file == NULL) {
+        // If the config file doesn't exist, use a default value
+        strncpy(log_search_path, "/var/lib/docker /var/log", buffer_size - 1);
+        log_search_path[buffer_size - 1] = '\0';
+        return;
+    }
+
+    if (fgets(log_search_path, buffer_size, config_file)) {
+        // Remove newline character if present
+        log_search_path[strcspn(log_search_path, "\n")] = '\0';
+    } else {
+        strncpy(log_search_path, "/var/lib/docker /var/log", buffer_size - 1);
+        log_search_path[buffer_size - 1] = '\0';
+    }
+
+    fclose(config_file);
 }
 
 /**
