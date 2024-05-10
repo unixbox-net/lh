@@ -48,6 +48,8 @@ License: MIT
 URL: ${REPO_URL}
 Source0: %{name}-%{version}.tar.gz
 
+%global debug_package %{nil}
+
 BuildRequires: readline-devel, json-c-devel, gcc-c++
 Requires: readline, json-c
 
