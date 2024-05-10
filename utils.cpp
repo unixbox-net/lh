@@ -1,4 +1,3 @@
-#include "utils.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -7,6 +6,7 @@
 #include <cstring>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include "utils.hpp"
 
 #define CONFIG_FILE "/etc/loghog.conf"
 
