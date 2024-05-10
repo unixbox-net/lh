@@ -38,7 +38,7 @@ A tool to monitor and search logs.
 %setup -q
 
 %build
-g++ -o lh main.cpp logs.cpp json_export.cpp utils.cpp -lreadline -ljson-c
+g++ -g -o lh main.cpp logs.cpp json_export.cpp utils.cpp -lreadline -ljson-c
 
 %install
 rm -rf %{buildroot}
