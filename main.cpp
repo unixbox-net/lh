@@ -6,11 +6,6 @@
 
 char log_search_path[BUFFER_SIZE] = "/var/lib/docker /var/log";
 
-void sigint_handler(int sig) {
-    std::cout << "\nCaught signal " << sig << ", returning to menu...\n";
-    std::cout.flush();
-}
-
 void main_menu() {
     std::string option;
     while (true) {
