@@ -1,10 +1,12 @@
+// json_export.cpp
 #include <iostream>
 #include <fstream>
-#include <sstream>
+#include <cstdio>
+#include <string>
 #include "json_export.hpp"
 #include "utils.hpp"
 
-extern char log_search_path[BUFFER_SIZE];
+#define BUFFER_SIZE 4096
 
 void export_search_results_to_json(const char* log_search_path) {
     std::string egrep_args = get_user_input("\nRegEX / Text > ");
@@ -17,29 +19,25 @@ void export_search_results_to_json(const char* log_search_path) {
 
     FILE* proc = popen(cmd, "r");
     if (!proc) {
-        perror("popen");
+        std::cerr << "Error: Failed to run command.\n";
         return;
     }
 
-    std::ofstream ofs("log_search_results.json");
-    ofs << "[\n";
+    std::ofstream json_file("log_search_results.json");
+    json_file << "{\"results\": [\n";
 
-    bool first = true;
     char buffer[BUFFER_SIZE];
+    bool first = true;
     while (fgets(buffer, sizeof(buffer), proc)) {
-        std::string line = buffer;
-        if (!sanitize_input(line)) continue;
-
+        std::string sanitized = sanitize_input(buffer);
         if (!first) {
-            ofs << ",\n";
+            json_file << ",\n";
         }
         first = false;
-
-        ofs << "  { \"log\": \"" << line << "\" }";
+        json_file << "\"" << sanitized << "\"";
     }
+    json_file << "\n]}\n";
 
-    ofs << "\n]\n";
     pclose(proc);
-
-    std::cout << "\nExported search results to log_search_results.json\n";
+    std::cout << "Exported search results to log_search_results.json\n";
 }
