@@ -7,7 +7,7 @@
   ```bash
   git clone https://github.com/unixbox-net/loghog.git && cd loghog/ && dnf install -y json-c readline loghog-1.0.0-1.el8.x86_64.rpm
   ```
-  or compile for any POSIX os
+  or compile
   ```bash
   clang loghog.c -o loghog -lreadline -ljson-c
   ```
