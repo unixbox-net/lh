@@ -46,7 +46,7 @@ void display_buffer_with_less(const char* buffer, size_t size) {
     wait(nullptr);
 }
 
-std::string sanitize_input(const std::string& input) {
+bool sanitize_input(std::string& input) {
     std::string sanitized;
     for (char ch : input) {
         if (std::isalnum(ch) || std::isspace(ch) || ch == '/' || ch == '.' || ch == '-' || ch == '_' || ch == '*' || ch == '|' || ch == '(' || ch == ')') {
@@ -54,11 +54,13 @@ std::string sanitize_input(const std::string& input) {
         }
     }
 
-    if (sanitized != input) {
+    bool is_valid = (sanitized == input);
+    if (!is_valid) {
         std::cout << "  " << std::endl; // Two blank spaces
     }
 
-    return sanitized;
+    input = sanitized;
+    return is_valid;
 }
 
 void find_logs_command(char* command, size_t size, const char* log_search_path) {
@@ -73,7 +75,7 @@ std::string get_user_input(const std::string& prompt) {
     std::cout << prompt;
     std::string input;
     std::getline(std::cin, input);
-    return sanitize_input(input);
+    return input;
 }
 
 void run_command_with_buffer(const char* command, const char* filter) {
