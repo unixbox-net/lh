@@ -1,5 +1,6 @@
 ![loghog](https://github.com/unixbox-net/loghog/assets/104218206/351322c5-0962-427c-bb4c-2eb3ac3244c1)
 
+
 # How to Install
 
   dnf/yum rhel8 systems
@@ -15,18 +16,20 @@
   json-c readline
   ```
 
+
 ## Purpose
 
 LogHOG - Allow anyone to identify and resolve operational issues fast!
 
 comprehensive log analysis, searching, bug hunting, system diagnostics, and digital forensics tools. It also simplifies log analysis so that anyone can effectively troubleshoot most issues, quickly and efficiently.
 
-#**TAIL MODE:**  Default
+**TAIL MODE:**  Default
 Automatically stitches logs together by timestamp, enabling real-time event monitoring. This mode makes it easy to follow and investigate incidents like authentication failures, permission denials, and SQL injections. **Press `CTRL+C`** to quit.
 
-#**LESS MODE:**  Secondary
+**LESS MODE:**  Secondary
 Buffers from **TAIL MODE** are sent directly to **less** a powerful text-editing tool that allows for in-depth review, searches, and real-time log analysis.  
 **Press `h` for help** or **`q` to quit**.
+
 
 ## Other key features include:
   
