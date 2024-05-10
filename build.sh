@@ -1,29 +1,31 @@
 #!/bin/bash
 
 # Variables
-REPO_URL="https://github.com/unixbox-net/loghog.git"
-REPO_NAME="loghog"
-BUILD_DIR="${HOME}/build"
-RPMBUILD_DIR="${HOME}/rpmbuild"
+REPO_DIR="${HOME}/loghog"
+BUILD_DIR="${REPO_DIR}/build"
+RPMBUILD_DIR="${BUILD_DIR}/rpmbuild"
 VERSION="1.0.0"
 PACKAGE_NAME="lh"
 SOURCE_DIR="${PACKAGE_NAME}-${VERSION}"
 
-# Cleanup old build and clone the repo
-rm -rf "${HOME}/${REPO_NAME}" "${BUILD_DIR}"
-git clone "${REPO_URL}" "${HOME}/${REPO_NAME}"
+# Move to the home directory and clean up previous build
+cd ~
+rm -rf "${REPO_DIR}"
 
-# Create a new build directory
+# Clone the repository
+git clone https://github.com/unixbox-net/loghog.git
+
+# Create build directory structure
 mkdir -p "${BUILD_DIR}/${SOURCE_DIR}"
-cp -R "${HOME}/${REPO_NAME}/." "${BUILD_DIR}/${SOURCE_DIR}"
+mkdir -p "${RPMBUILD_DIR}"/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+
+# Copy files into the source directory
+cp -R "${REPO_DIR}"/* "${BUILD_DIR}/${SOURCE_DIR}"
 
 # Create a source tarball
 pushd "${BUILD_DIR}"
 tar -czf "${PACKAGE_NAME}-${VERSION}.tar.gz" "${SOURCE_DIR}"
 popd
-
-# Setup RPM build directory structure
-rpmdev-setuptree
 
 # Copy the source tarball to the SOURCES directory
 cp "${BUILD_DIR}/${PACKAGE_NAME}-${VERSION}.tar.gz" "${RPMBUILD_DIR}/SOURCES/"
@@ -73,7 +75,7 @@ EOF
 echo "/var/lib/docker /var/log" > "${BUILD_DIR}/${SOURCE_DIR}/loghog.conf"
 
 # Build the RPM
-rpmbuild -ba "${RPMBUILD_DIR}/SPECS/${PACKAGE_NAME}.spec"
+rpmbuild --define "_topdir ${RPMBUILD_DIR}" -ba "${RPMBUILD_DIR}/SPECS/${PACKAGE_NAME}.spec"
 
 # Create a directory to store the RPMs
 mkdir -p "${BUILD_DIR}/rpms"
@@ -86,3 +88,8 @@ if [[ -f "$RPM_PATH" ]]; then
 else
     echo "Error: RPM package was not found!"
 fi
+
+# Clean up the repository
+cd ~
+rm -rf "${REPO_DIR}"
+git clone https://github.com/unixbox-net/loghog.git
