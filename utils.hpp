@@ -4,7 +4,7 @@
 #include <string>
 
 const int BUFFER_SIZE = 4096;
-const char *CONFIG_FILE = "/etc/loghog.conf";
+extern const char *CONFIG_FILE;
 
 void find_logs_command(char *buffer, size_t size, const char *search_path);
 void display_buffer_with_less(const char *buffer, size_t length);
