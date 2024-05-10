@@ -102,6 +102,10 @@ bool sanitize_input(std::string &input) {
     return true;
 }
 
+void reset_menu_flag() {
+    is_in_menu = false;
+}
+
 void save_log_paths(const char *log_search_path) {
     std::ofstream config_file(CONFIG_FILE);
     if (!config_file) {
