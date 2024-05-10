@@ -19,7 +19,7 @@
 
 ## Purpose
 
-LogHOG - Helps identify & resolve system/applications issues fast!
+Identify system issues as quickly as possible
 
 **TAIL MODE:**  Default
 Automatically stitches logs together by timestamp, enabling real-time event monitoring. This mode makes it easy to follow and investigate incidents like authentication failures, permission denials, and SQL injections. **Press `CTRL+C`** to quit.
