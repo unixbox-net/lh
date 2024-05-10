@@ -1,8 +1,9 @@
+// main.cpp
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <vector>
-#include <cstring> // Add this line
+#include <cstring>
 #include "logs.hpp"
 #include "json_export.hpp"
 #include "utils.hpp"
@@ -10,7 +11,7 @@
 #define CONFIG_FILE "/etc/loghog.conf"
 #define BUFFER_SIZE 4096
 
-char log_search_path[BUFFER_SIZE] = "";
+char log_search_path[BUFFER_SIZE] = "/var/log/messages /var/log/secure /var/log/audit/audit.log";
 
 void load_log_paths(char* log_paths, size_t buffer_size) {
     std::ifstream config_file(CONFIG_FILE);
