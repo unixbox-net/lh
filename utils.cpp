@@ -5,6 +5,7 @@
 #include <string>
 #include <csignal>
 #include <fstream>
+#include <unistd.h>  // Include for `close`
 #include "utils.hpp"
 
 void find_logs_command(char *buffer, size_t size, const char *search_path) {
