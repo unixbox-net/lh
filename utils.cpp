@@ -3,10 +3,12 @@
 #include <cstring>
 #include <unistd.h>
 #include <wait.h>
-#include <cctype>
+#include <fstream>
+#include <sstream>
 #include "utils.hpp"
 
 volatile sig_atomic_t menu_flag = 1;
+const char* CONFIG_FILE = "/etc/loghog.conf";
 
 void sigint_handler(int sig) {
     menu_flag = 0;
@@ -57,4 +59,71 @@ std::string sanitize_input(const std::string& input) {
     }
 
     return sanitized;
+}
+
+void find_logs_command(char* command, size_t size, const char* log_search_path) {
+    std::stringstream ss;
+    ss << "find " << log_search_path << " -type f \\( -name \"*.log\" -o -name \"*.txt\" -o -name \"*.err\" \\)";
+    std::string cmd = ss.str();
+    strncpy(command, cmd.c_str(), size - 1);
+    command[size - 1] = '\0';
+}
+
+std::string get_user_input(const std::string& prompt) {
+    std::cout << prompt;
+    std::string input;
+    std::getline(std::cin, input);
+    return sanitize_input(input);
+}
+
+void run_command_with_buffer(const char* command, const char* filter) {
+    FILE* pipe = popen(command, "r");
+    if (!pipe) {
+        perror("popen");
+        return;
+    }
+
+    std::stringstream buffer;
+    char line[BUFFER_SIZE];
+    while (fgets(line, sizeof(line), pipe)) {
+        buffer << line;
+    }
+
+    pclose(pipe);
+
+    std::string output = buffer.str();
+    if (filter && strlen(filter) > 0) {
+        std::cout << "Filtered results:\n";
+        std::cout << output << std::endl;
+    } else {
+        display_buffer_with_less(output.c_str(), output.size());
+    }
+}
+
+void save_log_paths(const char* log_search_path) {
+    std::ofstream ofs(CONFIG_FILE);
+    if (!ofs) {
+        std::cerr << "Error: Could not open config file for writing.\n";
+        return;
+    }
+    ofs << "LOG_PATHS=" << log_search_path << '\n';
+}
+
+void load_log_paths(char* log_search_path, size_t size) {
+    std::ifstream ifs(CONFIG_FILE);
+    if (!ifs) {
+        std::cerr << "Error: Could not open config file for reading.\n";
+        return;
+    }
+
+    std::string line;
+    while (std::getline(ifs, line)) {
+        if (line.find("LOG_PATHS=") == 0) {
+            strncpy(log_search_path, line.substr(10).c_str(), size - 1);
+            log_search_path[size - 1] = '\0';
+            return;
+        }
+    }
+
+    std::cerr << "Error: No log paths found in config file.\n";
 }
