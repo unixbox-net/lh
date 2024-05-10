@@ -60,17 +60,32 @@ void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *
 
     char *output = NULL;
     size_t total_length = 0;
+    size_t output_capacity = BUFFER_SIZE; // Initial allocation
+    output = malloc(output_capacity);
+    if (!output) {
+        perror("malloc");
+        pclose(proc);
+        return;
+    }
+
     char buffer[BUFFER_SIZE];
     while (fgets(buffer, sizeof(buffer), proc)) {
         size_t buffer_length = strlen(buffer);
-        char *temp = realloc(output, total_length + buffer_length + 1);
-        if (!temp) {
-            perror("realloc");
-            free(output);
-            pclose(proc);
-            return;
+
+        // Ensure output buffer can hold the new data
+        if (total_length + buffer_length + 1 > output_capacity) {
+            output_capacity *= 2;
+            char *temp = realloc(output, output_capacity);
+            if (!temp) {
+                perror("realloc");
+                free(output);
+                pclose(proc);
+                return;
+            }
+            output = temp;
         }
-        output = temp;
+
+        // Append the new data to the output buffer
         memcpy(output + total_length, buffer, buffer_length);
         total_length += buffer_length;
         output[total_length] = '\0';
@@ -127,6 +142,7 @@ int sanitize_input(char *input) {
     }
     return 1;
 }
+
 /**
  * Handles the SIGINT signal to return to the main menu.
  * @param sig Signal number.
