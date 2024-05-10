@@ -88,7 +88,7 @@ find "${RPMBUILD_DIR}/RPMS" -name "*.rpm" -exec cp {} "${RPM_OUTPUT_DIR}/" \;
 RPM_FILE=$(find "${RPM_OUTPUT_DIR}" -name "${PACKAGE_NAME}-${VERSION}-1.*.rpm" | head -n 1)
 
 if [[ -n "${RPM_FILE}" ]]; then
-    dnf install -y "${RPM_FILE}"
+    dnf reinstall -y "${RPM_FILE}"
 else
     echo "Error: RPM package not found!"
 fi
