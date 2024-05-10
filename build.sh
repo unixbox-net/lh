@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Ensure the required build tools are available
+# Ensure required packages are installed
 REQUIRED_PACKAGES=(git rpm-build gcc-c++ json-c-devel readline-devel)
 
 echo "Checking for required packages..."
@@ -11,24 +11,24 @@ for package in "${REQUIRED_PACKAGES[@]}"; do
     fi
 done
 
-# Remove old directories
+# Prepare directories for building RPMs
 rm -rf build
-
-# Create required build directories
 mkdir -p build/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+mkdir -p build/rpmbuild/BUILD/lh-1.0.0
 
-# Create build structure
-cp -r * build/rpmbuild/BUILD/lh-1.0.0/
+# Copy all application files to the BUILD directory
+cp -r main.cpp logs.cpp logs.hpp json_export.cpp json_export.hpp utils.cpp utils.hpp LICENSE README.md build.sh build/rpmbuild/BUILD/lh-1.0.0/
 
-# Add `loghog.conf` file with proper log paths
+# Add a default `loghog.conf` file
 echo -e "/var/log/messages\n/var/log/secure\n/var/log/audit/audit.log" > build/rpmbuild/BUILD/lh-1.0.0/loghog.conf
 
 # Create the tarball
 cd build/rpmbuild/SOURCES
 tar czf lh-1.0.0.tar.gz -C ../BUILD lh-1.0.0
+cd ..
 
 # Create the RPM spec file
-cat > ../SPECS/lh.spec <<EOF
+cat > SPECS/lh.spec <<EOF
 Name:           lh
 Version:        1.0.0
 Release:        1%{?dist}
@@ -60,14 +60,13 @@ install -m 0644 loghog.conf %{buildroot}/etc/loghog.conf
 %changelog
 EOF
 
-# Build the RPM
-cd ..
+# Build the RPM package
 rpmbuild --define "_topdir $(pwd)" -ba SPECS/lh.spec
 
-# Copy the built RPM to the `rpms` directory
-cd ../../
+# Copy the RPMs to the `rpms` directory
+cd ../..
 mkdir -p rpms
-cp rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm rpms/
+cp build/rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm rpms/
 
-# Reinstall the RPM
+# Install the newly created RPM
 sudo rpm -Uvh --replacepkgs --force rpms/lh-1.0.0-1.el8.x86_64.rpm
