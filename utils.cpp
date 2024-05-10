@@ -24,7 +24,7 @@ bool sanitize_input(std::string &input) {
 }
 
 void find_logs_command(char *buffer, size_t size, const char *log_paths) {
-    snprintf(buffer, size, "find %s -type f -readable -exec cat {} +", log_paths);
+    snprintf(buffer, size, "find %s -type f -readable 2>/dev/null -exec cat {} +", log_paths);
 }
 
 void run_command_with_buffer(const char *cmd, FILE *out) {
