@@ -20,7 +20,7 @@ mkdir -p "${BUILD_DIR}/${SOURCE_DIR}"
 mkdir -p "${RPMBUILD_DIR}"/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 
 # Copy files into the source directory
-cp -R "${REPO_DIR}"/* "${BUILD_DIR}/${SOURCE_DIR}"
+find "${REPO_DIR}" -maxdepth 1 -type f -exec cp {} "${BUILD_DIR}/${SOURCE_DIR}" \;
 
 # Create a source tarball
 pushd "${BUILD_DIR}"
@@ -85,6 +85,8 @@ RPM_PATH=$(find "${RPMBUILD_DIR}/RPMS/x86_64" -name "${PACKAGE_NAME}-${VERSION}-
 if [[ -f "$RPM_PATH" ]]; then
     cp "$RPM_PATH" "${BUILD_DIR}/rpms/"
     echo "RPM package has been created successfully in ${BUILD_DIR}/rpms"
+    # Install or reinstall the package
+    sudo dnf reinstall -y "${BUILD_DIR}/rpms/${PACKAGE_NAME}-${VERSION}-1.el8.x86_64.rpm"
 else
     echo "Error: RPM package was not found!"
 fi
