@@ -9,4 +9,4 @@ void run_regex(const char *log_search_path);
 void search_ip(const char *log_search_path);
 void edit_log_paths(char *log_search_path);
 
-#endif  // LOGS_HPP
+#endif
