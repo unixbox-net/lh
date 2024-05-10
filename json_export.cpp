@@ -1,6 +1,5 @@
 #include <iostream>
 #include <cstdio>
-#include <cstdlib>
 #include <cstring>
 #include <json-c/json.h>
 #include "json_export.hpp"
