@@ -1,10 +1,6 @@
 #ifndef LOGS_HPP
 #define LOGS_HPP
 
-#include <string>
-
-#define BUFFER_SIZE 1024
-
 void live_auth_log(const char *unused);
 void live_error_log(const char *unused);
 void live_log(const char *unused);
