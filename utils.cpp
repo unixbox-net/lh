@@ -9,6 +9,7 @@
 #include "utils.hpp"
 
 static std::string global_output_buffer;
+static bool is_in_menu = false;
 
 void find_logs_command(char *buffer, size_t size, const char *search_path) {
     snprintf(buffer, size, "find %s -type f \\( -name '*.log' -o -name 'messages' -o -name 'cron' -o -name 'maillog' -o -name 'secure' -o -name 'firewalld' \\) -exec tail -f -n +1 {} +", search_path);
@@ -62,12 +63,18 @@ void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *
 }
 
 void sigint_handler(int sig) {
-    std::cout << "\nCaught signal " << sig << ", returning to menu...\n";
-    std::cout.flush();
-    if (!global_output_buffer.empty()) {
-        display_buffer_with_less(global_output_buffer.c_str(), global_output_buffer.size());
+    if (!is_in_menu) {
+        std::cout << "\nCaught signal " << sig << ", returning to menu...\n";
+        std::cout.flush();
+        is_in_menu = true;
+
+        if (!global_output_buffer.empty()) {
+            display_buffer_with_less(global_output_buffer.c_str(), global_output_buffer.size());
+        }
+    } else {
+        std::cout << "\nExiting application...\n";
+        exit(0);
     }
-    exit(0);
 }
 
 std::string get_user_input(const std::string &prompt) {
@@ -108,7 +115,7 @@ void load_log_paths(char *log_search_path, size_t buffer_size) {
     std::ifstream config_file(CONFIG_FILE);
     if (!config_file) {
         strncpy(log_search_path, "/var/lib/docker /var/log", buffer_size - 1);
-        log_search_path[buffer_size - 1] = '\0';
+        log_search_path[BUFFER_SIZE - 1] = '\0';
         return;
     }
 
