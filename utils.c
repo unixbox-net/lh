@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include "utils.h"
+#include <ctype.h>
 
 /**
  * Creates a find command to search for log files in the specified path.
@@ -115,10 +116,12 @@ int sanitize_input(char *input) {
         return 0;
     }
 
-    // Allow only alphanumeric characters, spaces, and basic regex syntax
+    // Allow alphanumeric, space, and common regex syntax
     for (char *p = input; *p; p++) {
         if (!isalnum((unsigned char)*p) && *p != ' ' && *p != '-' && *p != '_' &&
-            *p != '|' && *p != '.' && *p != '*' && *p != '^' && *p != '$' && *p != '\\') {
+            *p != '|' && *p != '.' && *p != '*' && *p != '^' && *p != '$' &&
+            *p != '\\' && *p != '(' && *p != ')' && *p != '[' && *p != ']' &&
+            *p != '+' && *p != '?' && *p != '{' && *p != '}') {
             printf(ANSI_COLOR_RED "Invalid characters in input. Please try again.\n" ANSI_COLOR_RESET);
             return 0;
         }
