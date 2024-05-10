@@ -136,7 +136,7 @@ int sanitize_input(char *input) {
             *p != '|' && *p != '.' && *p != '*' && *p != '^' && *p != '$' &&
             *p != '\\' && *p != '(' && *p != ')' && *p != '[' && *p != ']' &&
             *p != '+' && *p != '?' && *p != '{' && *p != '}') {
-            printf(ANSI_COLOR_RED "Invalid characters in input. Please try again.\n" ANSI_COLOR_RESET);
+            printf(ANSI_COLOR_RED "Invalid characters in input. Please try again.\n" ANSI_COLOR RESET);
             return 0;
         }
     }
