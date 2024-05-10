@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <cstring> // Add this line
 #include "logs.hpp"
 #include "json_export.hpp"
 #include "utils.hpp"
