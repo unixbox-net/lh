@@ -1,74 +1,70 @@
+#include "utils.hpp"
 #include <iostream>
-#include <cstdio>
-#include <cstring>
 #include <fstream>
-#include <string>
+#include <sstream>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <readline/readline.h>
 #include <readline/history.h>
-#include "utils.hpp"
 
 #define CONFIG_FILE "/etc/loghog.conf"
-#define BUFFER_SIZE 1024
 
-void find_logs_command(char* find_cmd, size_t buffer_size, const char* log_search_path) {
-    snprintf(find_cmd, buffer_size, "find %s -type f -print0 | xargs -0 grep --color=never -Hni --binary-files=text", log_search_path);
+std::string get_user_input(const std::string &prompt) {
+    char *input = readline(prompt.c_str());
+    if (input && *input) add_history(input);
+    std::string result = input ? std::string(input) : "";
+    free(input);
+    return result;
 }
 
-void run_command_with_buffer(const char* command, char* buffer) {
-    FILE* proc = popen(command, "r");
+bool sanitize_input(std::string &input) {
+    static const std::string invalid_chars = ";&|><";
+    return input.find_first_of(invalid_chars) == std::string::npos;
+}
+
+void find_logs_command(char *buffer, size_t size, const char *log_paths) {
+    snprintf(buffer, size, "find %s -type f -readable -exec cat {} +", log_paths);
+}
+
+void run_command_with_buffer(const char *cmd, FILE *out) {
+    FILE *proc = popen(cmd, "r");
     if (!proc) {
-        std::cerr << "Error: Unable to execute command.\n";
+        std::cerr << "Error executing command.\n";
         return;
     }
-    if (buffer) {
-        while (fgets(buffer, BUFFER_SIZE, proc)) {
+
+    char buffer[BUFFER_SIZE];
+    while (fgets(buffer, sizeof(buffer), proc)) {
+        if (out) {
+            fputs(buffer, out);
+        } else {
             std::cout << buffer;
-        }
-    } else {
-        char proc_buffer[BUFFER_SIZE];
-        while (fgets(proc_buffer, sizeof(proc_buffer), proc)) {
-            std::cout << proc_buffer;
         }
     }
     pclose(proc);
 }
 
-std::string get_user_input(const std::string& prompt) {
-    char* input = readline(prompt.c_str());
-    if (input && *input) {
-        add_history(input);
-    }
-    std::string result(input ? input : "");
-    free(input);
-    return result;
-}
-
-bool sanitize_input(std::string& input) {
-    if (input.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.|/*?\\ ") != std::string::npos) {
-        std::cerr << "Invalid characters in input. Please try again.\n";
-        return false;
-    }
-    return true;
-}
-
-void save_log_paths(const char* log_paths) {
+void save_log_paths(const char *log_paths) {
     std::ofstream config_file(CONFIG_FILE);
-    if (!config_file.is_open()) {
-        std::cerr << "Error: Unable to open config file for writing.\n";
-        return;
+    if (config_file.is_open()) {
+        config_file << log_paths;
+        config_file.close();
+    } else {
+        std::cerr << "Unable to write to config file.\n";
     }
-    config_file << log_paths << "\n";
-    config_file.close();
 }
 
-std::string load_log_paths_from_config() {
+void load_log_paths(char *log_paths, size_t buffer_size) {
     std::ifstream config_file(CONFIG_FILE);
-    if (!config_file.is_open()) {
-        std::cerr << "Error: Unable to open config file for reading.\n";
-        return "";
+    if (config_file.is_open()) {
+        std::stringstream ss;
+        ss << config_file.rdbuf();
+        std::string all_paths = ss.str();
+        strncpy(log_paths, all_paths.c_str(), buffer_size - 1);
+        log_paths[buffer_size - 1] = '\0';
+        config_file.close();
+    } else {
+        std::cerr << "Error: No log paths found in config file.\n";
     }
-    std::string all_paths;
-    std::getline(config_file, all_paths);
-    config_file.close();
-    return all_paths;
 }
