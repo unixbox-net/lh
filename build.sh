@@ -60,4 +60,6 @@ rpmbuild --define "_topdir $(pwd)" -ba SPECS/lh.spec
 
 # Reinstall the RPM
 cd ../../rpms
-rpm -Uvh --replacepkgs --force ../rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm
+mkdir -p ../build/rpms
+cp ../rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm ../build/rpms/
+rpm -Uvh --replacepkgs --force ../build/rpms/lh-1.0.0-1.el8.x86_64.rpm
