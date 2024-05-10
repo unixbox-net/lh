@@ -85,6 +85,12 @@ rpmbuild -ba "${SPEC_FILE}" --define "_topdir ${RPMBUILD_DIR}"
 find "${RPMBUILD_DIR}/RPMS" -name "*.rpm" -exec cp {} "${RPM_OUTPUT_DIR}/" \;
 
 # Reinstall the RPM package
-dnf reinstall -y "${RPM_OUTPUT_DIR}/${PACKAGE_NAME}-${VERSION}-1.*.rpm"
+RPM_FILE=$(find "${RPM_OUTPUT_DIR}" -name "${PACKAGE_NAME}-${VERSION}-1.*.rpm" | head -n 1)
+
+if [[ -n "${RPM_FILE}" ]]; then
+    dnf reinstall -y "${RPM_FILE}"
+else
+    echo "Error: RPM package not found for reinstall!"
+fi
 
 echo "RPM package has been created successfully in ${RPM_OUTPUT_DIR}"
