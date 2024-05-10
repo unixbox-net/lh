@@ -127,7 +127,6 @@ int sanitize_input(char *input) {
     }
     return 1;
 }
-
 /**
  * Handles the SIGINT signal to return to the main menu.
  * @param sig Signal number.
