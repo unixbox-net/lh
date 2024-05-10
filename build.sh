@@ -1,3 +1,6 @@
+
+### `build.sh`
+```bash
 #!/bin/bash
 
 # Remove old directories
@@ -28,7 +31,7 @@ Version:        1.0.0
 Release:        1%{?dist}
 Summary:        Log monitoring tool
 
-License:        GPL
+License:        MIT
 Source0:        %{name}-%{version}.tar.gz
 
 %description
