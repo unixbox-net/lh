@@ -3,17 +3,9 @@
 
 #include <string>
 
-const int BUFFER_SIZE = 4096;
-extern const char *CONFIG_FILE;
-
-void find_logs_command(char *buffer, size_t size, const char *search_path);
-void display_buffer_with_less(const char *buffer, size_t length);
-void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *, size_t));
 void sigint_handler(int sig);
-std::string get_user_input(const std::string &prompt);
-bool sanitize_input(std::string &input);
-void save_log_paths(const char *log_search_path);
-void load_log_paths(char *log_search_path, size_t buffer_size);
 void reset_menu_flag();
+void display_buffer_with_less(const char* buffer, size_t size);
+std::string sanitize_input(const std::string& input);
 
-#endif
+#endif // UTILS_HPP
