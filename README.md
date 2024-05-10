@@ -19,9 +19,7 @@
 
 ## Purpose
 
-LogHOG - Allow anyone to identify and resolve operational issues fast!
-
-comprehensive log analysis, searching, bug hunting, system diagnostics, and digital forensics tools. It also simplifies log analysis so that anyone can effectively troubleshoot most issues, quickly and efficiently.
+LogHOG - Helps identify & resolve system/applications issues fast!
 
 **TAIL MODE:**  Default
 Automatically stitches logs together by timestamp, enabling real-time event monitoring. This mode makes it easy to follow and investigate incidents like authentication failures, permission denials, and SQL injections. **Press `CTRL+C`** to quit.
@@ -40,4 +38,4 @@ Buffers from **TAIL MODE** are sent directly to **less** a powerful text-editing
 **Export to JSON**: Exports search results to JSON format for further analysis or sharing with others.
 **Live and Less Modes**: Enables real-time log monitoring or in-depth review through the less pager.
 
-Whether you're a system administrator, developer, or security professional, LogHOG offers a comprehensive suite of tools for efficient log analysis and bug hunting. Its simplicity, speed, and robustness make it an indispensable tool for system diagnostics and digital forensics.  and I'm lazzy.
+Whether you're a system administrator, developer, or security professional, LogHOG offers a comprehensive suite of tools for efficient log analysis and bug hunting. Its simplicity, speed, and robustness make it an indispensable forensics tool.
