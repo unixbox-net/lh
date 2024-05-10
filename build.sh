@@ -1,24 +1,30 @@
 #!/bin/bash
 
+# Ensure the required build tools are available
+REQUIRED_PACKAGES=(git rpm-build gcc-c++ json-c-devel readline-devel)
+
+echo "Checking for required packages..."
+for package in "${REQUIRED_PACKAGES[@]}"; do
+    if ! rpm -q $package > /dev/null 2>&1; then
+        echo "Installing missing package: $package"
+        sudo dnf install -y $package
+    fi
+done
+
 # Remove old directories
 rm -rf build
 
 # Create required build directories
 mkdir -p build/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
-# Download the latest source code from GitHub
-git clone https://github.com/unixbox-net/loghog.git
-cd loghog
-
 # Create build structure
-mkdir -p ../build/rpmbuild/BUILD/lh-1.0.0
-cp -r * ../build/rpmbuild/BUILD/lh-1.0.0/
+cp -r * build/rpmbuild/BUILD/lh-1.0.0/
 
-# Add loghog.conf file with proper log paths
-echo -e "/var/log/messages\n/var/log/secure\n/var/log/audit/audit.log" > ../build/rpmbuild/BUILD/lh-1.0.0/loghog.conf
+# Add `loghog.conf` file with proper log paths
+echo -e "/var/log/messages\n/var/log/secure\n/var/log/audit/audit.log" > build/rpmbuild/BUILD/lh-1.0.0/loghog.conf
 
 # Create the tarball
-cd ../build/rpmbuild/SOURCES
+cd build/rpmbuild/SOURCES
 tar czf lh-1.0.0.tar.gz -C ../BUILD lh-1.0.0
 
 # Create the RPM spec file
@@ -58,10 +64,10 @@ EOF
 cd ..
 rpmbuild --define "_topdir $(pwd)" -ba SPECS/lh.spec
 
-# Copy the built RPM to the rpms directory
+# Copy the built RPM to the `rpms` directory
 cd ../../
-mkdir -p build/rpms
-cp build/rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm build/rpms/
+mkdir -p rpms
+cp rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm rpms/
 
 # Reinstall the RPM
-rpm -Uvh --replacepkgs --force build/rpms/lh-1.0.0-1.el8.x86_64.rpm
+sudo rpm -Uvh --replacepkgs --force rpms/lh-1.0.0-1.el8.x86_64.rpm
