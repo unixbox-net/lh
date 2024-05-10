@@ -1,7 +1,8 @@
-#include "logs.hpp"
+#include <iostream>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include "logs.hpp"
 #include "utils.hpp"
 
 extern char log_search_path[BUFFER_SIZE];
