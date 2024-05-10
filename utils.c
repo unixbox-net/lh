@@ -135,7 +135,7 @@ int sanitize_input(char *input) {
         if (!isalnum((unsigned char)*p) && *p != ' ' && *p != '-' && *p != '_' &&
             *p != '|' && *p != '.' && *p != '*' && *p != '^' && *p != '$' &&
             *p != '\\' && *p != '(' && *p != ')' && *p != '[' && *p != ']' &&
-            *p != '+' && *p != '?' && *p != '{' && *p != '}') {
+            *p != '+' && *p != '?' && *p != '{' && *p != '}' && *p != '/') {
             printf(ANSI_COLOR_RED "Invalid characters in input. Please try again.\n" ANSI_COLOR_RESET);
             return 0;
         }
