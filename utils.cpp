@@ -1,135 +1,60 @@
 #include <iostream>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <string>
 #include <csignal>
-#include <fstream>
+#include <cstring>
 #include <unistd.h>
+#include <wait.h>
+#include <cctype>
 #include "utils.hpp"
 
-const char *CONFIG_FILE = "/etc/loghog.conf";
-static std::string global_output_buffer;
-static bool is_in_menu = false;
+volatile sig_atomic_t menu_flag = 1;
 
-void find_logs_command(char *buffer, size_t size, const char *search_path) {
-    snprintf(buffer, size, "find %s -type f \\( -name '*.log' -o -name 'messages' -o -name 'cron' -o -name 'maillog' -o -name 'secure' -o -name 'firewalld' \\) -exec tail -f -n +1 {} +", search_path);
+void sigint_handler(int sig) {
+    menu_flag = 0;
+    std::cout << "  " << std::endl; // Two blank spaces
 }
 
-void display_buffer_with_less(const char *buffer, size_t length) {
-    char tmp_filename[] = "/tmp/logsearchXXXXXX";
-    int tmp_fd = mkstemp(tmp_filename);
+void reset_menu_flag() {
+    menu_flag = 1;
+}
+
+void display_buffer_with_less(const char* buffer, size_t size) {
+    char tmp_file_template[] = "/tmp/loghog.XXXXXX";
+    int tmp_fd = mkstemp(tmp_file_template);
+
     if (tmp_fd == -1) {
         perror("mkstemp");
         return;
     }
 
-    FILE *tmp_file = fdopen(tmp_fd, "w+");
-    if (tmp_file == nullptr) {
-        perror("fdopen");
+    if (write(tmp_fd, buffer, size) != size) {
+        perror("write");
         close(tmp_fd);
         return;
     }
 
-    fwrite(buffer, 1, length, tmp_file);
-    fflush(tmp_file);
-    fclose(tmp_file);
+    lseek(tmp_fd, 0, SEEK_SET);
 
-    char cmd[BUFFER_SIZE];
-    snprintf(cmd, sizeof(cmd), "less -R %s", tmp_filename);
-    system(cmd);
-    remove(tmp_filename);
+    if (fork() == 0) {
+        execlp("less", "less", "-R", tmp_file_template, nullptr);
+        perror("execlp");
+        _exit(EXIT_FAILURE);
+    }
+
+    close(tmp_fd);
+    wait(nullptr);
 }
 
-void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *, size_t)) {
-    FILE *proc = popen(cmd, "r");
-    if (proc == nullptr) {
-        perror("popen");
-        return;
-    }
-
-    global_output_buffer.clear(); // Reset the global output buffer
-    char buffer[BUFFER_SIZE];
-    while (fgets(buffer, BUFFER_SIZE, proc) != nullptr) {
-        global_output_buffer += buffer;
-        std::cout << buffer;  // Immediate output to the console
-        std::cout.flush();
-    }
-
-    pclose(proc);
-
-    if (buffer_action) {
-        buffer_action(global_output_buffer.c_str(), global_output_buffer.size());
-    }
-}
-
-void sigint_handler(int sig) {
-    if (!is_in_menu) {
-        std::cout << "\nCaught signal " << sig << ", returning to menu...\n";
-        std::cout.flush();
-        is_in_menu = true;
-
-        if (!global_output_buffer.empty()) {
-            display_buffer_with_less(global_output_buffer.c_str(), global_output_buffer.size());
-        }
-    } else {
-        std::cout << "\nExiting application...\n";
-        exit(0);
-    }
-}
-
-std::string get_user_input(const std::string &prompt) {
-    std::cout << prompt;
-    std::string input;
-    std::getline(std::cin, input);
-    return input;
-}
-
-bool sanitize_input(std::string &input) {
-    if (input.empty() || input.size() >= BUFFER_SIZE) {
-        std::cerr << "Invalid input. Please try again.\n";
-        return false;
-    }
-
-    for (char c : input) {
-        if (!isalnum(c) && c != ' ' && c != '-' && c != '_' && c != '|' && c != '.' &&
-            c != '*' && c != '^' && c != '$' && c != '\\' && c != '(' && c != ')' &&
-            c != '[' && c != ']' && c != '+' && c != '?' && c != '{' && c != '}' && c != '/') {
-            std::cerr << "Invalid characters in input. Please try again.\n";
-            return false;
+std::string sanitize_input(const std::string& input) {
+    std::string sanitized;
+    for (char ch : input) {
+        if (std::isalnum(ch) || std::isspace(ch) || ch == '/' || ch == '.' || ch == '-' || ch == '_' || ch == '*' || ch == '|' || ch == '(' || ch == ')') {
+            sanitized += ch;
         }
     }
 
-    return true;
-}
-
-void reset_menu_flag() {
-    is_in_menu = false;
-}
-
-void save_log_paths(const char *log_search_path) {
-    std::ofstream config_file(CONFIG_FILE);
-    if (!config_file) {
-        perror("ofstream");
-        return;
-    }
-    config_file << log_search_path << std::endl;
-}
-
-void load_log_paths(char *log_search_path, size_t buffer_size) {
-    std::ifstream config_file(CONFIG_FILE);
-    if (!config_file) {
-        strncpy(log_search_path, "/var/lib/docker /var/log", buffer_size - 1);
-        log_search_path[BUFFER_SIZE - 1] = '\0';
-        return;
+    if (sanitized != input) {
+        std::cout << "  " << std::endl; // Two blank spaces
     }
 
-    std::string line;
-    if (std::getline(config_file, line)) {
-        strncpy(log_search_path, line.c_str(), buffer_size - 1);
-        log_search_path[BUFFER_SIZE - 1] = '\0';
-    } else {
-        strncpy(log_search_path, "/var/lib/docker /var/log", buffer_size - 1);
-        log_search_path[BUFFER_SIZE - 1] = '\0';
-    }
+    return sanitized;
 }
