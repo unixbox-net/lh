@@ -6,7 +6,7 @@ rm -rf build
 # Create required build directories
 mkdir -p build/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
-# Download latest source code from GitHub
+# Download the latest source code from GitHub
 git clone https://github.com/unixbox-net/loghog.git
 cd loghog
 
@@ -14,7 +14,7 @@ cd loghog
 mkdir -p ../build/rpmbuild/BUILD/lh-1.0.0
 cp -r * ../build/rpmbuild/BUILD/lh-1.0.0/
 
-# Add loghog.conf file if it doesn't exist
+# Add loghog.conf file with proper log paths
 echo -e "/var/log/messages\n/var/log/secure\n/var/log/audit/audit.log" > ../build/rpmbuild/BUILD/lh-1.0.0/loghog.conf
 
 # Create the tarball
