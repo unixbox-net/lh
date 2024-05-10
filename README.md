@@ -21,11 +21,13 @@
 
 Identify system issues as quickly as possible
 
-**TAIL MODE:**  Default
-Automatically stitches logs together by timestamp, enabling real-time event monitoring. This mode makes it easy to follow and investigate incidents like authentication failures, permission denials, and SQL injections. **Press `CTRL+C`** to quit.
+**TAIL MODE:**  *Default*
+Automatically stitches logs together by timestamp, enabling real-time event monitoring. This mode makes it 
+easy to follow and investigate incidents like authentication failures, permission denials, and SQL 
+injections. **Press `CTRL+C`** to quit.
 
-**LESS MODE:**  Secondary
-Buffers from **TAIL MODE** are sent directly to **less** a powerful text-editing tool that allows for in-depth review, searches, and real-time log analysis.  
+**LESS MODE:**  *Secondary*
+Buffers are sent directly to **less** for further editing and in-depth review, searches, and complex log analysis.  
 **Press `h` for help** or **`q` to quit**.
 
 
