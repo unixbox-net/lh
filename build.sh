@@ -1,60 +1,38 @@
 #!/bin/bash
 
-# Prepare directories
-BUILD_DIR="$(pwd)/build"
-RPMBUILD_DIR="${BUILD_DIR}/rpmbuild"
-SOURCE_DIR="${RPMBUILD_DIR}/SOURCES"
-SPECS_DIR="${RPMBUILD_DIR}/SPECS"
-BUILD_ROOT="${RPMBUILD_DIR}/BUILD"
-RPM_OUTPUT_DIR="${BUILD_DIR}/rpms"
-CONFIG_FILE="loghog.conf"
+# Remove old directories
+rm -rf build
 
-# Clean up and create necessary directories
-rm -rf "${BUILD_DIR}"
-mkdir -p "${BUILD_DIR}" "${RPMBUILD_DIR}" "${SOURCE_DIR}" "${SPECS_DIR}" "${BUILD_ROOT}" "${RPM_OUTPUT_DIR}"
+# Create required build directories
+mkdir -p build/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
-# Set version and name variables
-VERSION="1.0.0"
-PACKAGE_NAME="lh"
-SPEC_FILE="${SPECS_DIR}/${PACKAGE_NAME}.spec"
-TAR_NAME="${PACKAGE_NAME}-${VERSION}.tar.gz"
-TAR_DIR="${PACKAGE_NAME}-${VERSION}"
+# Download latest source code from GitHub
+git clone https://github.com/unixbox-net/loghog.git
+cd loghog
 
-# Clone the repository
-REPO_URL="https://github.com/unixbox-net/loghog.git"
-GIT_CLONE_DIR="${BUILD_ROOT}/${TAR_DIR}"
+# Create build structure
+mkdir -p ../build/rpmbuild/BUILD/lh-1.0.0
+cp -r * ../build/rpmbuild/BUILD/lh-1.0.0/
 
-if [ -d "${GIT_CLONE_DIR}" ]; then
-    rm -rf "${GIT_CLONE_DIR}"
-fi
+# Add loghog.conf file if it doesn't exist
+echo -e "/var/log/messages\n/var/log/secure\n/var/log/audit/audit.log" > ../build/rpmbuild/BUILD/lh-1.0.0/loghog.conf
 
-git clone "${REPO_URL}" "${GIT_CLONE_DIR}"
+# Create the tarball
+cd ../build/rpmbuild/SOURCES
+tar czf lh-1.0.0.tar.gz -C ../BUILD lh-1.0.0
 
-# Create a default config file
-cat > "${GIT_CLONE_DIR}/${CONFIG_FILE}" <<EOF
-/var/lib/docker /var/log
-EOF
+# Create the RPM spec file
+cat > ../SPECS/lh.spec <<EOF
+Name:           lh
+Version:        1.0.0
+Release:        1%{?dist}
+Summary:        Log monitoring tool
 
-# Copy source files
-tar czf "${SOURCE_DIR}/${TAR_NAME}" -C "${BUILD_ROOT}" "${TAR_DIR}"
-
-# Create the spec file
-cat > "${SPEC_FILE}" <<EOF
-Name: ${PACKAGE_NAME}
-Version: ${VERSION}
-Release: 1%{?dist}
-Summary: LogHOG - No-nonsense digital forensics
-License: MIT
-URL: ${REPO_URL}
-Source0: %{name}-%{version}.tar.gz
-
-%global debug_package %{nil}
-
-BuildRequires: readline-devel, json-c-devel, gcc-c++
-Requires: readline, json-c
+License:        GPL
+Source0:        %{name}-%{version}.tar.gz
 
 %description
-LogHOG is a comprehensive log search tool.
+A tool to monitor and search logs.
 
 %prep
 %setup -q
@@ -65,32 +43,21 @@ g++ -o lh main.cpp logs.cpp json_export.cpp utils.cpp -lreadline -ljson-c
 %install
 rm -rf %{buildroot}
 install -d %{buildroot}/usr/bin
-install -m 0755 lh %{buildroot}/usr/bin/
+install -m 0755 lh %{buildroot}/usr/bin/lh
 install -d %{buildroot}/etc
-install -m 0644 ${CONFIG_FILE} %{buildroot}/etc/${CONFIG_FILE}
+install -m 0644 loghog.conf %{buildroot}/etc/loghog.conf
 
 %files
 /usr/bin/lh
-/etc/${CONFIG_FILE}
+/etc/loghog.conf
 
 %changelog
-* Thu May 09 2024 Scribe <scribe@localhost> - 1.0.0-1
-- Initial RPM release
 EOF
 
-# Build the RPM package
-rpmbuild -ba "${SPEC_FILE}" --define "_topdir ${RPMBUILD_DIR}"
+# Build the RPM
+cd ..
+rpmbuild --define "_topdir $(pwd)" -ba SPECS/lh.spec
 
-# Copy the resulting RPMs to the build directory
-find "${RPMBUILD_DIR}/RPMS" -name "*.rpm" -exec cp {} "${RPM_OUTPUT_DIR}/" \;
-
-# Install the RPM package
-RPM_FILE=$(find "${RPM_OUTPUT_DIR}" -name "${PACKAGE_NAME}-${VERSION}-1.*.rpm" | head -n 1)
-
-if [[ -n "${RPM_FILE}" ]]; then
-    dnf reinstall -y "${RPM_FILE}"
-else
-    echo "Error: RPM package not found!"
-fi
-
-echo "RPM package has been created successfully in ${RPM_OUTPUT_DIR}"
+# Reinstall the RPM
+cd ../../rpms
+rpm -Uvh --replacepkgs --force ../rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm
