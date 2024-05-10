@@ -18,6 +18,11 @@ mkdir -p "${RPMBUILD_DIR}"/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 # Copy files into the source directory, excluding the build directory itself
 find . -maxdepth 1 -type f -exec cp {} "${BUILD_DIR}/${SOURCE_DIR}" \;
 
+# Create a loghog.conf file
+cat <<EOF > "${BUILD_DIR}/${SOURCE_DIR}/loghog.conf"
+/var/lib/docker /var/log
+EOF
+
 # Create a source tarball
 pushd "${BUILD_DIR}"
 tar -czf "${PACKAGE_NAME}-${VERSION}.tar.gz" "${SOURCE_DIR}"
@@ -66,9 +71,6 @@ install -m 0644 loghog.conf %{buildroot}/etc/
 * Thu May 09 2024 Your Name <you@example.com> - ${VERSION}-1
 - Initial release
 EOF
-
-# Create an initial loghog.conf file
-echo "/var/lib/docker /var/log" > "${BUILD_DIR}/${SOURCE_DIR}/loghog.conf"
 
 # Build the RPM
 rpmbuild --define "_topdir ${RPMBUILD_DIR}" -ba "${RPMBUILD_DIR}/SPECS/${PACKAGE_NAME}.spec"
