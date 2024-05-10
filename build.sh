@@ -8,19 +8,15 @@ VERSION="1.0.0"
 PACKAGE_NAME="lh"
 SOURCE_DIR="${PACKAGE_NAME}-${VERSION}"
 
-# Move to the home directory and clean up previous build
-cd ~
-rm -rf "${REPO_DIR}"
+# Ensure the script starts from the correct directory
+cd "${REPO_DIR}" || { echo "Directory ${REPO_DIR} not found."; exit 1; }
 
-# Clone the repository
-git clone https://github.com/unixbox-net/loghog.git
-
-# Create build directory structure
+# Create the build directory structure
 mkdir -p "${BUILD_DIR}/${SOURCE_DIR}"
 mkdir -p "${RPMBUILD_DIR}"/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 
-# Copy files into the source directory
-find "${REPO_DIR}" -maxdepth 1 -type f -exec cp {} "${BUILD_DIR}/${SOURCE_DIR}" \;
+# Copy files into the source directory, excluding the build directory itself
+find . -maxdepth 1 -type f -exec cp {} "${BUILD_DIR}/${SOURCE_DIR}" \;
 
 # Create a source tarball
 pushd "${BUILD_DIR}"
@@ -90,8 +86,3 @@ if [[ -f "$RPM_PATH" ]]; then
 else
     echo "Error: RPM package was not found!"
 fi
-
-# Clean up the repository
-cd ~
-rm -rf "${REPO_DIR}"
-git clone https://github.com/unixbox-net/loghog.git
