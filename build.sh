@@ -58,8 +58,10 @@ EOF
 cd ..
 rpmbuild --define "_topdir $(pwd)" -ba SPECS/lh.spec
 
+# Copy the built RPM to the rpms directory
+cd ../../
+mkdir -p build/rpms
+cp build/rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm build/rpms/
+
 # Reinstall the RPM
-cd ../../rpms
-mkdir -p ../build/rpms
-cp ../rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm ../build/rpms/
-rpm -Uvh --replacepkgs --force ../build/rpms/lh-1.0.0-1.el8.x86_64.rpm
+rpm -Uvh --replacepkgs --force build/rpms/lh-1.0.0-1.el8.x86_64.rpm
