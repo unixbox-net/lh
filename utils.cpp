@@ -48,6 +48,8 @@ void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *
     char buffer[BUFFER_SIZE];
     while (fgets(buffer, BUFFER_SIZE, proc) != nullptr) {
         output += buffer;
+        std::cout << buffer;  // Immediate output to the console
+        std::cout.flush();
     }
 
     if (!output.empty()) {
@@ -84,6 +86,7 @@ bool sanitize_input(std::string &input) {
 void sigint_handler(int sig) {
     std::cout << "\nCaught signal " << sig << ", returning to menu...\n";
     std::cout.flush();
+    exit(0);  // Exit gracefully on SIGINT
 }
 
 void save_log_paths(const char *log_search_path) {
