@@ -16,10 +16,14 @@ void export_search_results_to_json(const char *log_search_path) {
         return;
     }
 
-    char cmd[BUFFER_SIZE];
+    char cmd[BUFFER_SIZE * 2]; // Ensure sufficient buffer size
     char find_cmd[BUFFER_SIZE];
     find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
-    snprintf(cmd, sizeof(cmd), "%s | egrep --color=never -i \"%s\"", find_cmd, egrep_args);
+    if (snprintf(cmd, sizeof(cmd), "%s | egrep --color=never -i \"%s\"", find_cmd, egrep_args) >= sizeof(cmd)) {
+        printf(ANSI_COLOR_RED "Command is too long. Please refine your search.\n" ANSI_COLOR_RESET);
+        free(egrep_args);
+        return;
+    }
 
     FILE *proc = popen(cmd, "r");
     if (!proc) {
@@ -31,32 +35,31 @@ void export_search_results_to_json(const char *log_search_path) {
     json_object *json_arr = json_object_new_array();
     char buffer[BUFFER_SIZE];
     int has_entries = 0;
-    char all_entries[BUFFER_SIZE * 10] = "";
 
     while (fgets(buffer, sizeof(buffer), proc)) {
         json_object *json_obj = json_object_new_object();
         json_object_object_add(json_obj, "log_entry", json_object_new_string(buffer));
         json_object_array_add(json_arr, json_obj);
-
-        strcat(all_entries, buffer);
         has_entries = 1;
     }
 
     pclose(proc);
 
     if (has_entries) {
-        char output_file[BUFFER_SIZE] = "log_search_results.json";
+        const char *output_file = "log_search_results.json";
         FILE *output = fopen(output_file, "w");
         if (output) {
-            fputs(json_object_to_json_string(json_arr), output);
+            fputs(json_object_to_json_string_ext(json_arr, JSON_C_TO_STRING_PRETTY), output);
             fclose(output);
             printf("\nExported search results to %s\n", output_file);
+
+            // Print the results to the screen using `less`
+            char all_entries[BUFFER_SIZE * 10] = "";
+            strcat(all_entries, json_object_to_json_string_ext(json_arr, JSON_C_TO_STRING_PRETTY));
+            display_buffer_with_less(all_entries, strlen(all_entries));
         } else {
             perror("fopen");
         }
-
-        // Print the results to the screen using `less`
-        display_buffer_with_less(all_entries, strlen(all_entries));
     } else {
         printf("\nNo matching log entries found.\n");
     }
