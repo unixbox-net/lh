@@ -28,13 +28,13 @@ setup_dependencies() {
     sudo dnf install -y rpm-build gcc json-c-devel readline-devel git
 }
 
-# Copy source files to the SOURCES directory and create tarball
+# Prepare source files and create a tarball
 prepare_sources() {
     echo "Preparing source files..."
-    cp "$WORK_DIR"/*.c "$WORK_DIR"/*.sh "$WORK_DIR"/LICENSE "$WORK_DIR"/README.md "$RPMBUILD_DIR/SOURCES/"
-    cd "$RPMBUILD_DIR/SOURCES"
-    tar czf "$TARBALL_NAME" --exclude="$TARBALL_NAME" .
-    mv "$TARBALL_NAME" "$RPMBUILD_DIR/SOURCES/"
+    local source_dir="$RPMBUILD_DIR/SOURCES/$PACKAGE_NAME-$VERSION"
+    mkdir -p "$source_dir"
+    cp "$WORK_DIR"/*.c "$WORK_DIR"/*.sh "$WORK_DIR"/LICENSE "$WORK_DIR"/README.md "$source_dir/"
+    tar czf "$RPMBUILD_DIR/SOURCES/$TARBALL_NAME" -C "$RPMBUILD_DIR/SOURCES" "$PACKAGE_NAME-$VERSION"
     echo "Source tarball created at $RPMBUILD_DIR/SOURCES/$TARBALL_NAME"
 }
 
