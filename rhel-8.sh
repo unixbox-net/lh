@@ -11,7 +11,8 @@ RPMBUILD_DIR="${WORKDIR}/rpmbuild"
 # Ensure all necessary directories are created and clean
 echo "Setting up build environment..."
 rm -rf "${WORKDIR}"
-mkdir -p "${WORKDIR}/{install/usr/bin,rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}}"
+mkdir -p "${WORKDIR}/install/usr/bin"
+mkdir -p "${RPMBUILD_DIR}/{BUILD,RPMS,SOURCES,SPECS,SRPMS}"
 mkdir -p "${WORKDIR}/${PACKAGE_NAME}-${VERSION}"
 
 # Install necessary development tools and libraries
@@ -38,7 +39,7 @@ cp -a "${BASE_DIR}"/* "${WORKDIR}/${PACKAGE_NAME}-${VERSION}/"
 
 # Create the source tarball for the RPM build
 echo "Creating source tarball..."
-tar czf "${RPMBUILD_DIR}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${WORKDIR}/${PACKAGE_NAME}-${VERSION}" .
+tar czf "${RPMBUILD_DIR}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${WORKDIR}" "${PACKAGE_NAME}-${VERSION}"
 
 # Generate the RPM spec file
 echo "Generating RPM spec file..."
