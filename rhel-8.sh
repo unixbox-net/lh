@@ -73,6 +73,24 @@ EOF
     echo "Spec file created."
 }
 
+# Prepare source files and create a tarball
+prepare_sources() {
+    echo "Preparing source files..."
+    local source_dir="$RPMBUILD_DIR/SOURCES/$PACKAGE_NAME-$VERSION"
+    mkdir -p "$source_dir"
+    
+    # Copy files to a directory named after the package version
+    cp "$WORK_DIR"/*.c "$WORK_DIR"/*.sh "$WORK_DIR"/LICENSE "$WORK_DIR"/README.md "$source_dir/"
+    
+    # Change to the parent directory of source_dir before creating the tarball
+    cd "$RPMBUILD_DIR/SOURCES"
+    tar czf "$TARBALL_NAME" "$(basename $source_dir)"
+    cd -  # Return to the previous directory to avoid script errors due to changed directory
+    
+    echo "Source tarball created at $RPMBUILD_DIR/SOURCES/$TARBALL_NAME"
+}
+
+
 # Build the RPM package
 build_rpm() {
     echo "Building RPM package..."
