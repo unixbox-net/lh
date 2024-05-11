@@ -5,7 +5,6 @@
 VERSION="1.0.0"
 RELEASE="1"
 PACKAGE_NAME="lh"
-GIT_REPO="https://github.com/unixbox-net/lh.git"
 WORK_DIR="$HOME/lh"
 RPMBUILD_DIR="$WORK_DIR/rpmbuild"
 MAINTAINER="Your Name <you@example.com>"
@@ -14,21 +13,24 @@ MAINTAINER="Your Name <you@example.com>"
 setup_environment() {
     echo "Setting up environment..."
     sudo dnf install -y rpm-build gcc json-c-devel readline-devel git
-    mkdir -p "$RPMBUILD_DIR"/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+    mkdir -p "$RPMBUILD_DIR"/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
     echo "Environment setup complete."
 }
 
 # Cleanup environment
 cleanup() {
     echo "Cleaning up previous builds..."
-    rm -rf "$RPMBUILD_DIR"
+    rm -rf "$RPMBUILD_DIR"/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
     echo "Cleanup complete."
 }
 
 # Prepare the source directory and spec file
 prepare_source() {
     echo "Preparing source directory..."
-    tar -czf "$RPMBUILD_DIR/SOURCES/$PACKAGE_NAME-$VERSION.tar.gz" -C "$WORK_DIR" .
+    mkdir -p "$RPMBUILD_DIR/SOURCES/$PACKAGE_NAME-$VERSION"
+    cp "$WORK_DIR"/*.c "$WORK_DIR"/*.sh "$WORK_DIR"/LICENSE "$WORK_DIR"/README.md "$RPMBUILD_DIR/SOURCES/$PACKAGE_NAME-$VERSION/"
+    tar -czf "$RPMBUILD_DIR/SOURCES/$PACKAGE_NAME-$VERSION.tar.gz" -C "$RPMBUILD_DIR/SOURCES" "$PACKAGE_NAME-$VERSION"
+    rm -rf "$RPMBUILD_DIR/SOURCES/$PACKAGE_NAME-$VERSION"
     echo "Source tarball created."
 }
 
@@ -41,7 +43,7 @@ Version:        $VERSION
 Release:        $RELEASE%{?dist}
 Summary:        Lightweight log monitoring tool
 License:        MIT
-URL:            $GIT_REPO
+URL:            https://github.com/unixbox-net/lh
 Source0:        %{name}-%{version}.tar.gz
 BuildRequires:  gcc, json-c-devel, readline-devel
 
@@ -56,7 +58,7 @@ gcc -o lh lh.c -Wall -lreadline -ljson-c
 
 %install
 mkdir -p %{buildroot}/usr/bin
-install -m 0755 lh %{buildroot}/usr/bin/
+install -m 0755 lh %{buildroot}/usr/bin/lh
 
 %files
 /usr/bin/lh
