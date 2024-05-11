@@ -13,7 +13,7 @@ done
 
 # Define variables
 VERSION="1.0.0"
-PACKAGE="loghog"
+PACKAGE="lh"
 BUILD_DIR="build-rhel"
 RPM_BUILD_DIR="${BUILD_DIR}/rpmbuild"
 SOURCES_DIR="${RPM_BUILD_DIR}/SOURCES"
