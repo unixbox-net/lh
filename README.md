@@ -3,8 +3,7 @@
 
 # How to Install
 
-the easy way Rhel (ubuntu coming soon)
-  
+Rhel-8  (ubuntu coming soon)
   ```bash
   curl -sL https://github.com/unixbox-net/lh/raw/main/rhel-8.sh | sudo bash
   ```
@@ -16,6 +15,8 @@ the easy way Rhel (ubuntu coming soon)
   ```bash
   json-c readline
   ```
+NOTE: there is a compiled version simply called lh in the working directoy, this binary should work
+on any POSIX UNIX-like system.
 
 
 ## Purpose
@@ -37,8 +38,10 @@ Buffers are sent directly to **less** for further editing and in-depth review, s
 **Regex Search**: Allows powerful searches across all logs using regular expressions, making it simple to detect patterns like IP addresses, error messages, and unauthorized access attempts.
 **Network Protocol Filter**: Filters logs by protocol (HTTP, FTP, SSH, etc.) to quickly identify network-related issues.
 **Error Filtering**: Isolates error-related events like failures, critical warnings, and socket timeouts for faster troubleshooting.
-**Custom Log Paths**: Lets users specify custom log paths for precise, targeted searches.
+**Custom Log Paths**: Lets users specify custom log paths (local or remote) for precise, targeted searches.
 **Export to JSON**: Exports search results to JSON format for further analysis or sharing with others.
 **Live and Less Modes**: Enables real-time log monitoring or in-depth review through the less pager.
+**Ultra Small** weignin in at 21,815 bytes its about the same size as a BLANK word document.
+
 
 Whether you're a system administrator, developer, or security professional, LogHOG offers a comprehensive suite of tools for efficient log analysis and bug hunting. Its simplicity, speed, and robustness make it an indispensable forensics tool.
