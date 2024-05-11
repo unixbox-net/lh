@@ -4,7 +4,7 @@
 PACKAGE_NAME="lh"
 VERSION="1.0.0"
 RELEASE="1"
-WORKDIR="/tmp/${PACKAGE_NAME}_build"
+WORKDIR="$(pwd)/${PACKAGE_NAME}_build"  # Uses the current directory
 RPMBUILD_DIR="${WORKDIR}/rpmbuild"
 SOURCE_DIR="${PACKAGE_NAME}-${VERSION}"
 GIT_REPO="https://github.com/unixbox-net/lh"
@@ -12,16 +12,16 @@ GIT_REPO="https://github.com/unixbox-net/lh"
 # Clear previous build environment if it exists
 echo "Checking and clearing previous build environment..."
 [ -d "$WORKDIR" ] && rm -rf "$WORKDIR"
-mkdir -p $WORKDIR
-
-# Install necessary tools and libraries
-echo "Installing necessary development tools and libraries..."
-sudo dnf install -y gcc make rpm-build readline-devel json-c-devel git
 
 # Create necessary directories
 echo "Creating build directories..."
 mkdir -p ${RPMBUILD_DIR}/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 mkdir -p ${WORKDIR}/${SOURCE_DIR}
+mkdir -p ${WORKDIR}/install/usr/bin
+
+# Install necessary tools and libraries
+echo "Installing necessary development tools and libraries..."
+sudo dnf install -y gcc make rpm-build readline-devel json-c-devel git
 
 # Clone the repository
 echo "Cloning the repository..."
@@ -32,16 +32,23 @@ cd ${WORKDIR}/repo
 echo "Compiling the source code from the correct directory..."
 gcc -Wall -Wextra -std=c99 -g lh.c -o lh -lreadline -ljson-c
 
-# Check if the executable exists before simulating 'make install'
+# Check if compilation was successful
 if [ -f "lh" ]; then
-    echo "Simulating 'make install'..."
-    mkdir -p ${WORKDIR}/install/usr/bin
+    echo "Compilation successful. Simulating 'make install'..."
     cp lh ${WORKDIR}/install/usr/bin
-    echo "'make install' simulated successfully."
 else
     echo "Compilation failed, lh executable not found."
     exit 1
 fi
+
+# Prepare the installation directory structure
+echo "Preparing the installation directory structure..."
+cp lh.c ${WORKDIR}/${SOURCE_DIR}
+
+# Create the tarball for RPM build
+echo "Creating source tarball for RPM build..."
+cd ${WORKDIR}/${SOURCE_DIR}
+tar czf ${RPMBUILD_DIR}/SOURCES/${SOURCE_DIR}.tar.gz .
 
 # Create spec file
 echo "Creating RPM spec file..."
@@ -66,28 +73,15 @@ lh (LogHog) is a new Linux command tool for monitoring and managing logs efficie
 gcc -Wall -Wextra -std=c99 -g lh.c -o lh -lreadline -ljson-c
 
 %install
-make install DESTDIR=%{buildroot}
+cp lh %{buildroot}/usr/bin/lh
 
 %files
-%{_bindir}/lh
+/usr/bin/lh
 
 %changelog
 * $(date "+%a %b %d %Y") Your Name <you@example.com> - 1.0.0-1
 - Initial RPM release
 EOF
-
-# Create the tarball for RPM build
-echo "Creating source tarball for RPM build..."
-cd ${WORKDIR}/install
-tar czf ${RPMBUILD_DIR}/SOURCES/${SOURCE_DIR}.tar.gz usr
-
-# Adjust tarball structure to include a root directory matching the spec expectation
-echo "Adjusting tarball structure..."
-cd ${RPMBUILD_DIR}/SOURCES
-mkdir ${SOURCE_DIR}
-tar xzf ${SOURCE_DIR}.tar.gz -C ${SOURCE_DIR}
-tar czf ${SOURCE_DIR}.tar.gz ${SOURCE_DIR}
-rm -rf ${SOURCE_DIR}
 
 # Build the RPM package
 echo "Building the RPM package..."
@@ -97,5 +91,4 @@ rpmbuild --define "_topdir ${RPMBUILD_DIR}" -ba ${RPMBUILD_DIR}/SPECS/${PACKAGE_
 echo "Reinstalling the RPM package..."
 sudo dnf reinstall -y ${RPMBUILD_DIR}/RPMS/x86_64/${PACKAGE_NAME}-${VERSION}-${RELEASE}.x86_64.rpm
 
-# Output the location of built RPM for verification
 echo "Build and installation complete. Package located in ${RPMBUILD_DIR}/RPMS/x86_64/"
