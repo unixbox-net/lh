@@ -9,7 +9,7 @@ BuildRequires:  gcc, json-c-devel, readline-devel
 Requires:       json-c, readline
 
 %description
-lh is a lightweight log monitoring tool designed for easy log file monitoring.
+lh (LogHOG) is a fast lightweight digital forensics tool designed for advanced log monitoring.
 
 %prep
 %setup -q
