@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Constants
 VERSION="1.0.0"
 RELEASE="1"
@@ -6,12 +7,32 @@ PACKAGE_NAME="lh"
 GIT_REPO="https://github.com/unixbox-net/lh.git"
 GIT_CLONE_DIR="${HOME}/lh"
 SOURCE_DIR="${PACKAGE_NAME}-${VERSION}"
-SOURCE_FILE="src/lh.c"  # Updated path for lh.c
+SOURCE_FILE="src/lh.c"  # Adjusted path to the source file
 BIN_FILE="lh"
 LICENSE_FILE="LICENSE"
 README_FILE="README.md"
 RPMBUILD_ROOT="${HOME}/rpmbuild"
 MAINTAINER="Your Name <you@example.com>"
+
+# Create tarball for source files
+create_source_tarball() {
+    mkdir -p ${GIT_CLONE_DIR}/${SOURCE_DIR}
+    cp ${GIT_CLONE_DIR}/${SOURCE_FILE} ${GIT_CLONE_DIR}/${LICENSE_FILE} ${GIT_CLONE_DIR}/${README_FILE} ${GIT_CLONE_DIR}/${SOURCE_DIR}/
+    tar czvf ${RPMBUILD_ROOT}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz -C ${GIT_CLONE_DIR} ${SOURCE_DIR}
+    rm -rf ${GIT_CLONE_DIR}/${SOURCE_DIR}
+}
+
+# Additional script functions...
+
+# Ensure the script stops if an essential file is missing
+if [ ! -f "${GIT_CLONE_DIR}/${SOURCE_FILE}" ]; then
+    echo "Source file missing: ${GIT_CLONE_DIR}/${SOURCE_FILE}"
+    exit 1
+fi
+
+# Call to create tarball adjusted to handle errors
+create_source_tarball || exit 1
+
 
 # Create tarball for source files
 create_source_tarball() {
