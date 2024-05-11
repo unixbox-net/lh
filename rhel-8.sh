@@ -61,7 +61,7 @@ echo "Finished install stage."
 %{_bindir}/lh
 
 %changelog
-* Fri May 11 2024 Your Name <you@example.com> - 1.0.0-1
+* $(date "+%a %b %d %Y") Your Name <you@example.com> - 1.0.0-1
 - Initial RPM release
 EOF
 
@@ -69,13 +69,22 @@ EOF
 cd ${WORKDIR}/install
 tar czf ${RPMBUILD_DIR}/SOURCES/${SOURCE_DIR}.tar.gz usr
 
+# Adjust tarball structure to include a root directory lh-1.0.0
+cd ${RPMBUILD_DIR}/SOURCES
+mkdir ${SOURCE_DIR}
+tar xzf ${SOURCE_DIR}.tar.gz -C ${SOURCE_DIR}
+tar czf ${SOURCE_DIR}.tar.gz ${SOURCE_DIR}
+rm -rf ${SOURCE_DIR}
+
 # Build the RPM package
 rpmbuild --define "_topdir ${RPMBUILD_DIR}" -ba ${RPMBUILD_DIR}/SPECS/${PACKAGE_NAME}.spec
 
 # Install the RPM package
 sudo dnf reinstall -y ${RPMBUILD_DIR}/RPMS/x86_64/${PACKAGE_NAME}-${VERSION}-${RELEASE}.x86_64.rpm
 
-# Clean up
-rm -rf ${WORKDIR}
+# Output the location of built RPM for verification
+echo "Build complete, package located in ${RPMBUILD_DIR}/RPMS/x86_64/"
 
-echo "Build and installation complete."
+# Comment out the cleanup for debugging purposes
+# echo "Cleanup disabled for debugging."
+# rm -rf ${WORKDIR}
