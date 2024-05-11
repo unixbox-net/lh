@@ -106,8 +106,8 @@ void find_logs_command(char *buffer, size_t size, const char *search_path) {
  * @param length Length of the text buffer.
  */
 void display_buffer_with_less(const char *buffer, size_t length) {
-    char tmp_filename[] = "/tmp/logsearchXXXXXX";
-    int tmp_fd = mkstemp(tmp_filename);
+    char tmp_filename[] = "/tmp/logsearchXXXXXX"; // Ensure enough space for unique file names
+    int tmp_fd = mkstemp(tmp_filename); // Correctly included and declared
     if (tmp_fd == -1) {
         perror("mkstemp");
         return;
@@ -124,7 +124,7 @@ void display_buffer_with_less(const char *buffer, size_t length) {
     fflush(tmp_file);
 
     char cmd[BUFFER_SIZE];
-    snprintf(cmd, sizeof(cmd), "less -R %s", tmp_filename);
+    snprintf(cmd, sizeof(cmd), "less -R %s", tmp_filename); // Check return value if needed
     system(cmd);
 
     fclose(tmp_file);
@@ -137,7 +137,7 @@ void display_buffer_with_less(const char *buffer, size_t length) {
  * @param buffer_action Function to process the command output.
  */
 void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *, size_t)) {
-    FILE *proc = popen(cmd, "r");
+    FILE *proc = popen(cmd, "r"); // Make sure popen is correctly declared
     if (!proc) {
         perror("popen");
         return;
@@ -159,9 +159,6 @@ void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *
         memcpy(output + total_length, buffer, buffer_length);
         total_length += buffer_length;
         output[total_length] = '\0';
-
-        fputs(buffer, stdout);
-        fflush(stdout);
     }
 
     if (buffer_action) {
@@ -169,7 +166,7 @@ void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *
     }
 
     free(output);
-    pclose(proc);
+    pclose(proc); // Make sure pclose is correctly declared
 }
 
 /**
