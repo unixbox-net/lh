@@ -98,8 +98,8 @@ else
 fi
 
 # Cleanup the lh directory
-echo "Cleaning up..."
-cd ..
-rm -rf "$BASE_DIR"
+#echo "Cleaning up..."
+#cd ..
+#rm -rf "$BASE_DIR"
 
 echo "Installation and cleanup complete."
