@@ -30,7 +30,7 @@ git clone ${GIT_REPO} ${WORKDIR}/repo
 # Move to repository directory to compile
 cd ${WORKDIR}/repo
 echo "Compiling the source code from the correct directory..."
-make
+gcc -Wall -Wextra -std=c99 -g lh.c -o lh -lreadline -ljson-c
 
 # Check if the executable exists before simulating 'make install'
 if [ -f "lh" ]; then
@@ -63,7 +63,7 @@ lh (LogHog) is a new Linux command tool for monitoring and managing logs efficie
 %setup -q
 
 %build
-make %{?_smp_mflags}
+gcc -Wall -Wextra -std=c99 -g lh.c -o lh -lreadline -ljson-c
 
 %install
 make install DESTDIR=%{buildroot}
@@ -99,7 +99,3 @@ sudo dnf reinstall -y ${RPMBUILD_DIR}/RPMS/x86_64/${PACKAGE_NAME}-${VERSION}-${R
 
 # Output the location of built RPM for verification
 echo "Build and installation complete. Package located in ${RPMBUILD_DIR}/RPMS/x86_64/"
-
-# Uncomment below to enable cleanup after inspection
-# echo "Cleaning up build environment..."
-# rm -rf ${WORKDIR}
