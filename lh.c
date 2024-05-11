@@ -30,17 +30,19 @@
 
 #define BUFFER_SIZE 4096  // Buffer size for command strings and general usage
 
-// ANSI color codes for visual emphasis in console output
-#define ANSI_COLOR_RESET         "\x1b[0m"
-#define ANSI_COLOR_RED           "\x1b[31;1m"
-#define ANSI_COLOR_GREEN         "\x1b[32;1m"
-#define ANSI_COLOR_YELLOW        "\x1b[33;1m"
-#define ANSI_COLOR_BLUE          "\x1b[34;1m"
-#define ANSI_COLOR_MAGENTA       "\x1b[35;1m"
-#define ANSI_COLOR_CYAN          "\x1b[36;1m"
-#define ANSI_COLOR_WHITE         "\x1b[37;1m"
-#define ANSI_COLOR_LIGHT_GRAY    "\x1b[37;1m"
-#define ANSI_COLOR_DARK          "\x1b[30m"
+// ANSI color codes should be defined in a way that they can be concatenated properly in printf statements without causing syntax errors.
+#define ANSI_COLOR_RESET "\x1b[0m"
+#define ANSI_COLOR_RED "\x1b[31;1m"
+#define ANSI_COLOR_GREEN "\x1b[32;1m"
+#define ANSI_COLOR_LIGHT_GREEN "\x1b[92;1m"
+#define ANSI_COLOR_YELLOW "\x1b[33;1m"
+#define ANSI_COLOR_BLUE "\x1b[34;1m"
+#define ANSI_COLOR_MAGENTA "\x1b[35;1m"
+#define ANSI_COLOR_CYAN "\x1b[36;1m"
+#define ANSI_COLOR_WHITE "\x1b[37;1m"
+#define ANSI_COLOR_LIGHT_GRAY "\x1b[37;1m"
+#define ANSI_COLOR_DARK "\x1b[30m"
+#define ANSI_COLOR_BG "\x1b[48;5;235m"
 
 #define ASCII_ART \
     ANSI_COLOR_MAGENTA "888                       888    888  .d88888b.   .d8888b. " ANSI_COLOR_RESET "\n" \
@@ -308,12 +310,12 @@ void display_help() {
         ANSI_COLOR_LIGHT_GRAY "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN "LogHOG " ANSI_COLOR_BLUE "is a " ANSI_COLOR_CYAN "FAST" ANSI_COLOR_BLUE " comprehensive log search tool with 2 modes\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_YELLOW "TAIL MODE\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "Logs are automatically stitched together by timestamp making \n" ANSI_COLOR_RESET
+        ANSI_COLOR_BLUE "Logs are automatically stiched together by timestamp making \n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "events easy to follow in real time " ANSI_COLOR_CYAN "(CTRL+C to quit)\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_YELLOW "LESS MODE\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "Buffers from tail mode are sent directly to less, a powerful\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "text editing tool that allows for in-depth review, searches, and\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "real-time log analysis " ANSI_COLOR_CYAN "(h for help)" ANSI_COLOR_BLUE " or " ANSI_COLOR_CYAN "(q to quit)\n" ANSI_COLOR_RESET
+        ANSI_COLOR_BLUE "text editing tool that allows for indepth review, searches and\n" ANSI_COLOR_RESET
+        ANSI_COLOR_BLUE "real time log analysis " ANSI_COLOR_CYAN "(h for help)" ANSI_COLOR_BLUE " or " ANSI_COLOR_CYAN "(q to quit)\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN "MENU OVERVIEW\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "A" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "uthentication (Tail)\n" ANSI_COLOR_RESET
@@ -381,7 +383,6 @@ void display_help() {
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "Q" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "uit\n\n" ANSI_COLOR_RESET;
     display_buffer_with_less(help_text, strlen(help_text));
 }
-
 void main_menu() {
     char *option;
     while (1) {
