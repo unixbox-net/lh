@@ -8,7 +8,7 @@ PACKAGE_NAME="lh"
 GIT_REPO="https://github.com/unixbox-net/lh.git"
 GIT_CLONE_DIR="${HOME}/lh"
 SOURCE_DIR="${PACKAGE_NAME}-${VERSION}"
-SOURCE_FILE="src/lh.c"  # Adjusted path according to your `lh` structure
+SOURCE_FILE="src/lh.c"
 BIN_FILE="lh"
 LICENSE_FILE="LICENSE"
 README_FILE="README.md"
@@ -67,10 +67,10 @@ EOF
 
 # Create tarball for source files
 create_source_tarball() {
-    mkdir -p ${SOURCE_DIR}
-    cp ${GIT_CLONE_DIR}/${SOURCE_FILE} ${GIT_CLONE_DIR}/${LICENSE_FILE} ${GIT_CLONE_DIR}/${README_FILE} ${SOURCE_DIR}/
+    mkdir -p ${GIT_CLONE_DIR}/${SOURCE_DIR}
+    cp ${GIT_CLONE_DIR}/${SOURCE_FILE} ${GIT_CLONE_DIR}/${LICENSE_FILE} ${GIT_CLONE_DIR}/${README_FILE} ${GIT_CLONE_DIR}/${SOURCE_DIR}/
     tar czvf ${RPMBUILD_ROOT}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz -C ${GIT_CLONE_DIR} ${SOURCE_DIR}
-    rm -rf ${SOURCE_DIR}
+    rm -rf ${GIT_CLONE_DIR}/${SOURCE_DIR}
 }
 
 # Clone the GitHub repository
