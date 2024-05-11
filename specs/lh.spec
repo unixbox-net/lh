@@ -1,30 +1,31 @@
 Name:           lh
 Version:        1.0.0
 Release:        1%{?dist}
-Summary:        Log monitoring tool
+Summary:        A simple tool to monitor logs
 
-License:        GPL
-URL:            https://github.com/unixbox-net/loghog
+License:        MIT
 Source0:        %{name}-%{version}.tar.gz
 
 BuildRequires:  gcc, make, readline-devel, json-c-devel
 Requires:       readline, json-c
 
 %description
-A simple tool to monitor logs.
+lh (LogHog) is a simple command-line utility to monitor and manage logs.
 
 %prep
 %setup -q
 
 %build
-make
+make %{?_smp_mflags}
 
 %install
-make install DESTDIR=%{buildroot}
+rm -rf %{buildroot}
+mkdir -p %{buildroot}/usr/local/bin
+install -m 755 lh %{buildroot}/usr/local/bin/
 
 %files
 /usr/local/bin/lh
 
 %changelog
-* Wed Oct 04 2023 Your Name <email@example.com> - 1.0.0-1
-- First build of lh
+* Fri May 11 2024 Your Name <you@example.com> 1.0.0-1
+- Initial RPM release
