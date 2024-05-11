@@ -45,7 +45,7 @@
 #define ANSI_COLOR_BG "\x1b[48;5;235m"
 
 #define ASCII_ART \
-    ANSI_COLOR_MAGENTA "888                       888    888  .d88888b.   .d8888b. " ANSI_COLOR_RESET "\n" \
+    ANSI_COLOR_MAGENTA "\n888                       888    888  .d88888b.   .d8888b. " ANSI_COLOR_RESET "\n" \
     ANSI_COLOR_MAGENTA "888                       888    888 d88P\" \"Y88b d88P  Y88b" ANSI_COLOR_RESET "\n" \
     ANSI_COLOR_MAGENTA "888                       888    888 888     888 888    888" ANSI_COLOR_RESET "\n" \
     ANSI_COLOR_MAGENTA "888      .d88b.   .d88b.  8888888888 888     888 888       " ANSI_COLOR_RESET "\n" \
