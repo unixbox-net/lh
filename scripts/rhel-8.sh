@@ -27,4 +27,18 @@ done
 echo "Attempting to compile the program..."
 make || { echo "Compilation failed due to Makefile issues. Exiting."; exit 1; }
 
+
+# Navigate to the RPM directory
+cd "$BUILD_DIR/loghog/RPMS/x86_64"
+
+# Find the RPM package
+RPM_PACKAGE=$(ls *.rpm)
+if [ -f "$RPM_PACKAGE" ]; then
+    echo "Installing the RPM package..."
+    sudo dnf install -y "./$RPM_PACKAGE"
+else
+    echo "No RPM package found. Exiting."
+    exit 1
+fi
+
 echo "Build process completed successfully."
