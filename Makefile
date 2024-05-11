@@ -9,3 +9,7 @@ all:
 
 clean:
 	rm -f $(EXEC)
+
+install:
+	mkdir -p $(DESTDIR)/usr/local/bin
+	cp $(EXEC) $(DESTDIR)/usr/local/bin/
