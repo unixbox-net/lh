@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 # Set environment variables
 PACKAGE_NAME="lh"
 VERSION="1.0.0"
