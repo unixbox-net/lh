@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Define variables
-REPO_URL="https://github.com/unixbox-net/loghog.git"
+# Define the repository URL and base directory
+REPO_URL="https://github.com/unixbox-net/lh.git"
 BASE_DIR="$PWD/lh"
 
 # Cleanup existing directory
@@ -25,32 +25,25 @@ sudo dnf install -y $REQUIRED_PACKAGES
 echo "Compiling the source code..."
 make || { echo "Compilation failed. Exiting."; exit 1; }
 
-# Setup RPM build environment
+# Prepare for RPM build
 echo "Setting up RPM build environment..."
 mkdir -p {BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 cp src/lh.c BUILD/
-cp lh.spec SPECS/
-
-# Create tarball of the source
 tar czf SOURCES/lh-1.0.0.tar.gz -C BUILD lh.c
+cp lh.spec SPECS/
 
 # Build the RPM package
 echo "Building the RPM package..."
-rpmbuild --define "_topdir $PWD" --define "_builddir $PWD/BUILD" --define "_rpmdir $PWD/RPMS" --define "_srcrpmdir $PWD/SRPMS" --define "_specdir $PWD/SPECS" --define "_sourcedir $PWD/SOURCES" -ba SPECS/lh.spec || { echo "RPM build failed. Exiting."; exit 1; }
+rpmbuild --define "_topdir $PWD" -ba SPECS/lh.spec
 
-# Find the RPM package
-RPM_FILE=$(find RPMS -type f -name '*.rpm')
-if [ -z "$RPM_FILE" ]; then
+# Find and reinstall the RPM package
+RPM_FILE=$(find RPMS/ -name '*.rpm')
+if [[ -f "$RPM_FILE" ]]; then
+    echo "RPM package created: $RPM_FILE"
+    sudo dnf reinstall "$RPM_FILE" -y
+else
     echo "No RPM package found. Exiting."
     exit 1
 fi
 
-# Install the RPM package using DNF
-echo "Installing the RPM package..."
-sudo dnf install -y "$RPM_FILE"
-
-# Cleanup and leave RPM for future use
-echo "RPM package installed successfully. Cleanup not required to keep RPM."
-
-# List final directory structure
-tree "$BASE_DIR"
+echo "Installation and cleanup complete."
