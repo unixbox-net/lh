@@ -74,7 +74,7 @@ cd ${RPMBUILD_DIR}/SOURCES
 mkdir ${SOURCE_DIR}
 tar xzf ${SOURCE_DIR}.tar.gz -C ${SOURCE_DIR}
 tar czf ${SOURCE_DIR}.tar.gz ${SOURCE_DIR}
-rm -rf ${SOURCE_DIR}
+#rm -rf ${SOURCE_DIR}
 
 # Build the RPM package
 rpmbuild --define "_topdir ${RPMBUILD_DIR}" -ba ${RPMBUILD_DIR}/SPECS/${PACKAGE_NAME}.spec
