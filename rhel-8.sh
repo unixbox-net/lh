@@ -20,7 +20,15 @@ prepare_environment() {
 prepare_source() {
     echo "Preparing source files..."
     mkdir -p "${RPM_BUILD_DIR}/SOURCES/lh-${VERSION}"
-    cp -r /root/lh/lh.spec /root/lh/rpmbuild/SPECS
+    mkdir -p /root/lh/rpmbuild && chmod 755 -r /root/lh/rpmbuild
+    mkdir -p /root/lh/rpmbuild/
+    mkdir -p /root/lh/rpmbuild/BUILD
+    mkdir -p /root/lh/rpmbuild/BUILDROOT
+    mkdir -p /root/lh/rpmbuild/RPMS
+    mkdir -p /root/lh/rpmbuild/SOURCES
+    mkdir -p /root/lh/rpmbuild/SPECS
+    mkdir -p /root/lh/rpmbuild/SRPMS
+    cp -r /root/lh/lh.spec /root/lh/rpmbuild/SPECS/
     cp -r "${BASE_DIR}/src/"* "${RPM_BUILD_DIR}/SOURCES/lh-${VERSION}/"
     cp "${BASE_DIR}/LICENSE" "${BASE_DIR}/README.md" "${RPM_BUILD_DIR}/SOURCES/lh-${VERSION}/"
 
