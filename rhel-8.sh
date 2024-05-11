@@ -12,8 +12,8 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
+# Clone git
 git clone https://github.com/unixbox-net/lh.git
-#&& cd ~/lh && ./rhel-8.sh
 
 # Function to prepare directories
 prepare_directories() {
