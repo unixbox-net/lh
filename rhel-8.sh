@@ -19,14 +19,12 @@ prepare_environment() {
 # Function to prepare the source files for the RPM build
 prepare_source() {
     echo "Preparing source files..."
-    # Ensure all necessary files are copied to the SOURCES directory
-    cp -r "${BASE_DIR}/src/"* "${RPM_BUILD_DIR}/SOURCES/"
+    mkdir -p "${RPM_BUILD_DIR}/SOURCES"
+    cp -r "${BASE_DIR}/src/"* "${RPM_BUILD_DIR}/SOURCES/"  # Make sure all source files and the Makefile are in src/
     cp "${BASE_DIR}/LICENSE" "${BASE_DIR}/README.md" "${RPM_BUILD_DIR}/SOURCES/"
     
-    # Create a tarball of the source directory, ensuring the directory structure inside the tarball is correct
-    tar czf "${RPM_BUILD_DIR}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${RPM_BUILD_DIR}/SOURCES" --transform "s,^,${PACKAGE_NAME}-${VERSION}/," .
-
-    # Move the spec file to the SPECS directory
+    # Tar all necessary files, ensuring the correct project structure
+    tar czf "${RPM_BUILD_DIR}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${BASE_DIR}/src" . --transform "s,^,${PACKAGE_NAME}-${VERSION}/,"
     cp "${BASE_DIR}/${PACKAGE_NAME}.spec" "${RPM_BUILD_DIR}/SPECS/"
 }
 
