@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c99 -g
-LIBS =
+LIBS = -lreadline -ljson-c
 EXEC = lh
 SRC = lh.c
 
