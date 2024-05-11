@@ -1,49 +1,67 @@
 #!/bin/bash
 
-# Assuming this script is being run from the INSTALL_DIR which contains lh source
-
-# Configuration variables
+# Configuration
 REPO_URL="https://github.com/unixbox-net/lh.git"
 INSTALL_DIR="$HOME/lh"
-BUILD_DIR="${INSTALL_DIR}/build"
-RPMBUILD_DIR="${BUILD_DIR}/rpmbuild"
-SOURCES_DIR="${RPMBUILD_DIR}/SOURCES"
-SPECS_DIR="${RPMBUILD_DIR}/SPECS"
-RPMS_DIR="${RPMBUILD_DIR}/RPMS"
-SRPMS_DIR="${RPMBUILD_DIR}/SRPMS"
-BUILDROOT_DIR="${RPMBUILD_DIR}/BUILDROOT"
+BUILD_DIR="$INSTALL_DIR/build"
+RPMBUILD_DIR="$BUILD_DIR/rpmbuild"
+SOURCES_DIR="$RPMBUILD_DIR/SOURCES"
+SPECS_DIR="$RPMBUILD_DIR/SPECS"
+
+# Start the reset process
+echo "Starting reset process..."
+echo "Removing old installations and files..."
+sudo dnf remove -y lh  # Assuming 'lh' is the package name
+
+# Remove directories
+rm -rf "$INSTALL_DIR"
+rm -rf "$BUILD_DIR"
+rm -rf /usr/local/bin/lh
+
+# Clone the repository
+echo "Cloning the lh project repository..."
+git clone "$REPO_URL" "$INSTALL_DIR"
+cd "$INSTALL_DIR"
+
+# Create necessary build directories
+echo "Creating necessary directories..."
+mkdir -p "$BUILD_DIR"
+mkdir -p "$SOURCES_DIR"
+mkdir -p "$SPECS_DIR"
+mkdir -p "$RPMBUILD_DIR/BUILD"
+mkdir -p "$RPMBUILD_DIR/BUILDROOT"
+mkdir -p "$RPMBUILD_DIR/RPMS"
+mkdir -p "$RPMBUILD_DIR/SRPMS"
+
+# Installing necessary development tools and libraries
+echo "Installing necessary development tools and libraries..."
+sudo dnf install -y gcc make rpm-build readline-devel json-c-devel git
 
 # Prepare the source directory for RPM build
 echo "Preparing the source directory for RPM build..."
-mkdir -p "$BUILD_DIR" "$RPMBUILD_DIR" "$SOURCES_DIR" "$SPECS_DIR" "$RPMS_DIR" "$SRPMS_DIR" "$BUILDROOT_DIR"
-mkdir -p "${BUILD_DIR}/lh-1.0.0"  # Make sure the directory exists
+cp -r * "$BUILD_DIR/"
+cd "$BUILD_DIR"
+rm -rf lh-1.0.0  # Clean any existing lh-1.0.0 directory
+mkdir lh-1.0.0
+cp -r * lh-1.0.0/
+rm -rf lh-1.0.0/build  # Avoid recursion by not copying the build directory into itself
 
-# Copy all necessary files to the BUILD_DIR
-cp -r ./* "${BUILD_DIR}/lh-1.0.0/"  # Ensure it doesn't copy build directory recursively
-cd "${BUILD_DIR}"
-
-# Creating the source tarball
+# Create the source tarball
 echo "Creating source tarball..."
-tar -czf "${SOURCES_DIR}/lh-1.0.0.tar.gz" "lh-1.0.0"  # Create tarball of lh-1.0.0
+tar -czf "$SOURCES_DIR/lh-1.0.0.tar.gz" -C lh-1.0.0 .
 
 # Generate the RPM spec file
 echo "Generating RPM spec file..."
-cat > "${SPECS_DIR}/lh.spec" <<EOF
+cat > "$SPECS_DIR/lh.spec" <<EOF
+Summary: A brief description of your package
 Name: lh
 Version: 1.0.0
 Release: 1%{?dist}
-Summary: Log Helper
-
 License: GPL
-URL: $REPO_URL
-
 Source0: %{name}-%{version}.tar.gz
 
-BuildRequires: gcc, make, rpm-build, readline-devel, json-c-devel
-Requires: readline, json-c
-
 %description
-LH (Log Helper) is a tool to analyze log files.
+A longer description of your package
 
 %prep
 %setup -q
@@ -59,12 +77,12 @@ install -m 755 lh %{buildroot}/usr/bin/lh
 /usr/bin/lh
 
 %changelog
-* Sat May 11 2024 Your Name <your.email@example.com> - 1.0.0-1
-- Initial RPM release
+* Date Initial build
 EOF
 
-# Building the RPM package
+# Build the RPM package
 echo "Building the RPM package..."
-rpmbuild -ba "${SPECS_DIR}/lh.spec" --define "_topdir ${RPMBUILD_DIR}"
+rpmbuild -ba "$SPECS_DIR/lh.spec" --define "_topdir $RPMBUILD_DIR"
 
-echo "Build and installation complete. Package located in ${RPMS_DIR}/x86_64/"
+echo "Build and installation complete. Package located in $RPMBUILD_DIR/RPMS/x86_64/"
+
