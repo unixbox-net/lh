@@ -10,7 +10,7 @@ VERSION="1.0.0"
 prepare_environment() {
     echo "Cleaning up previous builds..."
     rm -rf "${RPM_BUILD_DIR}"
-    mkdir -p "${RPM_BUILD_DIR}/{BUILD,RPMS,SOURCES,SPECS,SRPMS}"
+    sudo mkdir -p "${RPM_BUILD_DIR}/{BUILD,RPMS,SOURCES,SPECS,SRPMS}"
 
     echo "Installing necessary dependencies..."
     sudo dnf install -y rpm-build gcc json-c-devel readline-devel git
