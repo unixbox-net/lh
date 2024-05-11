@@ -4,7 +4,7 @@
 PACKAGE_NAME="lh"
 VERSION="1.0.0"
 RELEASE="1"
-BASE_DIR="$HOME"  # Changed from '~\' which is incorrect due to the escaping issue
+BASE_DIR="$HOME"
 WORKDIR="${BASE_DIR}/${PACKAGE_NAME}_build"
 RPMBUILD_DIR="${WORKDIR}/rpmbuild"
 GIT_REPO="https://github.com/unixbox-net/lh"
