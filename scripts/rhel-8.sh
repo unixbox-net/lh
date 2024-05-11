@@ -1,54 +1,117 @@
 #!/bin/bash
+# build-lh-rpm.sh - Script to clone the lh repo and build an RPM package for lh
 
-# Set up base directory and capture current working directory
-BASE_DIR=$(pwd)
-BUILD_DIR="${BASE_DIR}/lh"
+# Constants
+VERSION="1.0.0"
+RELEASE="1"
+PACKAGE_NAME="lh"
+GIT_REPO="https://github.com/unixbox-net/lh.git"
+GIT_CLONE_DIR="${HOME}/lh"
+SOURCE_DIR="${PACKAGE_NAME}-${VERSION}"
+SOURCE_FILE="lh.c"
+BIN_FILE="lh"
+LICENSE_FILE="LICENSE"
+README_FILE="README.md"
+RPMBUILD_ROOT="${HOME}/rpmbuild"
+MAINTAINER="Your Name <you@example.com>"
 
-# Ensure directory exists and is clean
-echo "Setting up build environment..."
-mkdir -p "$BUILD_DIR"
-rm -rf "${BUILD_DIR:?}/*"
+# Prepare RPM build environment
+prepare_rpm_env() {
+    mkdir -p ${RPMBUILD_ROOT}/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+}
 
-# Clone the repository
-echo "Cloning the repository into the build directory..."
-git clone "https://github.com/unixbox-net/lh.git" "$BUILD_DIR"
-cd "$BUILD_DIR" || exit
+# Generate the spec file for RPM
+create_rpm_spec() {
+    SPEC_FILE="${RPMBUILD_ROOT}/SPECS/${PACKAGE_NAME}.spec"
 
-# Install required packages
-echo "Installing required packages..."
-sudo dnf install -y gcc make rpm-build readline-devel json-c-devel git
+    cat <<EOF > ${SPEC_FILE}
+Name:           ${PACKAGE_NAME}
+Version:        ${VERSION}
+Release:        ${RELEASE}%{?dist}
+Summary:        A lightweight and simple log monitoring tool
+License:        MIT
+URL:            https://github.com/unixbox-net/lh
+Source0:        %{name}-%{version}.tar.gz
+BuildRequires:  gcc, json-c-devel, readline-devel
 
-# Compile the source code
-echo "Compiling the source code..."
-gcc -Wall -Wextra -std=c99 -g src/lh.c -o lh -lreadline -ljson-c
+%description
+A lightweight and simple log monitoring tool.
 
-# Create directories for RPM build
-echo "Creating directories for RPM build..."
-mkdir -p {BUILD,BUILDROOT,RPMS,SPECS,SRPMS,SOURCES}
+%global _enable_debug_packages 0
+%global debug_package %{nil}
 
-# Create the tarball including all necessary files
-echo "Creating tarball for RPM build..."
-find . -type f ! -name '*.tar.gz' -print0 | tar --null -czf SOURCES/lh-1.0.0.tar.gz --no-recursion --transform 's,^,lh-1.0.0/,' -T -
+%prep
+%setup -q
 
-# Prepare the spec file (ensure it's properly formatted and in the right location)
-echo "Preparing spec file..."
-cp specs/lh.spec SPECS/
+%build
+gcc -o ${BIN_FILE} ${SOURCE_FILE} -Wall -lreadline -ljson-c
 
-# Build the RPM
-echo "Building the RPM package..."
-rpmbuild -ba SPECS/lh.spec \
-  --define "_topdir $BUILD_DIR" \
-  --define "_builddir $BUILD_DIR/BUILD" \
-  --define "_rpmdir $BUILD_DIR/RPMS" \
-  --define "_srcrpmdir $BUILD_DIR/SRPMS" \
-  --define "_specdir $BUILD_DIR/SPECS" \
-  --define "_sourcedir $BUILD_DIR/SOURCES"
+%install
+mkdir -p %{buildroot}/usr/bin
+install -m 0755 ${BIN_FILE} %{buildroot}/usr/bin/${BIN_FILE}
+mkdir -p %{buildroot}/usr/share/licenses/%{name}
+install -m 0644 ${LICENSE_FILE} %{buildroot}/usr/share/licenses/%{name}/
+mkdir -p %{buildroot}/usr/share/doc/%{name}
+install -m 0644 ${README_FILE} %{buildroot}/usr/share/doc/%{name}/
 
-# Check if RPM build succeeded
-if [ $? -eq 0 ]; then
-    echo "RPM build completed successfully. Check $BUILD_DIR/RPMS for the output."
-else
-    echo "RPM build failed. Please check the logs for details."
-    exit 1
-fi
+%files
+/usr/bin/${BIN_FILE}
+/usr/share/licenses/%{name}/${LICENSE_FILE}
+/usr/share/doc/%{name}/${README_FILE}
 
+%changelog
+* $(date "+%a %b %d %Y") ${MAINTAINER} - ${VERSION}-${RELEASE}
+- Initial build
+EOF
+}
+
+# Create tarball for source files
+create_source_tarball() {
+    mkdir -p ${SOURCE_DIR}
+    cp ${GIT_CLONE_DIR}/${SOURCE_FILE} ${GIT_CLONE_DIR}/${LICENSE_FILE} ${GIT_CLONE_DIR}/${README_FILE} ${SOURCE_DIR}/
+    tar czvf ${RPMBUILD_ROOT}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz ${SOURCE_DIR}
+    rm -rf ${SOURCE_DIR}
+}
+
+# Clone the GitHub repository
+clone_repo() {
+    rm -rf ${GIT_CLONE_DIR}
+    git clone ${GIT_REPO} ${GIT_CLONE_DIR}
+}
+
+# Build RPM package
+build_rpm() {
+    rpmbuild -ba ${RPMBUILD_ROOT}/SPECS/${PACKAGE_NAME}.spec
+}
+
+# Cleanup previous RPM build
+cleanup() {
+    rm -rf ${RPMBUILD_ROOT} ${GIT_CLONE_DIR}
+}
+
+# Main function
+main() {
+    # Cleanup previous builds
+    cleanup
+
+    # Clone the lh repository
+    clone_repo
+
+    # Prepare RPM build environment
+    prepare_rpm_env
+
+    # Create RPM spec file
+    create_rpm_spec
+
+    # Create source tarball
+    create_source_tarball
+
+    # Build RPM package
+    build_rpm
+}
+
+# Ensure dependencies are installed
+sudo dnf install rpm-build gcc json-c-devel readline-devel -y
+
+# Execute the main function
+main
