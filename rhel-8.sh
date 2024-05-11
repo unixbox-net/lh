@@ -52,7 +52,7 @@ tar czf "${RPMBUILD_DIR}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${PACKAG
 
 # Create spec file
 echo "Creating RPM spec file..."
-cat <<EOF > "${RPMBUILD_DIR}/SPECS/${PACKAGE_NAME}.spec
+cat <<EOF > "${RPMBUILD_DIR}/SPECS/${PACKAGE_NAME}.spec"
 Name:           ${PACKAGE_NAME}
 Version:        ${VERSION}
 Release:        ${RELEASE}%{?dist}
