@@ -3,14 +3,9 @@
 # Define the base directory as 'lh' within the current working directory
 BASE_DIR="$PWD/lh"
 
-# Create the base directory
+# Create the base directory and enter it
 mkdir -p "$BASE_DIR"
 cd "$BASE_DIR"
-
-# Optional: Clone/copy necessary files into BASE_DIR
-# For example, if you need to pull files from a repository:
-# git clone https://github.com/unixbox-net/loghog.git "$BASE_DIR"
-# For this example, let's assume the necessary files are in the script itself or are fetched separately.
 
 # Ensure required packages are installed
 REQUIRED_PACKAGES=(git rpm-build readline-devel json-c-devel gcc-c++)
@@ -23,23 +18,21 @@ for package in "${REQUIRED_PACKAGES[@]}"; do
     fi
 done
 
-# Set up the build environment
+# Set up build environment
 BUILD_DIR="${BASE_DIR}/build-rhel"
 RPM_BUILD_DIR="${BUILD_DIR}/rpmbuild"
 SOURCES_DIR="${RPM_BUILD_DIR}/SOURCES"
 SPECS_DIR="${RPM_BUILD_DIR}/SPECS"
 
-mkdir -p "${RPM_BUILD_DIR}/BUILD"
-mkdir -p "${RPM_BUILD_DIR}/BUILDROOT"
-mkdir -p "${RPM_BUILD_DIR}/RPMS"
-mkdir -p "${RPM_BUILD_DIR}/SOURCES"
-mkdir -p "${RPM_BUILD_DIR}/SPECS"
-mkdir -p "${RPM_BUILD_DIR}/SRPMS"
+mkdir -p "${RPM_BUILD_DIR}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}"
 mkdir -p "${RPM_BUILD_DIR}/BUILD/lh-1.0.0"
 
-# Continue with script operations (build, makefile creation, etc.)
+# Fetch or confirm the source code
+echo "Preparing source code..."
+# Assuming lh.c needs to be fetched or verified:
+curl -o "${RPM_BUILD_DIR}/BUILD/lh-1.0.0/lh.c" -L "https://github.com/unixbox-net/loghog/raw/main/lh.c" || { echo "Failed to retrieve lh.c"; exit 1; }
 
-# Example Makefile creation
+# Create a Makefile
 echo "Creating Makefile..."
 cat > "${RPM_BUILD_DIR}/BUILD/lh-1.0.0/Makefile" <<EOF
 CC = gcc
@@ -99,9 +92,13 @@ echo "Installing the RPM package..."
 RPM_PACKAGE="${RPM_BUILD_DIR}/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm"
 if [ -f "$RPM_PACKAGE" ]; then
     sudo dnf install "$RPM_PACKAGE" -y
+else
+    echo "Error: RPM package not created."
+    exit 1
 fi
 
 # Cleanup the lh directory
+echo "Cleaning up..."
 cd ..
 rm -rf "$BASE_DIR"
 
