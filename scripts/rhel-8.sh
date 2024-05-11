@@ -63,7 +63,26 @@ install -m 0644 ${README_FILE} %{buildroot}/usr/share/doc/%{name}/
 EOF
 }
 
-# Ensure all steps are correct
+# Clone the GitHub repository
+clone_repo() {
+    rm -rf ${GIT_CLONE_DIR}
+    git clone ${GIT_REPO} ${GIT_CLONE_DIR}
+}
+
+# Create tarball for source files
+create_source_tarball() {
+    mkdir -p ${GIT_CLONE_DIR}/${SOURCE_DIR}
+    cp ${GIT_CLONE_DIR}/${SOURCE_FILE} ${GIT_CLONE_DIR}/${LICENSE_FILE} ${GIT_CLONE_DIR}/${README_FILE} ${GIT_CLONE_DIR}/${SOURCE_DIR}/
+    tar czvf ${RPMBUILD_ROOT}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz -C ${GIT_CLONE_DIR} ${SOURCE_DIR}
+    rm -rf ${GIT_CLONE_DIR}/${SOURCE_DIR}
+}
+
+# Build RPM package
+build_rpm() {
+    rpmbuild -ba ${RPMBUILD_ROOT}/SPECS/${PACKAGE_NAME}.spec
+}
+
+# Main function to orchestrate all steps
 main() {
     prepare_rpm_env
     clone_repo
@@ -72,24 +91,8 @@ main() {
     build_rpm
 }
 
-# Function to clone the GitHub repository
-clone_repo() {
-    rm -rf ${GIT_CLONE_DIR}
-    git clone ${GIT_REPO} ${GIT_CLONE_DIR}
-}
-
-# Function to create tarball for source files
-create_source_tarball() {
-    mkdir -p ${GIT_CLONE_DIR}/${SOURCE_DIR}
-    cp ${GIT_CLONE_DIR}/${SOURCE_FILE} ${GIT_CLONE_DIR}/${LICENSE_FILE} ${GIT_CLONE_DIR}/${README_FILE} ${GIT_CLONE_DIR}/${SOURCE_DIR}/
-    tar czvf ${RPMBUILD_ROOT}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz -C ${GIT_CLONE_DIR} ${SOURCE_DIR}
-    rm -rf ${GIT_CLONE_DIR}/${SOURCE_DIR}
-}
-
-# Function to build RPM package
-build_rpm() {
-    rpmbuild -ba ${RPMBUILD_ROOT}/SPECS/${PACKAGE_NAME}.spec
-}
+# Ensure dependencies are installed
+sudo dnf install rpm-build gcc json-c-devel readline-devel -y
 
 # Execute main function
 main
