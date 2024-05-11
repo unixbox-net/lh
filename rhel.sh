@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the repository URL
-REPO_URL="https://github.com/unixbox-net/loghog.git"
+REPO_URL="https://github.com/unixbox-net/loghog"
 
 # Define the base directory
 BASE_DIR="$PWD/lh-build"
@@ -15,7 +15,7 @@ echo "Fetching files from repository..."
 git clone "$REPO_URL" . || { echo "Failed to clone repository. Exiting."; exit 1; }
 
 # Check if required packages are installed and install them if they are not
-REQUIRED_PACKAGES="gcc make rpm-build"
+REQUIRED_PACKAGES="gcc make rpm-build readline-devel json-c-devel"
 echo "Checking for required packages..."
 for package in $REQUIRED_PACKAGES; do
     if ! rpm -q $package >/dev/null 2>&1; then
@@ -36,11 +36,4 @@ rpmbuild -ba lh.spec --define "_topdir $PWD" --define "_builddir $PWD" --define 
 mkdir -p "$HOME/lh-rpms"
 mv RPMS/*/*.rpm "$HOME/lh-rpms/"
 
-echo "RPM packages moved to $HOME/lh-rpms/"
-
-# Cleanup
-cd ..
-rm -rf "$BASE_DIR"
-
-echo "Build completed successfully."
-
+echo "RPM packages moved to $HOM
