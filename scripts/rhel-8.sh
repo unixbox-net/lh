@@ -30,7 +30,7 @@ echo "Setting up RPM build environment..."
 mkdir -p {BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 cp src/lh.c BUILD/
 tar czf SOURCES/lh-1.0.0.tar.gz -C BUILD lh.c
-cp lh.spec SPECS/
+cp specs/lh.spec SPECS/
 
 # Build the RPM package
 echo "Building the RPM package..."
