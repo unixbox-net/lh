@@ -1,83 +1,78 @@
 #!/bin/bash
 
-# Define environment variables
-export PACKAGE_NAME="lh"
-export VERSION="1.0.0"
-export RELEASE="1"
-export BASE_DIR="$(dirname "$(realpath "$0")")"
-export WORKDIR="${BASE_DIR}/build"
-export RPMBUILD_DIR="${WORKDIR}/rpmbuild"
-export INSTALL_DIR="${WORKDIR}/install/usr/bin"
+# Configuration variables
+REPO_URL="https://github.com/unixbox-net/lh.git"
+INSTALL_DIR="$HOME/lh"
+BUILD_DIR="${INSTALL_DIR}/build"
+RPMBUILD_DIR="${BUILD_DIR}/rpmbuild"
+SOURCES_DIR="${RPMBUILD_DIR}/SOURCES"
+SPECS_DIR="${RPMBUILD_DIR}/SPECS"
+RPMS_DIR="${RPMBUILD_DIR}/RPMS"
+SRPMS_DIR="${RPMBUILD_DIR}/SRPMS"
+BUILDROOT_DIR="${RPMBUILD_DIR}/BUILDROOT"
 
-# Ensure directories are set up properly
-echo "Setting up build environment..."
-mkdir -p "${INSTALL_DIR}"
-mkdir -p "${RPMBUILD_DIR}/{BUILD,RPMS,SOURCES,SPECS,SRPMS}"
-mkdir -p "${WORKDIR}/${PACKAGE_NAME}-${VERSION}"
+# Ensure all necessary directories are created
+echo "Creating necessary directories..."
+mkdir -p "$BUILD_DIR" "$RPMBUILD_DIR" "$SOURCES_DIR" "$SPECS_DIR" "$RPMS_DIR" "$SRPMS_DIR" "$BUILDROOT_DIR"
 
 # Install necessary development tools and libraries
 echo "Installing necessary development tools and libraries..."
 sudo dnf install -y gcc make rpm-build readline-devel json-c-devel git
 
-# Update repository and compile the source code
-echo "Updating repository and compiling the source code..."
-cd "${BASE_DIR}" || exit
-git pull
-gcc -Wall -Wextra -std=c99 -g "${BASE_DIR}/lh.c" -o "${BASE_DIR}/lh" -lreadline -ljson-c
+# Navigate to the project directory
+cd "$INSTALL_DIR"
 
-if [ -f "${BASE_DIR}/lh" ]; then
-    echo "Compilation successful."
-    cp "${BASE_DIR}/lh" "${INSTALL_DIR}"
-else
-    echo "Compilation failed, executable not found."
-    exit 1
-fi
+# Compile the source code
+echo "Compiling the source code..."
+gcc -Wall -o lh lh.c -lreadline -ljson-c
 
-# Prepare the source directory for the tarball
-echo "Preparing source directory for the RPM build..."
-cp -a "${BASE_DIR}"/* "${WORKDIR}/${PACKAGE_NAME}-${VERSION}/"
+# Prepare the source directory for RPM build
+echo "Preparing the source directory for RPM build..."
+cp -R ./* "$BUILD_DIR/"
 
-# Create the source tarball for the RPM build
+# Creating the source tarball
 echo "Creating source tarball..."
-tar czf "${RPMBUILD_DIR}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${WORKDIR}" "${PACKAGE_NAME}-${VERSION}"
+tar -czf "${SOURCES_DIR}/lh-1.0.0.tar.gz" -C "$BUILD_DIR" .
 
-# Generate the RPM spec file
+# Generating the RPM spec file
 echo "Generating RPM spec file..."
-cat <<EOF > "${RPMBUILD_DIR}/SPECS/${PACKAGE_NAME}.spec"
-Name:           ${PACKAGE_NAME}
-Version:        ${VERSION}
-Release:        ${RELEASE}%{?dist}
-Summary:        Comprehensive log management tool
-License:        MIT
-URL:            https://github.com/unixbox-net/lh
-Source0:        %{name}-%{version}.tar.gz
-BuildRequires:  gcc, make, readline-devel, json-c-devel
-Requires:       libc.so.6(GLIBC_2.14)(64bit), readline, json-c
+cat > "${SPECS_DIR}/lh.spec" <<EOF
+Name: lh
+Version: 1.0.0
+Release: 1%{?dist}
+Summary: No-nonsense digital forensics
+
+License: GPL
+URL: $REPO_URL
+
+Source0: %{name}-%{version}.tar.gz
+
+BuildRequires: gcc, make, rpm-build, readline-devel, json-c-devel
+Requires: readline, json-c
 
 %description
-${PACKAGE_NAME} is a versatile tool for managing and analyzing system logs.
+lh (LogHog) is a no-nonsense digital forensics tool.
 
 %prep
 %setup -q
 
 %build
-gcc -Wall -Wextra -std=c99 -g lh.c -o lh -lreadline -ljson-c
+gcc -Wall -o lh lh.c -lreadline -ljson-c
 
 %install
 mkdir -p %{buildroot}/usr/bin
-cp lh %{buildroot}/usr/bin/lh
+install -m 755 lh %{buildroot}/usr/bin/lh
 
 %files
 /usr/bin/lh
 
 %changelog
-* $(date "+%a %b %d %Y") Your Name <you@example.com> - ${VERSION}-${RELEASE}
-- Initial release
+* Sat May 11 2024 Your Name <your.email@example.com> - 1.0.0-1
+- Initial RPM release
 EOF
 
-# Build and install the RPM package
-echo "Building and installing the RPM package..."
-rpmbuild --define "_topdir ${RPMBUILD_DIR}" -ba "${RPMBUILD_DIR}/SPECS/${PACKAGE_NAME}.spec"
-sudo dnf install -y "${RPMBUILD_DIR}/RPMS/x86_64/${PACKAGE_NAME}-${VERSION}-${RELEASE}.x86_64.rpm"
+# Building the RPM package
+echo "Building the RPM package..."
+rpmbuild -ba "${SPECS_DIR}/lh.spec" --define "_topdir ${RPMBUILD_DIR}"
 
-echo "Build and installation complete. Package located in ${RPMBUILD_DIR}/RPMS/x86_64/"
+echo "Build and installation complete. Package located in ${RPMS_DIR}/x86_64/"
