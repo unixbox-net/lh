@@ -1,40 +1,60 @@
 #!/bin/bash
 
-# Set the base directory to the current working directory
-export BASE_DIR=$(pwd)
+# Set up base directory
+BASE_DIR=$(pwd)/lh
+REPO_URL="https://github.com/unixbox-net/lh.git"
 
-echo "Setting up the build environment in $BASE_DIR"
+# Clean up existing directories
+echo "Cleaning up existing directories..."
+rm -rf "$BASE_DIR"
 
-# Create necessary directories for the build process
+# Clone the repository
+echo "Cloning the repository into the build directory..."
+git clone "$REPO_URL" "$BASE_DIR"
+if [ $? -ne 0 ]; then
+    echo "Failed to clone repository."
+    exit 1
+fi
+
+# Check and install required packages
+echo "Checking and installing required packages..."
+sudo dnf install -y gcc make rpm-build readline-devel json-c-devel
+
+# Compile the source code
+echo "Compiling the source code..."
+gcc -Wall -Wextra -std=c99 -g "$BASE_DIR/src/lh.c" -o "$BASE_DIR/lh" -lreadline -ljson-c
+if [ $? -ne 0 ]; then
+    echo "Compilation failed."
+    exit 1
+fi
+
+# Creating necessary build directories
 echo "Creating necessary directories for the build process..."
 mkdir -p "$BASE_DIR/BUILD" "$BASE_DIR/BUILDROOT" "$BASE_DIR/RPMS" "$BASE_DIR/SPECS" "$BASE_DIR/SRPMS" "$BASE_DIR/SOURCES"
 
-# Cloning the repository into the specified base directory
-echo "Cloning the repository..."
-git clone https://github.com/unixbox-net/lh.git "$BASE_DIR/lh"
-
-# Navigate into the cloned directory to perform operations
-cd "$BASE_DIR/lh" || exit
-
-# Create a tarball for the RPM build
+# Creating the tarball
 echo "Creating tarball for RPM build..."
-tar -czf "$BASE_DIR/SOURCES/lh-1.0.0.tar.gz" -C "$BASE_DIR/lh/src" .
-
+tar -czf "$BASE_DIR/SOURCES/lh-1.0.0.tar.gz" --transform 's,^,lh-1.0.0/,' -C "$BASE_DIR/src" .
 if [ $? -ne 0 ]; then
     echo "Failed to create tarball"
     exit 1
 fi
-echo "Tarball created successfully at $BASE_DIR/SOURCES/lh-1.0.0.tar.gz"
+echo "Tarball created successfully."
 
-# Prepare RPM build environment variables
-echo "Setting up RPM build environment..."
-cp "$BASE_DIR/lh/specs/lh.spec" "$BASE_DIR/SPECS"
+# Prepare the spec file
+echo "Preparing the spec file..."
+cp "$BASE_DIR/specs/lh.spec" "$BASE_DIR/SPECS"
 
 # Build the RPM
 echo "Building the RPM package..."
-rpmbuild -ba "$BASE_DIR/SPECS/lh.spec" --define "_topdir $BASE_DIR" --define "_builddir $BASE_DIR/BUILD" --define "_rpmdir $BASE_DIR/RPMS" --define "_srcrpmdir $BASE_DIR/SRPMS" --define "_specdir $BASE_DIR/SPECS" --define "_sourcedir $BASE_DIR/SOURCES"
+rpmbuild -ba "$BASE_DIR/SPECS/lh.spec" \
+  --define "_topdir $BASE_DIR" \
+  --define "_builddir $BASE_DIR/BUILD" \
+  --define "_rpmdir $BASE_DIR/RPMS" \
+  --define "_srcrpmdir $BASE_DIR/SRPMS" \
+  --define "_specdir $BASE_DIR/SPECS" \
+  --define "_sourcedir $BASE_DIR/SOURCES"
 
-# Check if RPM build was successful
 if [ $? -ne 0 ]; then
     echo "RPM build failed. Please check the logs for details."
     exit 1
