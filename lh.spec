@@ -14,6 +14,7 @@ lh is a lightweight log monitoring tool designed for easy log file monitoring.
 %setup -q
 
 %build
+cd %{_builddir}/%{name}-%{version}
 make
 
 %install
