@@ -24,11 +24,7 @@ RPM_BUILD_DIR="$BUILD_DIR/rpmbuild"
 mkdir -p "$RPM_BUILD_DIR/BUILD" "$RPM_BUILD_DIR/BUILDROOT" "$RPM_BUILD_DIR/RPMS" "$RPM_BUILD_DIR/SOURCES" "$RPM_BUILD_DIR/SPECS" "$RPM_BUILD_DIR/SRPMS"
 mkdir -p "$RPM_BUILD_DIR/BUILD/lh-1.0.0"
 
-# Assuming lh.c is directly included in the setup or needs to be fetched
-echo "Fetching source code..."
-# Directly moving to creation as lh.c is assumed to be handled already
-
-# Create Makefile
+# Create the Makefile ensuring to use an actual tab character
 echo "Creating Makefile..."
 cat > "$RPM_BUILD_DIR/BUILD/lh-1.0.0/Makefile" <<EOF
 CC = gcc
@@ -38,10 +34,10 @@ EXEC = lh
 SRC = lh.c
 
 all:
-    \$(CC) \$(CFLAGS) \$(SRC) -o \$(EXEC) \$(LIBS)
+	\$(CC) \$(CFLAGS) \$(SRC) -o \$(EXEC) \$(LIBS)
 
 clean:
-    rm -f \$(EXEC)
+	rm -f \$(EXEC)
 EOF
 
 # Create a tarball of the source code
