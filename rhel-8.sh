@@ -20,7 +20,7 @@ prepare_environment() {
 prepare_source() {
     echo "Preparing source files..."
     mkdir -p "${RPM_BUILD_DIR}/SOURCES/lh-${VERSION}"
-    mkdir -p /root/lh/rpmbuild && chmod 755 -r /root/lh/rpmbuild
+    mkdir -p /root/lh/rpmbuild && chmod 755 -R /root/lh/rpmbuild
     mkdir -p /root/lh/rpmbuild/
     mkdir -p /root/lh/rpmbuild/BUILD
     mkdir -p /root/lh/rpmbuild/BUILDROOT
