@@ -29,6 +29,7 @@ install -m 644 README.md %{buildroot}/usr/share/doc/%{name}-%{version}
 
 %files
 /usr/bin/lh
+/usr/local/bin/lh
 %doc /usr/share/doc/%{name}-%{version}/LICENSE
 %doc /usr/share/doc/%{name}-%{version}/README.md
 
