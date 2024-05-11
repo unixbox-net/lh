@@ -1,39 +1,36 @@
 Name:           lh
 Version:        1.0.0
 Release:        1%{?dist}
-Summary:        A simple tool to monitor logs
+Summary:        A new Linux command tool
 
 License:        MIT
+URL:            https://github.com/unixbox-net/lh
 Source0:        %{name}-%{version}.tar.gz
 
 BuildRequires:  gcc, make, readline-devel, json-c-devel
 Requires:       readline, json-c
 
 %description
-lh (LogHog) is a simple command-line utility to monitor and manage logs.
+lh (LogHog) is a new Linux command tool for monitoring and managing logs efficiently.
 
 %prep
+echo "Starting prep stage..."
 %setup -q
+echo "Finished prep stage."
 
 %build
+echo "Starting build stage..."
 make %{?_smp_mflags}
+echo "Finished build stage."
 
 %install
-rm -rf %{buildroot}
-mkdir -p %{buildroot}/usr/local/bin
-install -m 755 lh %{buildroot}/usr/local/bin/
+echo "Starting install stage..."
+make install DESTDIR=%{buildroot}
+echo "Finished install stage."
 
 %files
-/usr/local/bin/lh
+%{_bindir}/lh
 
-# Correcting the tarball creation process
-echo "Creating tarball with correct directory structure..."
-mkdir -p lh-1.0.0
-cp -a src/* lh-1.0.0/
-tar czf SOURCES/lh-1.0.0.tar.gz lh-1.0.0 || { echo "Failed to create source tarball. Exiting."; exit 1; }
-rm -rf lh-1.0.0
-
-# Example changelog entry in lh.spec
 %changelog
-* Fri May 10 2024 Your Name <you@example.com> - 1.0.0-1
-- Initial RPM release of lh
+* Fri May 11 2024 Your Name <you@example.com> - 1.0.0-1
+- Initial RPM release
