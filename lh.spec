@@ -21,7 +21,9 @@ make
 make install DESTDIR=%{buildroot}
 
 %files
-/usr/local/bin/lh
+/usr/bin/lh
+%doc /usr/share/doc/lh-1.0.0/LICENSE
+%doc /usr/share/doc/lh-1.0.0/README.md
 
 %changelog
 * Sat May 11 2024 Your Name <you@example.com> - 1.0.0-1
