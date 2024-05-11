@@ -17,6 +17,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Create necessary directories for the RPM build
+echo "Creating necessary directories for the build process..."
+mkdir -p "$BASE_DIR/BUILD" "$BASE_DIR/BUILDROOT" "$BASE_DIR/RPMS" "$BASE_DIR/SPECS" "$BASE_DIR/SRPMS" "$BASE_DIR/SOURCES"
+if [ $? -ne 0 ]; then
+    echo "Failed to create build directories."
+    exit 1
+fi
 # Checking and installing required packages
 echo "Checking and installing required packages..."
 sudo dnf install -y gcc make rpm-build readline-devel json-c-devel git
@@ -35,7 +42,6 @@ fi
 
 # Creating the tarball
 echo "Creating tarball for RPM build..."
-mkdir -p "$BASE_DIR/SOURCES"
 tar -czf "$BASE_DIR/SOURCES/lh-1.0.0.tar.gz" -C "$BASE_DIR" .
 if [ $? -ne 0 ]; then
     echo "Failed to create tarball."
@@ -43,12 +49,11 @@ if [ $? -ne 0 ]; then
 fi
 echo "Tarball created successfully."
 
-# Build the RPM
-echo "Setting up RPM build environment..."
-mkdir -p "$BASE_DIR/{BUILD,RPMS,SPECS,SRPMS}"
+# Prepare RPM build environment
 echo "%_topdir $BASE_DIR" > ~/.rpmmacros
 cp specs/lh.spec "$BASE_DIR/SPECS"
 
+# Build the RPM
 echo "Building the RPM package..."
 rpmbuild -ba "$BASE_DIR/SPECS/lh.spec"
 if [ $? -ne 0 ]; then
