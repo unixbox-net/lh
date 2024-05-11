@@ -1,63 +1,54 @@
 #!/bin/bash
 
-# Set up base directory
-BASE_DIR=$(pwd)/lh
-REPO_URL="https://github.com/unixbox-net/lh.git"
+# Set up base directory and capture current working directory
+BASE_DIR=$(pwd)
+BUILD_DIR="${BASE_DIR}/lh"
 
-# Clean up existing directories
-echo "Cleaning up existing directories..."
-rm -rf "$BASE_DIR"
+# Ensure directory exists and is clean
+echo "Setting up build environment..."
+mkdir -p "$BUILD_DIR"
+rm -rf "${BUILD_DIR:?}/*"
 
 # Clone the repository
 echo "Cloning the repository into the build directory..."
-git clone "$REPO_URL" "$BASE_DIR"
-if [ $? -ne 0 ]; then
-    echo "Failed to clone repository."
-    exit 1
-fi
+git clone "https://github.com/unixbox-net/lh.git" "$BUILD_DIR"
+cd "$BUILD_DIR" || exit
 
-# Check and install required packages
-echo "Checking and installing required packages..."
-sudo dnf install -y gcc make rpm-build readline-devel json-c-devel
+# Install required packages
+echo "Installing required packages..."
+sudo dnf install -y gcc make rpm-build readline-devel json-c-devel git
 
 # Compile the source code
 echo "Compiling the source code..."
-gcc -Wall -Wextra -std=c99 -g "$BASE_DIR/src/lh.c" -o "$BASE_DIR/lh" -lreadline -ljson-c
-if [ $? -ne 0 ]; then
-    echo "Compilation failed."
-    exit 1
-fi
+gcc -Wall -Wextra -std=c99 -g src/lh.c -o lh -lreadline -ljson-c
 
-# Creating necessary build directories
-echo "Creating necessary directories for the build process..."
-mkdir -p "$BASE_DIR/BUILD" "$BASE_DIR/BUILDROOT" "$BASE_DIR/RPMS" "$BASE_DIR/SPECS" "$BASE_DIR/SRPMS" "$BASE_DIR/SOURCES"
+# Create directories for RPM build
+echo "Creating directories for RPM build..."
+mkdir -p {BUILD,BUILDROOT,RPMS,SPECS,SRPMS,SOURCES}
 
-# Creating the tarball
+# Create the tarball including all necessary files
 echo "Creating tarball for RPM build..."
-tar -czf "$BASE_DIR/SOURCES/lh-1.0.0.tar.gz" --transform 's,^,lh-1.0.0/,' -C "$BASE_DIR/src" .
-if [ $? -ne 0 ]; then
-    echo "Failed to create tarball"
-    exit 1
-fi
-echo "Tarball created successfully."
+find . -type f ! -name '*.tar.gz' -print0 | tar --null -czf SOURCES/lh-1.0.0.tar.gz --no-recursion --transform 's,^,lh-1.0.0/,' -T -
 
-# Prepare the spec file
-echo "Preparing the spec file..."
-cp "$BASE_DIR/specs/lh.spec" "$BASE_DIR/SPECS"
+# Prepare the spec file (ensure it's properly formatted and in the right location)
+echo "Preparing spec file..."
+cp specs/lh.spec SPECS/
 
 # Build the RPM
 echo "Building the RPM package..."
-rpmbuild -ba "$BASE_DIR/SPECS/lh.spec" \
-  --define "_topdir $BASE_DIR" \
-  --define "_builddir $BASE_DIR/BUILD" \
-  --define "_rpmdir $BASE_DIR/RPMS" \
-  --define "_srcrpmdir $BASE_DIR/SRPMS" \
-  --define "_specdir $BASE_DIR/SPECS" \
-  --define "_sourcedir $BASE_DIR/SOURCES"
+rpmbuild -ba SPECS/lh.spec \
+  --define "_topdir $BUILD_DIR" \
+  --define "_builddir $BUILD_DIR/BUILD" \
+  --define "_rpmdir $BUILD_DIR/RPMS" \
+  --define "_srcrpmdir $BUILD_DIR/SRPMS" \
+  --define "_specdir $BUILD_DIR/SPECS" \
+  --define "_sourcedir $BUILD_DIR/SOURCES"
 
-if [ $? -ne 0 ]; then
+# Check if RPM build succeeded
+if [ $? -eq 0 ]; then
+    echo "RPM build completed successfully. Check $BUILD_DIR/RPMS for the output."
+else
     echo "RPM build failed. Please check the logs for details."
     exit 1
-else
-    echo "RPM build completed successfully. Check $BASE_DIR/RPMS for the output."
 fi
+
