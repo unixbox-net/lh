@@ -1,6 +1,4 @@
 #!/bin/bash
-# build-lh-rpm.sh - Script to clone the lh repo and build an RPM package for lh
-
 # Constants
 VERSION="1.0.0"
 RELEASE="1"
@@ -8,16 +6,19 @@ PACKAGE_NAME="lh"
 GIT_REPO="https://github.com/unixbox-net/lh.git"
 GIT_CLONE_DIR="${HOME}/lh"
 SOURCE_DIR="${PACKAGE_NAME}-${VERSION}"
-SOURCE_FILE="lh.c"
+SOURCE_FILE="src/lh.c"  # Updated path for lh.c
 BIN_FILE="lh"
 LICENSE_FILE="LICENSE"
 README_FILE="README.md"
 RPMBUILD_ROOT="${HOME}/rpmbuild"
 MAINTAINER="Your Name <you@example.com>"
 
-# Prepare RPM build environment
-prepare_rpm_env() {
-    mkdir -p ${RPMBUILD_ROOT}/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+# Create tarball for source files
+create_source_tarball() {
+    mkdir -p ${SOURCE_DIR}
+    cp ${GIT_CLONE_DIR}/${SOURCE_FILE} ${GIT_CLONE_DIR}/${LICENSE_FILE} ${GIT_CLONE_DIR}/${README_FILE} ${SOURCE_DIR}/
+    tar czvf ${RPMBUILD_ROOT}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz -C ${GIT_CLONE_DIR} ${SOURCE_DIR}
+    rm -rf ${SOURCE_DIR}
 }
 
 # Generate the spec file for RPM
