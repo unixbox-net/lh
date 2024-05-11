@@ -43,11 +43,17 @@ build_rpm() {
     rpmbuild -ba "${RPM_BUILD_DIR}/SPECS/${PACKAGE_NAME}.spec" --define "_topdir ${RPM_BUILD_DIR}"
 }
 
+install_rpm() {
+    echo "Installing RPM package..."
+    sudo dnf reinstall -y "${RPM_BUILD_DIR}/RPMS/x86_64/${PACKAGE_NAME}-${VERSION}-1.el8.x86_64.rpm"
+}
+
 # Main function
 main() {
     prepare_environment
     prepare_source
     build_rpm
+    install_rpm
 }
 
 # Execute the main function
