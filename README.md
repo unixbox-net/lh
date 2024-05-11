@@ -3,9 +3,10 @@
 
 # How to Install
 
-  dnf/yum rhel8 systems
+the easy way Rhel (ubuntu coming soon)
+  
   ```bash
-  git clone https://github.com/unixbox-net/loghog.git && cd loghog/ && dnf install -y json-c readline loghog-1.0.0-1.el8.x86_64.rpm
+  curl -sL https://github.com/unixbox-net/lh/raw/main/rhel-8.sh | bash
   ```
   or compile
   ```bash
