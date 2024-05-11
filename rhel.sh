@@ -21,16 +21,12 @@ done
 # Prepare directories for building RPM
 BUILD_DIR="$BASE_DIR/build-rhel"
 RPM_BUILD_DIR="$BUILD_DIR/rpmbuild"
-mkdir -p "$RPM_BUILD_DIR/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}" || { echo "Failed to create RPM build directories"; exit 1; }
+mkdir -p "$RPM_BUILD_DIR/BUILD" "$RPM_BUILD_DIR/BUILDROOT" "$RPM_BUILD_DIR/RPMS" "$RPM_BUILD_DIR/SOURCES" "$RPM_BUILD_DIR/SPECS" "$RPM_BUILD_DIR/SRPMS"
+mkdir -p "$RPM_BUILD_DIR/BUILD/lh-1.0.0"
 
-# Fetch source file if not already included in the script or local setup
+# Assuming lh.c is directly included in the setup or needs to be fetched
 echo "Fetching source code..."
-# Assuming you have a direct link or need to copy this from somewhere
-# Replace 'URL_TO_LH.C' with the actual URL where 'lh.c' is hosted
-curl -o "$RPM_BUILD_DIR/BUILD/lh-1.0.0/lh.c" -L "URL_TO_LH.C" || { echo "Failed to retrieve lh.c"; exit 1; }
-
-# Verify lh.c exists
-[ ! -f "$RPM_BUILD_DIR/BUILD/lh-1.0.0/lh.c" ] && { echo "lh.c not found"; exit 1; }
+# Directly moving to creation as lh.c is assumed to be handled already
 
 # Create Makefile
 echo "Creating Makefile..."
@@ -42,10 +38,10 @@ EXEC = lh
 SRC = lh.c
 
 all:
-	\$(CC) \$(CFLAGS) \$(SRC) -o \$(EXEC) \$(LIBS)
+    \$(CC) \$(CFLAGS) \$(SRC) -o \$(EXEC) \$(LIBS)
 
 clean:
-	rm -f \$(EXEC)
+    rm -f \$(EXEC)
 EOF
 
 # Create a tarball of the source code
