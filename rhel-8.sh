@@ -4,14 +4,14 @@
 BASE_DIR="/root/lh"
 RPM_BUILD_DIR="${BASE_DIR}/rpmbuild"
 
-# Prepare environment function
-prepare_environment() {
-    echo "Cleaning up previous builds..."
-    rm -rf "${RPM_BUILD_DIR}"
-    mkdir -p "${RPM_BUILD_DIR}/BUILD" "${RPM_BUILD_DIR}/RPMS" "${RPM_BUILD_DIR}/SOURCES" "${RPM_BUILD_DIR}/SPECS" "${RPM_BUILD_DIR}/SRPMS"
-
-    echo "Installing necessary dependencies..."
-    sudo dnf install -y rpm-build gcc json-c-devel readline-devel git
+# Prepare source function
+prepare_source() {
+    echo "Preparing source files..."
+    mkdir -p "${RPM_BUILD_DIR}/SOURCES"
+    # Ensure the path for tar is correct and all files are included
+    tar czf "${RPM_BUILD_DIR}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${BASE_DIR}/src" . --transform 's,^,lh-1.0.0/,'
+    cp "${BASE_DIR}/LICENSE" "${BASE_DIR}/README.md" "${RPM_BUILD_DIR}/SOURCES/"
+    cp "${BASE_DIR}/lh.spec" "${RPM_BUILD_DIR}/SPECS/"
 }
 
 # Prepare source function
