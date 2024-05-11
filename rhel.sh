@@ -24,21 +24,19 @@ RPM_BUILD_DIR="$BUILD_DIR/rpmbuild"
 mkdir -p "$RPM_BUILD_DIR/BUILD" "$RPM_BUILD_DIR/BUILDROOT" "$RPM_BUILD_DIR/RPMS" "$RPM_BUILD_DIR/SOURCES" "$RPM_BUILD_DIR/SPECS" "$RPM_BUILD_DIR/SRPMS"
 mkdir -p "$RPM_BUILD_DIR/BUILD/lh-1.0.0"
 
-# Create the Makefile ensuring to use an actual tab character
+# Create the Makefile using printf to ensure correct tabs
 echo "Creating Makefile..."
-cat > "$RPM_BUILD_DIR/BUILD/lh-1.0.0/Makefile" <<EOF
-CC = gcc
-CFLAGS = -Wall -Wextra -std=c99 -g
-LIBS = -lreadline -ljson-c
-EXEC = lh
-SRC = lh.c
-
-all:
-	\$(CC) \$(CFLAGS) \$(SRC) -o \$(EXEC) \$(LIBS)
-
-clean:
-	rm -f \$(EXEC)
-EOF
+{
+    printf "CC = gcc\n"
+    printf "CFLAGS = -Wall -Wextra -std=c99 -g\n"
+    printf "LIBS = -lreadline -ljson-c\n"
+    printf "EXEC = lh\n"
+    printf "SRC = lh.c\n\n"
+    printf "all:\n"
+    printf "\t\$(CC) \$(CFLAGS) \$(SRC) -o \$(EXEC) \$(LIBS)\n\n"
+    printf "clean:\n"
+    printf "\trm -f \$(EXEC)\n"
+} > "$RPM_BUILD_DIR/BUILD/lh-1.0.0/Makefile"
 
 # Create a tarball of the source code
 echo "Creating tarball..."
