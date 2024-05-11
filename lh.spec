@@ -20,8 +20,10 @@ gcc -o lh lh.c -Wall -lreadline -ljson-c -g
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p %{buildroot}/usr/bin
+mkdir -p %{buildroot}/usr/local/bin
 mkdir -p %{buildroot}/usr/share/doc/%{name}-%{version}
 install -m 755 lh %{buildroot}/usr/bin
+install -m 755 lh %{buildroot}/usr/local/bin
 install -m 644 LICENSE %{buildroot}/usr/share/doc/%{name}-%{version}
 install -m 644 README.md %{buildroot}/usr/share/doc/%{name}-%{version}
 
