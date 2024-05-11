@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the repository URL
-REPO_URL="https://github.com/yourusername/loghog"
+REPO_URL="https://github.com/unixbox-net/loghog.git"
 
 # Define the base directory
 BASE_DIR="$PWD/lh-build"
