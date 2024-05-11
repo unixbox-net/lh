@@ -1,38 +1,20 @@
 #!/bin/bash
 
-# Set the base directory
-BASE_DIR="/root/lh"
+BASE_DIR=$(dirname "$(realpath "$0")")
 RPM_BUILD_DIR="${BASE_DIR}/rpmbuild"
 
-# Prepare environment function
 prepare_environment() {
-    echo "Cleaning up previous builds..."
-    rm -rf "${RPM_BUILD_DIR}"
+    echo "Setting up build environment..."
     mkdir -p "${RPM_BUILD_DIR}/{BUILD,RPMS,SOURCES,SPECS,SRPMS}"
-
-    echo "Installing necessary dependencies..."
-    sudo dnf install -y rpm-build gcc json-c-devel readline-devel git
+    cp "${BASE_DIR}/src/"*.c "${RPM_BUILD_DIR}/SOURCES/"
+    tar czf "${RPM_BUILD_DIR}/SOURCES/lh-1.0.0.tar.gz" -C "${BASE_DIR}/src/" .
+    cp "${BASE_DIR}/lh.spec" "${RPM_BUILD_DIR}/SPECS/"
 }
 
-# Prepare source function
-prepare_source() {
-    echo "Preparing source files..."
-    cp -rp "${BASE_DIR}/"*.c "${BASE_DIR}/"*.sh "${BASE_DIR}/LICENSE" "${BASE_DIR}/README.md" "${RPM_BUILD_DIR}/SOURCES/"
-    tar czf "${RPM_BUILD_DIR}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${RPM_BUILD_DIR}/SOURCES/" .
-}
-
-# Build RPM function
 build_rpm() {
     echo "Building RPM package..."
     rpmbuild -ba "${RPM_BUILD_DIR}/SPECS/lh.spec" --define "_topdir ${RPM_BUILD_DIR}"
 }
 
-# Main function
-main() {
-    prepare_environment
-    prepare_source
-    build_rpm
-}
-
-# Execute the main function
-main
+prepare_environment
+build_rpm
