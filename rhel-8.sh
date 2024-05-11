@@ -20,7 +20,7 @@ prepare_environment() {
 prepare_source() {
     echo "Preparing source files..."
     mkdir -p "${RPM_BUILD_DIR}/SOURCES/lh-${VERSION}"
-    cp -r "${BASE_DIR}lh.spec" "${RPM_BUILD_DIR}/SPEC/" 
+    cp -r /root/lh/lh.spec /root/lh/rpmbuild/SPECS
     cp -r "${BASE_DIR}/src/"* "${RPM_BUILD_DIR}/SOURCES/lh-${VERSION}/"
     cp "${BASE_DIR}/LICENSE" "${BASE_DIR}/README.md" "${RPM_BUILD_DIR}/SOURCES/lh-${VERSION}/"
 
