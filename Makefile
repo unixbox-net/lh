@@ -5,8 +5,8 @@ PREFIX=/usr
 
 all: lh
 
-lh: lh.c
-	$(CC) lh.c $(CFLAGS) -o lh
+lh: src/lh.c
+	$(CC) src/lh.c $(CFLAGS) -o lh
 
 install:
 	$(INSTALL) -d $(DESTDIR)$(PREFIX)/bin
