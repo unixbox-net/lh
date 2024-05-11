@@ -1,15 +1,10 @@
 CC=gcc
-CFLAGS=-Wall
+CFLAGS=-Wall -lreadline -ljson-c
 
 all: lh
 
-lh: src/lh.c
-	$(CC) $(CFLAGS) -o $@ $<
+lh: lh.c
+    $(CC) -o lh lh.c $(CFLAGS)
 
 clean:
-	rm -f lh
-
-install:
-	install -m 0755 lh /usr/local/bin/lh
-
-.PHONY: all clean install
+    rm -f lh
