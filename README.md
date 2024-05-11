@@ -6,7 +6,7 @@
 the easy way Rhel (ubuntu coming soon)
   
   ```bash
-  curl -sL https://github.com/unixbox-net/lh/raw/main/rhel-8.sh | bash
+  curl -sL https://github.com/unixbox-net/lh/raw/main/rhel-8.sh | sudo bash
   ```
   or compile
   ```bash
