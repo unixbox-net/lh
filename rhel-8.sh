@@ -29,13 +29,19 @@ git clone ${GIT_REPO} ${WORKDIR}/repo
 
 # Move to repository directory to compile
 cd ${WORKDIR}/repo
-echo "Compiling the source code..."
+echo "Compiling the source code from the correct directory..."
 make
 
-# Move binary to the expected location (simulate 'make install')
-echo "Simulating 'make install'..."
-mkdir -p ${WORKDIR}/install/usr/bin
-cp lh ${WORKDIR}/install/usr/bin
+# Check if the executable exists before simulating 'make install'
+if [ -f "lh" ]; then
+    echo "Simulating 'make install'..."
+    mkdir -p ${WORKDIR}/install/usr/bin
+    cp lh ${WORKDIR}/install/usr/bin
+    echo "'make install' simulated successfully."
+else
+    echo "Compilation failed, lh executable not found."
+    exit 1
+fi
 
 # Create spec file
 echo "Creating RPM spec file..."
@@ -76,6 +82,7 @@ cd ${WORKDIR}/install
 tar czf ${RPMBUILD_DIR}/SOURCES/${SOURCE_DIR}.tar.gz usr
 
 # Adjust tarball structure to include a root directory matching the spec expectation
+echo "Adjusting tarball structure..."
 cd ${RPMBUILD_DIR}/SOURCES
 mkdir ${SOURCE_DIR}
 tar xzf ${SOURCE_DIR}.tar.gz -C ${SOURCE_DIR}
