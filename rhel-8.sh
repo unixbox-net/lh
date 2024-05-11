@@ -1,12 +1,12 @@
 #!/bin/bash
-# build-loghog-rpm.sh - Script to clone the loghog repo and build an RPM package for loghog
+# build-lh-rpm.sh - Script to clone the loghog repo and build an RPM package for loghog
 
 # Constants
 VERSION="1.0.0"
 RELEASE="1"
 PACKAGE_NAME="lh"
 GIT_REPO="https://github.com/unixbox-net/loghog.git"
-GIT_CLONE_DIR="$HOME/loghog"
+GIT_CLONE_DIR="$HOME/lh"
 SOURCE_DIR="${PACKAGE_NAME}-${VERSION}"
 SOURCE_FILE="lh.c"
 BIN_FILE="loghog"
@@ -15,13 +15,30 @@ README_FILE="README.md"
 RPMBUILD_ROOT="$HOME/rpmbuild"
 MAINTAINER="Your Name <you@example.com>"
 
+# Ensure dependencies are installed
+sudo dnf install -y rpm-build gcc json-c-devel readline-devel git
+
+# Cleanup previous RPM build
+cleanup() {
+    echo "Cleaning up previous builds..."
+    rm -rf "${RPMBUILD_ROOT}" "${GIT_CLONE_DIR}"
+}
+
 # Prepare RPM build environment
 prepare_rpm_env() {
+    echo "Preparing RPM build environment..."
     mkdir -p "${RPMBUILD_ROOT}"/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+}
+
+# Clone the GitHub repository
+clone_repo() {
+    echo "Cloning the ${PACKAGE_NAME} repository..."
+    git clone "${GIT_REPO}" "${GIT_CLONE_DIR}"
 }
 
 # Generate the spec file for RPM
 create_rpm_spec() {
+    echo "Creating RPM spec file..."
     SPEC_FILE="${RPMBUILD_ROOT}/SPECS/${PACKAGE_NAME}.spec"
 
     cat <<EOF > "${SPEC_FILE}"
@@ -30,7 +47,7 @@ Version:        ${VERSION}
 Release:        ${RELEASE}%{?dist}
 Summary:        A lightweight and simple log monitoring tool
 License:        MIT
-URL:            https://github.com/unixbox-net/loghog
+URL:            ${GIT_REPO}
 Source0:        %{name}-%{version}.tar.gz
 BuildRequires:  gcc, json-c-devel, readline-devel
 
@@ -67,51 +84,25 @@ EOF
 
 # Create tarball for source files
 create_source_tarball() {
-    mkdir -p "${SOURCE_DIR}"
-    cp "${GIT_CLONE_DIR}"/{${SOURCE_FILE},${LICENSE_FILE},${README_FILE}} "${SOURCE_DIR}/"
-    tar czvf "${RPMBUILD_ROOT}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${SOURCE_DIR}" .
-    rm -rf "${SOURCE_DIR}"
-}
-
-# Clone the GitHub repository
-clone_repo() {
-    rm -rf "${GIT_CLONE_DIR}"
-    git clone "${GIT_REPO}" "${GIT_CLONE_DIR}"
+    echo "Creating source tarball for RPM build..."
+    tar czvf "${RPMBUILD_ROOT}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${GIT_CLONE_DIR}" .
 }
 
 # Build RPM package
 build_rpm() {
+    echo "Building RPM package..."
     rpmbuild -ba "${RPMBUILD_ROOT}/SPECS/${PACKAGE_NAME}.spec"
-}
-
-# Cleanup previous RPM build
-cleanup() {
-    rm -rf "${RPMBUILD_ROOT}" "${GIT_CLONE_DIR}"
 }
 
 # Main function
 main() {
-    echo "Cleaning up previous builds..."
     cleanup
-
-    echo "Cloning the ${PACKAGE_NAME} repository..."
-    clone_repo
-
-    echo "Preparing RPM build environment..."
     prepare_rpm_env
-
-    echo "Creating RPM spec file..."
+    clone_repo
     create_rpm_spec
-
-    echo "Creating source tarball for RPM build..."
     create_source_tarball
-
-    echo "Building RPM package..."
     build_rpm
 }
-
-# Ensure dependencies are installed
-sudo dnf install -y rpm-build gcc json-c-devel readline-devel
 
 # Execute the main function
 main
