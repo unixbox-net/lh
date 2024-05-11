@@ -1,10 +1,10 @@
 #!/bin/bash
-set -x
+
 # Set environment variables
 PACKAGE_NAME="lh"
 VERSION="1.0.0"
 RELEASE="1"
-BASE_DIR="$HOME"  # Use $HOME to refer to the user's home directory
+BASE_DIR="$HOME"
 WORKDIR="${BASE_DIR}/${PACKAGE_NAME}_build"
 RPMBUILD_DIR="${WORKDIR}/rpmbuild"
 GIT_REPO="https://github.com/unixbox-net/lh"
@@ -43,12 +43,13 @@ fi
 
 # Prepare the source directory for the tarball
 echo "Preparing the source directory for the tarball..."
-cp -a "${BASE_DIR}/${PACKAGE_NAME}/." "${WORKDIR}/${PACKAGE_NAME}-${VERSION}"
+mkdir -p "${WORKDIR}/${PACKAGE_NAME}-${VERSION}"
+cp -a "${BASE_DIR}/${PACKAGE_NAME}/." "${WORKDIR}/${PACKAGE_NAME}-${VERSION}/"
 
 # Create the tarball for RPM build
 echo "Creating source tarball for RPM build..."
 cd "${WORKDIR}" || exit
-tar czf "${RPMBUILD_DIR}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${PACKAGE_NAME}-${VERSION}" .
+tar czf "${RPMBUILD_DIR}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${WORKDIR}" "${PACKAGE_NAME}-${VERSION}"
 
 # Create spec file
 echo "Creating RPM spec file..."
