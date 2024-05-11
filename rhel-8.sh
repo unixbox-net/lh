@@ -4,7 +4,7 @@
 PACKAGE_NAME="lh"
 VERSION="1.0.0"
 RELEASE="1"
-WORKDIR="$(pwd)/${PACKAGE_NAME}_build"  # Uses the current directory
+WORKDIR="$(pwd)/${PACKAGE_NAME}_build"
 RPMBUILD_DIR="${WORKDIR}/rpmbuild"
 SOURCE_DIR="${PACKAGE_NAME}-${VERSION}"
 GIT_REPO="https://github.com/unixbox-net/lh"
@@ -12,12 +12,7 @@ GIT_REPO="https://github.com/unixbox-net/lh"
 # Clear previous build environment if it exists
 echo "Checking and clearing previous build environment..."
 [ -d "$WORKDIR" ] && rm -rf "$WORKDIR"
-
-# Create necessary directories
-echo "Creating build directories..."
-mkdir -p ${RPMBUILD_DIR}/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-mkdir -p ${WORKDIR}/${SOURCE_DIR}
-mkdir -p ${WORKDIR}/install/usr/bin
+mkdir -p $WORKDIR/{install/usr/bin,rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}}
 
 # Install necessary tools and libraries
 echo "Installing necessary development tools and libraries..."
@@ -27,28 +22,27 @@ sudo dnf install -y gcc make rpm-build readline-devel json-c-devel git
 echo "Cloning the repository..."
 git clone ${GIT_REPO} ${WORKDIR}/repo
 
-# Move to repository directory to compile
+# Compile the source code from the repository
 cd ${WORKDIR}/repo
-echo "Compiling the source code from the correct directory..."
+echo "Compiling the source code..."
 gcc -Wall -Wextra -std=c99 -g lh.c -o lh -lreadline -ljson-c
 
-# Check if compilation was successful
 if [ -f "lh" ]; then
-    echo "Compilation successful. Simulating 'make install'..."
+    echo "Compilation successful."
     cp lh ${WORKDIR}/install/usr/bin
 else
-    echo "Compilation failed, lh executable not found."
+    echo "Compilation failed, executable not found."
     exit 1
 fi
 
-# Prepare the installation directory structure
-echo "Preparing the installation directory structure..."
+# Prepare the source directory for the tarball
+mkdir -p ${WORKDIR}/${SOURCE_DIR}
 cp lh.c ${WORKDIR}/${SOURCE_DIR}
 
 # Create the tarball for RPM build
 echo "Creating source tarball for RPM build..."
-cd ${WORKDIR}/${SOURCE_DIR}
-tar czf ${RPMBUILD_DIR}/SOURCES/${SOURCE_DIR}.tar.gz .
+cd ${WORKDIR}
+tar czf ${RPMBUILD_DIR}/SOURCES/${SOURCE_DIR}.tar.gz -C ${WORKDIR} ${SOURCE_DIR}
 
 # Create spec file
 echo "Creating RPM spec file..."
@@ -70,7 +64,7 @@ lh (LogHog) is a new Linux command tool for monitoring and managing logs efficie
 %setup -q
 
 %build
-gcc -Wall -Wextra -std=c99 -g lh.c -o lh -lreadline -ljson-c
+gcc -Wall -Wextra -std=c99 -g ${SOURCE_DIR}/lh.c -o lh -lreadline -ljson-c
 
 %install
 cp lh %{buildroot}/usr/bin/lh
