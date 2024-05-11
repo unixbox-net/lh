@@ -4,26 +4,26 @@
 PACKAGE_NAME="lh"
 VERSION="1.0.0"
 RELEASE="1"
-WORKDIR="/tmp/${PACKAGE_NAME}_build"
+WORKDIR="/tmp/${PACKAGE_NAME}_build"  # You can change this to another path if needed
 RPMBUILD_DIR="${WORKDIR}/rpmbuild"
 SOURCE_DIR="${PACKAGE_NAME}-${VERSION}"
 GIT_REPO="https://github.com/unixbox-net/lh"
 
-# Install necessary tools and libraries
-sudo dnf install -y gcc make rpm-build readline-devel json-c-devel git
-
-# Prepare environment
+# Ensure directories
 mkdir -p ${RPMBUILD_DIR}/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 mkdir -p ${WORKDIR}/${SOURCE_DIR}
 
+# Install necessary tools and libraries
+sudo dnf install -y gcc make rpm-build readline-devel json-c-devel git
+
 # Clone the repository
 git clone ${GIT_REPO} ${WORKDIR}/repo
-cd ${WORKDIR}/repo
 
-# Compile the source code
+# Move to repository directory to compile
+cd ${WORKDIR}/repo
 make
 
-# Move binary to the expected location (emulate 'make install')
+# Move binary to the expected location (simulate 'make install')
 mkdir -p ${WORKDIR}/install/usr/bin
 cp ${PACKAGE_NAME} ${WORKDIR}/install/usr/bin
 
@@ -69,7 +69,7 @@ EOF
 cd ${WORKDIR}/install
 tar czf ${RPMBUILD_DIR}/SOURCES/${SOURCE_DIR}.tar.gz usr
 
-# Adjust tarball structure to include a root directory lh-1.0.0
+# Adjust tarball structure to include a root directory matching the spec expectation
 cd ${RPMBUILD_DIR}/SOURCES
 mkdir ${SOURCE_DIR}
 tar xzf ${SOURCE_DIR}.tar.gz -C ${SOURCE_DIR}
@@ -85,6 +85,7 @@ sudo dnf reinstall -y ${RPMBUILD_DIR}/RPMS/x86_64/${PACKAGE_NAME}-${VERSION}-${R
 # Output the location of built RPM for verification
 echo "Build complete, package located in ${RPMBUILD_DIR}/RPMS/x86_64/"
 
-# Comment out the cleanup for debugging purposes
-# echo "Cleanup disabled for debugging."
+# Uncomment below to enable cleanup after inspection
+# echo "Cleaning up build environment..."
 # rm -rf ${WORKDIR}
+
