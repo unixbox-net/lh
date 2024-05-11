@@ -1,73 +1,81 @@
 #!/bin/bash
 
-# Constants
+# Set environment variables
 PACKAGE_NAME="lh"
 VERSION="1.0.0"
 RELEASE="1"
-MAINTAINER="Your Name <you@example.com>"
-SOURCE_FILE="lh.c"
-BIN_FILE="$PACKAGE_NAME"
-WORKDIR="$HOME/${PACKAGE_NAME}_build"
-RPMBUILD_DIR="$WORKDIR/rpmbuild"
+WORKDIR="/tmp/${PACKAGE_NAME}_build"
+RPMBUILD_DIR="${WORKDIR}/rpmbuild"
+SOURCE_DIR="${PACKAGE_NAME}-${VERSION}"
+GIT_REPO="https://github.com/unixbox-net/lh"
 
-# Ensure necessary packages are installed
-sudo dnf install -y rpm-build gcc make
+# Install necessary tools and libraries
+sudo dnf install -y gcc make rpm-build readline-devel json-c-devel git
 
 # Prepare environment
-mkdir -p $RPMBUILD_DIR/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-cd $WORKDIR
+mkdir -p ${RPMBUILD_DIR}/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+mkdir -p ${WORKDIR}/${SOURCE_DIR}
 
-# Create necessary files
-echo "#include <stdio.h>
-int main() {
-    printf(\"Hello from $PACKAGE_NAME\\n\");
-    return 0;
-}" > $SOURCE_FILE
+# Clone the repository
+git clone ${GIT_REPO} ${WORKDIR}/repo
+cd ${WORKDIR}/repo
 
-# Create the correct directory structure within the tarball
-mkdir $PACKAGE_NAME-$VERSION
-mv $SOURCE_FILE $PACKAGE_NAME-$VERSION/
+# Compile the source code
+make
 
-# Spec file creation
-cat <<EOF > $RPMBUILD_DIR/SPECS/$PACKAGE_NAME.spec
-Name:           $PACKAGE_NAME
-Version:        $VERSION
-Release:        $RELEASE
-Summary:        Simple log handler tool
+# Move binary to the expected location (emulate 'make install')
+mkdir -p ${WORKDIR}/install/usr/bin
+cp ${PACKAGE_NAME} ${WORKDIR}/install/usr/bin
+
+# Create spec file
+cat <<EOF > ${RPMBUILD_DIR}/SPECS/${PACKAGE_NAME}.spec
+Name:           ${PACKAGE_NAME}
+Version:        ${VERSION}
+Release:        ${RELEASE}%{?dist}
+Summary:        A new Linux command tool
 License:        MIT
-URL:            https://github.com/unixbox-net/$PACKAGE_NAME
+URL:            ${GIT_REPO}
 Source0:        %{name}-%{version}.tar.gz
-BuildRequires:  gcc, make
+BuildRequires:  gcc, make, readline-devel, json-c-devel
+Requires:       readline, json-c
 
 %description
-%{summary}.
+lh (LogHog) is a new Linux command tool for monitoring and managing logs efficiently.
 
 %prep
+echo "Starting prep stage..."
 %setup -q
+echo "Finished prep stage."
 
 %build
-gcc -o $BIN_FILE $SOURCE_FILE
+echo "Starting build stage..."
+make %{?_smp_mflags}
+echo "Finished build stage."
 
 %install
-mkdir -p %{buildroot}/usr/bin
-install -m 0755 $BIN_FILE %{buildroot}/usr/bin/$BIN_FILE
+echo "Starting install stage..."
+make install DESTDIR=%{buildroot}
+echo "Finished install stage."
 
 %files
-/usr/bin/$BIN_FILE
+%{_bindir}/lh
 
 %changelog
-* $(date "+%a %b %d %Y") $MAINTAINER - $VERSION-$RELEASE
+* Fri May 11 2024 Your Name <you@example.com> - 1.0.0-1
 - Initial RPM release
 EOF
 
-# Create source tarball with correct directory structure
-tar czf $RPMBUILD_DIR/SOURCES/$PACKAGE_NAME-$VERSION.tar.gz $PACKAGE_NAME-$VERSION
+# Create the tarball for RPM build
+cd ${WORKDIR}/install
+tar czf ${RPMBUILD_DIR}/SOURCES/${SOURCE_DIR}.tar.gz usr
 
-# Build the RPM
-rpmbuild --define "_topdir $RPMBUILD_DIR" -ba $RPMBUILD_DIR/SPECS/$PACKAGE_NAME.spec
+# Build the RPM package
+rpmbuild --define "_topdir ${RPMBUILD_DIR}" -ba ${RPMBUILD_DIR}/SPECS/${PACKAGE_NAME}.spec
+
+# Install the RPM package
+sudo dnf reinstall -y ${RPMBUILD_DIR}/RPMS/x86_64/${PACKAGE_NAME}-${VERSION}-${RELEASE}.x86_64.rpm
 
 # Clean up
-cd $HOME
-rm -rf $WORKDIR
+rm -rf ${WORKDIR}
 
-echo "Build complete, package located in $RPMBUILD_DIR/RPMS/"
+echo "Build and installation complete."
