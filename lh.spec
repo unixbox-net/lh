@@ -5,7 +5,8 @@ Summary:        Lightweight log monitoring tool
 License:        MIT
 URL:            https://github.com/unixbox-net/lh
 Source0:        %{name}-%{version}.tar.gz
-BuildRequires:  gcc, make
+BuildRequires:  gcc, json-c-devel, readline-devel
+Requires:       json-c, readline
 
 %description
 lh is a lightweight log monitoring tool designed for easy log file monitoring.
@@ -14,16 +15,20 @@ lh is a lightweight log monitoring tool designed for easy log file monitoring.
 %setup -q
 
 %build
-cd %{_builddir}/%{name}-%{version}
-make
+gcc -o lh src/lh.c -Wall -lreadline -ljson-c
 
 %install
-make install DESTDIR=%{buildroot}
+rm -rf $RPM_BUILD_ROOT
+mkdir -p %{buildroot}/usr/bin
+mkdir -p %{buildroot}/usr/share/doc/%{name}-%{version}
+install -m 755 lh %{buildroot}/usr/bin
+install -m 644 LICENSE %{buildroot}/usr/share/doc/%{name}-%{version}
+install -m 644 README.md %{buildroot}/usr/share/doc/%{name}-%{version}
 
 %files
 /usr/bin/lh
-%doc /usr/share/doc/lh-1.0.0/LICENSE
-%doc /usr/share/doc/lh-1.0.0/README.md
+%doc /usr/share/doc/%{name}-%{version}/LICENSE
+%doc /usr/share/doc/%{name}-%{version}/README.md
 
 %changelog
 * Sat May 11 2024 Your Name <you@example.com> - 1.0.0-1
