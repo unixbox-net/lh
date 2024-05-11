@@ -10,9 +10,9 @@ RPMBUILD_DIR="${WORKDIR}/rpmbuild"
 
 # Ensure all necessary directories are created and clean
 echo "Setting up build environment..."
-[ -d "$WORKDIR" ] && rm -rf "$WORKDIR"
-mkdir -p "${WORKDIR}/install/usr/bin"
-mkdir -p "${RPMBUILD_DIR}"/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+rm -rf "${WORKDIR}"
+mkdir -p "${WORKDIR}/{install/usr/bin,rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}}"
+mkdir -p "${WORKDIR}/${PACKAGE_NAME}-${VERSION}"
 
 # Install necessary development tools and libraries
 echo "Installing necessary development tools and libraries..."
@@ -24,7 +24,7 @@ cd "${BASE_DIR}" || exit
 git pull
 gcc -Wall -Wextra -std=c99 -g lh.c -o lh -lreadline -ljson-c
 
-if [ -f "lh" ]; then
+if [ -f "${BASE_DIR}/lh" ]; then
     echo "Compilation successful."
     cp lh "${WORKDIR}/install/usr/bin"
 else
@@ -34,11 +34,11 @@ fi
 
 # Prepare the source directory for the tarball
 echo "Preparing source directory for the RPM build..."
-cp -r * "${WORKDIR}/${PACKAGE_NAME}-${VERSION}/"
+cp -a "${BASE_DIR}"/* "${WORKDIR}/${PACKAGE_NAME}-${VERSION}/"
 
 # Create the source tarball for the RPM build
 echo "Creating source tarball..."
-tar czf "${RPMBUILD_DIR}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${PACKAGE_NAME}-${VERSION}" .
+tar czf "${RPMBUILD_DIR}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${WORKDIR}/${PACKAGE_NAME}-${VERSION}" .
 
 # Generate the RPM spec file
 echo "Generating RPM spec file..."
