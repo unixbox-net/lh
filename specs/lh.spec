@@ -26,6 +26,14 @@ install -m 755 lh %{buildroot}/usr/local/bin/
 %files
 /usr/local/bin/lh
 
+# Correcting the tarball creation process
+echo "Creating tarball with correct directory structure..."
+mkdir -p lh-1.0.0
+cp -a src/* lh-1.0.0/
+tar czf SOURCES/lh-1.0.0.tar.gz lh-1.0.0 || { echo "Failed to create source tarball. Exiting."; exit 1; }
+rm -rf lh-1.0.0
+
+# Example changelog entry in lh.spec
 %changelog
-* Fri May 11 2024 Your Name <you@example.com> 1.0.0-1
-- Initial RPM release
+* Fri May 10 2024 Your Name <you@example.com> - 1.0.0-1
+- Initial RPM release of lh
