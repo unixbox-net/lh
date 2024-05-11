@@ -1,76 +1,117 @@
 #!/bin/bash
+# build-loghog-rpm.sh - Script to clone the loghog repo and build an RPM package for loghog
 
-# Setup logfile
-LOGFILE="/tmp/lh.log"
-exec > >(tee "$LOGFILE") 2>&1
+# Constants
+VERSION="1.0.0"
+RELEASE="1"
+PACKAGE_NAME="lh"
+GIT_REPO="https://github.com/unixbox-net/loghog.git"
+GIT_CLONE_DIR="$HOME/loghog"
+SOURCE_DIR="${PACKAGE_NAME}-${VERSION}"
+SOURCE_FILE="lh.c"
+BIN_FILE="loghog"
+LICENSE_FILE="LICENSE"
+README_FILE="README.md"
+RPMBUILD_ROOT="$HOME/rpmbuild"
+MAINTAINER="Your Name <you@example.com>"
 
-echo "Starting the build process..."
+# Prepare RPM build environment
+prepare_rpm_env() {
+    mkdir -p "${RPMBUILD_ROOT}"/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+}
 
-# Define main directory based on the current script location
-MAIN_DIR=$(pwd)
-BUILD_DIR="$MAIN_DIR/build"
-RPMBUILD_DIR="$BUILD_DIR/rpmbuild"
-SOURCES_DIR="$RPMBUILD_DIR/SOURCES"
-SPECS_DIR="$RPMBUILD_DIR/SPECS"
-BUILDROOT_DIR="$RPMBUILD_DIR/BUILDROOT"
+# Generate the spec file for RPM
+create_rpm_spec() {
+    SPEC_FILE="${RPMBUILD_ROOT}/SPECS/${PACKAGE_NAME}.spec"
 
-# Clean old build directories if they exist
-echo "Cleaning old build directories..."
-rm -rf "$BUILD_DIR"
-
-# Create necessary directories
-echo "Creating build directories..."
-mkdir -p "$BUILD_DIR" "$RPMBUILD_DIR" "$SOURCES_DIR" "$SPECS_DIR" "$BUILDROOT_DIR"
-
-# Check for required packages and install if missing
-echo "Checking and installing required packages..."
-sudo dnf install -y gcc make rpm-build readline-devel json-c-devel git
-
-# Prepare the source directory for RPM build
-echo "Copying source files to $SOURCES_DIR..."
-cp -a * "$SOURCES_DIR" || { echo "Failed to copy source files."; exit 1; }
-
-echo "Creating source tarball..."
-tar -czf "$SOURCES_DIR/lh-1.0.0.tar.gz" -C "$SOURCES_DIR" . || { echo "Failed to create source tarball."; exit 1; }
-
-# Generate the RPM spec file
-echo "Generating RPM spec file..."
-cat > "$SPECS_DIR/lh.spec" <<EOF
-Summary: Lightweight log handler
-Name: lh
-Version: 1.0.0
-Release: 1%{?dist}
-License: GPL
-Source0: %{name}-%{version}.tar.gz
-
-BuildRequires: gcc, make, readline-devel, json-c-devel
+    cat <<EOF > "${SPEC_FILE}"
+Name:           ${PACKAGE_NAME}
+Version:        ${VERSION}
+Release:        ${RELEASE}%{?dist}
+Summary:        A lightweight and simple log monitoring tool
+License:        MIT
+URL:            https://github.com/unixbox-net/loghog
+Source0:        %{name}-%{version}.tar.gz
+BuildRequires:  gcc, json-c-devel, readline-devel
 
 %description
-lh is a tool for handling logs efficiently.
+A lightweight and simple log monitoring tool.
+
+%global _enable_debug_packages 0
+%global debug_package %{nil}
 
 %prep
 %setup -q
 
 %build
-gcc -Wall -o lh lh.c -lreadline -ljson-c
+gcc -o ${BIN_FILE} ${SOURCE_FILE} -Wall -lreadline -ljson-c
 
 %install
 mkdir -p %{buildroot}/usr/bin
-install -m 755 lh %{buildroot}/usr/bin
+install -m 0755 ${BIN_FILE} %{buildroot}/usr/bin/${BIN_FILE}
+mkdir -p %{buildroot}/usr/share/licenses/%{name}
+install -m 0644 ${LICENSE_FILE} %{buildroot}/usr/share/licenses/%{name}/
+mkdir -p %{buildroot}/usr/share/doc/%{name}
+install -m 0644 ${README_FILE} %{buildroot}/usr/share/doc/%{name}/
 
 %files
-/usr/bin/lh
+/usr/bin/${BIN_FILE}
+/usr/share/licenses/%{name}/${LICENSE_FILE}
+/usr/share/doc/%{name}/${README_FILE}
 
 %changelog
-* $(date +"%a %b %d %Y") - 1.0.0-1
-- Initial release
+* $(date "+%a %b %d %Y") ${MAINTAINER} - ${VERSION}-${RELEASE}
+- Initial build
 EOF
+}
 
-# Build the RPM package
-echo "Building the RPM package..."
-rpmbuild -ba "$SPECS_DIR/lh.spec" --define "_topdir $RPMBUILD_DIR" || { echo "RPM build failed."; exit 1; }
+# Create tarball for source files
+create_source_tarball() {
+    mkdir -p "${SOURCE_DIR}"
+    cp "${GIT_CLONE_DIR}"/{${SOURCE_FILE},${LICENSE_FILE},${README_FILE}} "${SOURCE_DIR}/"
+    tar czvf "${RPMBUILD_ROOT}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${SOURCE_DIR}" .
+    rm -rf "${SOURCE_DIR}"
+}
 
-echo "Build and installation complete. RPM package and executable are located in:"
-echo "$RPMBUILD_DIR/RPMS/x86_64/"
+# Clone the GitHub repository
+clone_repo() {
+    rm -rf "${GIT_CLONE_DIR}"
+    git clone "${GIT_REPO}" "${GIT_CLONE_DIR}"
+}
 
-echo "Complete log of this run can be found in $LOGFILE"
+# Build RPM package
+build_rpm() {
+    rpmbuild -ba "${RPMBUILD_ROOT}/SPECS/${PACKAGE_NAME}.spec"
+}
+
+# Cleanup previous RPM build
+cleanup() {
+    rm -rf "${RPMBUILD_ROOT}" "${GIT_CLONE_DIR}"
+}
+
+# Main function
+main() {
+    echo "Cleaning up previous builds..."
+    cleanup
+
+    echo "Cloning the ${PACKAGE_NAME} repository..."
+    clone_repo
+
+    echo "Preparing RPM build environment..."
+    prepare_rpm_env
+
+    echo "Creating RPM spec file..."
+    create_rpm_spec
+
+    echo "Creating source tarball for RPM build..."
+    create_source_tarball
+
+    echo "Building RPM package..."
+    build_rpm
+}
+
+# Ensure dependencies are installed
+sudo dnf install -y rpm-build gcc json-c-devel readline-devel
+
+# Execute the main function
+main
