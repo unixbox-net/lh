@@ -1,39 +1,40 @@
 #!/bin/bash
 
 # Set the base directory for the lh project
-BASE_DIR="$(dirname "$(realpath "$0")")"
+BASE_DIR="/root/lh"
 RPM_BUILD_DIR="${BASE_DIR}/rpmbuild"
 PACKAGE_NAME="lh"
 VERSION="1.0.0"
 
-# Function to prepare the environment: create directories and install dependencies
+# Prepare environment function
 prepare_environment() {
     echo "Cleaning up previous builds..."
     rm -rf "${RPM_BUILD_DIR}"
-    echo "Creating RPM build directories..."
-    mkdir -p "${RPM_BUILD_DIR}/BUILD" "${RPM_BUILD_DIR}/RPMS" "${RPM_BUILD_DIR}/SOURCES" "${RPM_BUILD_DIR}/SPECS" "${RPM_BUILD_DIR}/SRPMS"
-    echo "Directories created."
+    mkdir -p "${RPM_BUILD_DIR}/{BUILD,RPMS,SOURCES,SPECS,SRPMS}"
 
     echo "Installing necessary dependencies..."
-    sudo dnf install -y rpm-build gcc json-c-devel readline-devel git
+    sudo dnf install -y rpm-build gcc json-c-devel readline-devel
 }
 
-# Function to prepare the source files for the RPM build
+# Prepare source function
 prepare_source() {
     echo "Preparing source files..."
-    mkdir -p "${RPM_BUILD_DIR}/SOURCES"
-    tar czf "${RPM_BUILD_DIR}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${BASE_DIR}/src" . --transform "s,^,${PACKAGE_NAME}-${VERSION}/,"
-    cp "${BASE_DIR}/LICENSE" "${BASE_DIR}/README.md" "${RPM_BUILD_DIR}/SOURCES/"
-    cp "${BASE_DIR}/lh.spec" "${RPM_BUILD_DIR}/SPECS/"
+    mkdir -p "${RPM_BUILD_DIR}/SOURCES/lh-${VERSION}"
+    cp -r "${BASE_DIR}/src/"* "${RPM_BUILD_DIR}/SOURCES/lh-${VERSION}/"
+    cp "${BASE_DIR}/LICENSE" "${BASE_DIR}/README.md" "${RPM_BUILD_DIR}/SOURCES/lh-${VERSION}/"
+
+    # Create tarball
+    tar czf "${RPM_BUILD_DIR}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${RPM_BUILD_DIR}/SOURCES/" lh-${VERSION}
+    cp "${BASE_DIR}/${PACKAGE_NAME}.spec" "${RPM_BUILD_DIR}/SPECS/"
 }
 
-# Function to build the RPM package
+# Build RPM function
 build_rpm() {
     echo "Building RPM package..."
     rpmbuild -ba "${RPM_BUILD_DIR}/SPECS/${PACKAGE_NAME}.spec" --define "_topdir ${RPM_BUILD_DIR}"
 }
 
-# Main function to orchestrate the script
+# Main function
 main() {
     prepare_environment
     prepare_source
