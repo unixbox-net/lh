@@ -1,17 +1,17 @@
 #!/bin/bash
 
-# Configuration parameters
-PACKAGE_NAME="lh"
-VERSION="1.0.0"
-RELEASE="1"
-BASE_DIR="$(dirname $(realpath $0))"
-WORKDIR="${BASE_DIR}/build"
-RPMBUILD_DIR="${WORKDIR}/rpmbuild"
+# Define environment variables
+export PACKAGE_NAME="lh"
+export VERSION="1.0.0"
+export RELEASE="1"
+export BASE_DIR="$(dirname "$(realpath "$0")")"
+export WORKDIR="${BASE_DIR}/build"
+export RPMBUILD_DIR="${WORKDIR}/rpmbuild"
+export INSTALL_DIR="${WORKDIR}/install/usr/bin"
 
-# Ensure all necessary directories are created and clean
+# Ensure directories are set up properly
 echo "Setting up build environment..."
-rm -rf "${WORKDIR}"
-mkdir -p "${WORKDIR}/install/usr/bin"
+mkdir -p "${INSTALL_DIR}"
 mkdir -p "${RPMBUILD_DIR}/{BUILD,RPMS,SOURCES,SPECS,SRPMS}"
 mkdir -p "${WORKDIR}/${PACKAGE_NAME}-${VERSION}"
 
@@ -23,11 +23,11 @@ sudo dnf install -y gcc make rpm-build readline-devel json-c-devel git
 echo "Updating repository and compiling the source code..."
 cd "${BASE_DIR}" || exit
 git pull
-gcc -Wall -Wextra -std=c99 -g lh.c -o lh -lreadline -ljson-c
+gcc -Wall -Wextra -std=c99 -g "${BASE_DIR}/lh.c" -o "${BASE_DIR}/lh" -lreadline -ljson-c
 
 if [ -f "${BASE_DIR}/lh" ]; then
     echo "Compilation successful."
-    cp lh "${WORKDIR}/install/usr/bin"
+    cp "${BASE_DIR}/lh" "${INSTALL_DIR}"
 else
     echo "Compilation failed, executable not found."
     exit 1
@@ -47,12 +47,12 @@ cat <<EOF > "${RPMBUILD_DIR}/SPECS/${PACKAGE_NAME}.spec"
 Name:           ${PACKAGE_NAME}
 Version:        ${VERSION}
 Release:        ${RELEASE}%{?dist}
-Summary:        Comprehensive Linux log management tool
+Summary:        Comprehensive log management tool
 License:        MIT
 URL:            https://github.com/unixbox-net/lh
 Source0:        %{name}-%{version}.tar.gz
 BuildRequires:  gcc, make, readline-devel, json-c-devel
-Requires:       readline, json-c
+Requires:       libc.so.6(GLIBC_2.14)(64bit), readline, json-c
 
 %description
 ${PACKAGE_NAME} is a versatile tool for managing and analyzing system logs.
