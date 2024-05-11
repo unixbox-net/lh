@@ -24,6 +24,10 @@ int main() {
     return 0;
 }" > $SOURCE_FILE
 
+# Create the correct directory structure within the tarball
+mkdir $PACKAGE_NAME-$VERSION
+mv $SOURCE_FILE $PACKAGE_NAME-$VERSION/
+
 # Spec file creation
 cat <<EOF > $RPMBUILD_DIR/SPECS/$PACKAGE_NAME.spec
 Name:           $PACKAGE_NAME
@@ -56,8 +60,8 @@ install -m 0755 $BIN_FILE %{buildroot}/usr/bin/$BIN_FILE
 - Initial RPM release
 EOF
 
-# Create source tarball
-tar czf $RPMBUILD_DIR/SOURCES/$PACKAGE_NAME-$VERSION.tar.gz $SOURCE_FILE
+# Create source tarball with correct directory structure
+tar czf $RPMBUILD_DIR/SOURCES/$PACKAGE_NAME-$VERSION.tar.gz $PACKAGE_NAME-$VERSION
 
 # Build the RPM
 rpmbuild --define "_topdir $RPMBUILD_DIR" -ba $RPMBUILD_DIR/SPECS/$PACKAGE_NAME.spec
