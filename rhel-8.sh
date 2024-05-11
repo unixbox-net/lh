@@ -4,7 +4,7 @@
 PACKAGE_NAME="lh"
 VERSION="1.0.0"
 RELEASE="1"
-BASE_DIR="$HOME"
+BASE_DIR="$HOME"  # Use $HOME to refer to the user's home directory
 WORKDIR="${BASE_DIR}/${PACKAGE_NAME}_build"
 RPMBUILD_DIR="${WORKDIR}/rpmbuild"
 GIT_REPO="https://github.com/unixbox-net/lh"
@@ -30,7 +30,7 @@ fi
 # Compile the source code from the repository
 cd "${BASE_DIR}/${PACKAGE_NAME}" || exit
 echo "Compiling the source code from the correct directory..."
-gcc -Wall -Wextra -std=c99 -g lh.c -o lh -lreadline -ljson-c
+gcc -Wall -Wextra -std=c99 -g lh.c -o lh -lreadline -ljson-c -D_GNU_SOURCE
 
 if [ -f "lh" ]; then
     echo "Compilation successful."
@@ -43,8 +43,7 @@ fi
 
 # Prepare the source directory for the tarball
 echo "Preparing the source directory for the tarball..."
-mkdir -p "${WORKDIR}/${PACKAGE_NAME}-${VERSION}"
-cp lh.c "${WORKDIR}/${PACKAGE_NAME}-${VERSION}"
+cp -a "${BASE_DIR}/${PACKAGE_NAME}/." "${WORKDIR}/${PACKAGE_NAME}-${VERSION}"
 
 # Create the tarball for RPM build
 echo "Creating source tarball for RPM build..."
@@ -53,7 +52,7 @@ tar czf "${RPMBUILD_DIR}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${PACKAG
 
 # Create spec file
 echo "Creating RPM spec file..."
-cat <<EOF > "${RPMBUILD_DIR}/SPECS/${PACKAGE_NAME}.spec"
+cat <<EOF > "${RPMBUILD_DIR}/SPECS/${PACKAGE_NAME}.spec
 Name:           ${PACKAGE_NAME}
 Version:        ${VERSION}
 Release:        ${RELEASE}%{?dist}
