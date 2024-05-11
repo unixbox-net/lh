@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Assuming this script is being run from the INSTALL_DIR which contains lh source
+
 # Configuration variables
 REPO_URL="https://github.com/unixbox-net/lh.git"
 INSTALL_DIR="$HOME/lh"
@@ -11,37 +13,26 @@ RPMS_DIR="${RPMBUILD_DIR}/RPMS"
 SRPMS_DIR="${RPMBUILD_DIR}/SRPMS"
 BUILDROOT_DIR="${RPMBUILD_DIR}/BUILDROOT"
 
-# Create necessary directories
-echo "Creating necessary directories..."
-mkdir -p "$BUILD_DIR" "$RPMBUILD_DIR" "$SOURCES_DIR" "$SPECS_DIR" "$RPMS_DIR" "$SRPMS_DIR" "$BUILDROOT_DIR"
-
-# Install necessary development tools and libraries
-echo "Installing necessary development tools and libraries..."
-sudo dnf install -y gcc make rpm-build readline-devel json-c-devel git
-
-# Assuming that lh.c and other project files are already in $INSTALL_DIR
-cd "$INSTALL_DIR"
-
-# Compile the source code
-echo "Compiling the source code..."
-gcc -Wall -o lh lh.c -lreadline -ljson-c
-
 # Prepare the source directory for RPM build
 echo "Preparing the source directory for RPM build..."
-# Copy project files to BUILD_DIR but do not include the build directory itself
-rsync -av --exclude='build' ./* "$BUILD_DIR/"
+mkdir -p "$BUILD_DIR" "$RPMBUILD_DIR" "$SOURCES_DIR" "$SPECS_DIR" "$RPMS_DIR" "$SRPMS_DIR" "$BUILDROOT_DIR"
+mkdir -p "${BUILD_DIR}/lh-1.0.0"  # Make sure the directory exists
+
+# Copy all necessary files to the BUILD_DIR
+cp -r ./* "${BUILD_DIR}/lh-1.0.0/"  # Ensure it doesn't copy build directory recursively
+cd "${BUILD_DIR}"
 
 # Creating the source tarball
 echo "Creating source tarball..."
-tar -czf "${SOURCES_DIR}/lh-1.0.0.tar.gz" -C "$BUILD_DIR" .
+tar -czf "${SOURCES_DIR}/lh-1.0.0.tar.gz" "lh-1.0.0"  # Create tarball of lh-1.0.0
 
-# Generating the RPM spec file
+# Generate the RPM spec file
 echo "Generating RPM spec file..."
 cat > "${SPECS_DIR}/lh.spec" <<EOF
 Name: lh
 Version: 1.0.0
 Release: 1%{?dist}
-Summary: No-nonsense digital forensics tool
+Summary: Log Helper
 
 License: GPL
 URL: $REPO_URL
@@ -52,7 +43,7 @@ BuildRequires: gcc, make, rpm-build, readline-devel, json-c-devel
 Requires: readline, json-c
 
 %description
-lh (LogHog) is a no-nonsense digital forensics tool.
+LH (Log Helper) is a tool to analyze log files.
 
 %prep
 %setup -q
