@@ -1,13 +1,12 @@
 #!/bin/bash
-# build-lh-rpm.sh - Script to build an RPM package for lh
+# build-lh-rpm.sh - Script to build an RPM package for lh within the ~/lh directory
 
 # Constants
 VERSION="1.0.0"
 RELEASE="1"
 PACKAGE_NAME="lh"
 GIT_REPO="https://github.com/unixbox-net/lh.git"
-WORK_DIR="$HOME/lh-build"
-GIT_CLONE_DIR="$WORK_DIR/lh"
+WORK_DIR="$HOME/lh"
 RPMBUILD_DIR="$WORK_DIR/rpmbuild"
 MAINTAINER="Your Name <you@example.com>"
 
@@ -22,21 +21,14 @@ setup_environment() {
 # Cleanup environment
 cleanup() {
     echo "Cleaning up previous builds..."
-    rm -rf "$WORK_DIR"
+    rm -rf "$RPMBUILD_DIR"
     echo "Cleanup complete."
-}
-
-# Clone the GitHub repository
-clone_repo() {
-    echo "Cloning the lh repository..."
-    git clone "$GIT_REPO" "$GIT_CLONE_DIR"
-    echo "Repository cloned."
 }
 
 # Prepare the source directory and spec file
 prepare_source() {
     echo "Preparing source directory..."
-    tar -czf "$RPMBUILD_DIR/SOURCES/$PACKAGE_NAME-$VERSION.tar.gz" -C "$GIT_CLONE_DIR" .
+    tar -czf "$RPMBUILD_DIR/SOURCES/$PACKAGE_NAME-$VERSION.tar.gz" -C "$WORK_DIR" .
     echo "Source tarball created."
 }
 
@@ -79,7 +71,7 @@ EOF
 # Build RPM package
 build_rpm() {
     echo "Building RPM package..."
-    rpmbuild -ba "$RPMBUILD_DIR/SPECS/$PACKAGE_NAME.spec"
+    rpmbuild --define "_topdir $RPMBUILD_DIR" -ba "$RPMBUILD_DIR/SPECS/$PACKAGE_NAME.spec"
     echo "RPM package built."
 }
 
@@ -87,7 +79,6 @@ build_rpm() {
 main() {
     cleanup
     setup_environment
-    clone_repo
     prepare_source
     create_rpm_spec
     build_rpm
