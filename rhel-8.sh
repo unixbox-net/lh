@@ -4,6 +4,9 @@
 # Constants
 WORK_DIR="$HOME/lh"
 RPMBUILD_DIR="$WORK_DIR/rpmbuild"
+PACKAGE_NAME="lh"
+VERSION="1.0.0"
+TARBALL_NAME="${PACKAGE_NAME}-${VERSION}.tar.gz"
 
 # Prepare environment
 prepare_environment() {
@@ -29,20 +32,22 @@ setup_dependencies() {
 prepare_sources() {
     echo "Preparing source files..."
     cp "$WORK_DIR"/*.c "$WORK_DIR"/*.sh "$WORK_DIR"/LICENSE "$WORK_DIR"/README.md "$RPMBUILD_DIR/SOURCES/"
-    tar -czf "$RPMBUILD_DIR/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "$RPMBUILD_DIR/SOURCES" .
-    echo "Source tarball created at $RPMBUILD_DIR/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz"
+    cd "$RPMBUILD_DIR/SOURCES"
+    tar czf "$TARBALL_NAME" --exclude="$TARBALL_NAME" .
+    mv "$TARBALL_NAME" "$RPMBUILD_DIR/SOURCES/"
+    echo "Source tarball created at $RPMBUILD_DIR/SOURCES/$TARBALL_NAME"
 }
 
 # Create the RPM spec file
 create_spec_file() {
     cat <<EOF >"$RPMBUILD_DIR/SPECS/$PACKAGE_NAME.spec"
-Name:           lh
-Version:        1.0.0
+Name:           $PACKAGE_NAME
+Version:        $VERSION
 Release:        1
 Summary:        Lightweight log monitoring tool
 License:        MIT
 URL:            https://github.com/unixbox-net/lh
-Source0:        %{name}-%{version}.tar.gz
+Source0:        $TARBALL_NAME
 BuildRequires:  gcc, json-c-devel, readline-devel
 
 %description
