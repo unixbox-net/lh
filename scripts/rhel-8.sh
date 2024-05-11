@@ -1,49 +1,56 @@
 #!/bin/bash
 
-# Define the repository URL and base directory
+# Define the repository URL and the directory for the build
 REPO_URL="https://github.com/unixbox-net/lh.git"
-BASE_DIR="/root/lh"
+BUILD_DIR="/root/lh"
 
 # Cleanup existing directory
 echo "Cleaning up existing directories..."
-rm -rf "$BASE_DIR"
-mkdir -p "$BASE_DIR"
+rm -rf "$BUILD_DIR"
+mkdir -p "$BUILD_DIR"
 
 # Clone the repository
-echo "Cloning the repository..."
-git clone "$REPO_URL" "$BASE_DIR" || { echo "Failed to clone repository. Exiting."; exit 1; }
+echo "Cloning the repository into $BUILD_DIR..."
+git clone "$REPO_URL" "$BUILD_DIR" || { echo "Failed to clone repository. Exiting."; exit 1; }
 
-# Move into the base directory
-cd "$BASE_DIR"
+# Navigate to the build directory
+cd "$BUILD_DIR" || { echo "Failed to navigate to build directory. Exiting."; exit 1; }
 
-# Check and install required packages
-REQUIRED_PACKAGES="gcc make rpm-build readline-devel json-c-devel git"
+# Checking and installing required packages
 echo "Checking and installing required packages..."
+REQUIRED_PACKAGES="gcc make rpm-build readline-devel json-c-devel git"
 sudo dnf install -y $REQUIRED_PACKAGES
 
-# Compile the program using the Makefile
+# Compile the program using Makefile
 echo "Compiling the source code..."
 make || { echo "Compilation failed. Exiting."; exit 1; }
 
-# Prepare for RPM build
+# Setup for RPM build
 echo "Setting up RPM build environment..."
 mkdir -p {BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
-cp src/lh.c BUILD/
-tar czf SOURCES/lh-1.0.0.tar.gz -C BUILD lh.c
-cp specs/lh.spec SPECS/
+cp src/lh.c BUILD/ || { echo "Failed to copy source files. Exiting."; exit 1; }
+tar czf SOURCES/lh-1.0.0.tar.gz -C BUILD lh.c || { echo "Failed to create source tarball. Exiting."; exit 1; }
+
+# Ensure the spec file exists and copy it to the SPECS directory
+if [ -f specs/lh.spec ]; then
+    cp specs/lh.spec SPECS/
+else
+    echo "Spec file not found. Exiting."
+    exit 1
+fi
 
 # Build the RPM package
 echo "Building the RPM package..."
-rpmbuild --define "_topdir $PWD" -ba SPECS/lh.spec
+rpmbuild --define "_topdir $PWD" -ba SPECS/lh.spec || { echo "RPM build failed. Exiting."; exit 1; }
 
-# Find and reinstall the RPM package
-RPM_FILE=$(find RPMS/ -name '*.rpm')
+# Find and install the RPM package
+RPM_FILE=$(find RPMS/ -type f -name '*.rpm')
 if [[ -f "$RPM_FILE" ]]; then
-    echo "RPM package created: $RPM_FILE"
+    echo "Installing RPM package from $RPM_FILE..."
     sudo dnf reinstall "$RPM_FILE" -y
 else
     echo "No RPM package found. Exiting."
     exit 1
 fi
 
-echo "Installation and cleanup complete."
+echo "Build and installation completed successfully."
