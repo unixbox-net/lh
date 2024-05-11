@@ -2,7 +2,7 @@
 
 # Define the repository URL and base directory
 REPO_URL="https://github.com/unixbox-net/lh.git"
-BASE_DIR="$PWD/lh"
+BASE_DIR="/root/lh"
 
 # Cleanup existing directory
 echo "Cleaning up existing directories..."
