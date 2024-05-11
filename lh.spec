@@ -15,7 +15,7 @@ lh is a lightweight log monitoring tool designed for easy log file monitoring.
 %setup -q
 
 %build
-gcc -o lh src/lh.c -Wall -lreadline -ljson-c
+gcc -o lh lh.c -Wall -lreadline -ljson-c
 
 %install
 rm -rf $RPM_BUILD_ROOT
