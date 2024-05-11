@@ -9,7 +9,6 @@ cd "$BASE_DIR"
 
 # Ensure required packages are installed
 REQUIRED_PACKAGES=(git rpm-build readline-devel json-c-devel gcc-c++)
-
 echo "Checking for required packages..."
 for package in "${REQUIRED_PACKAGES[@]}"; do
     if ! rpm -q "$package" >/dev/null 2>&1; then
@@ -26,17 +25,7 @@ mkdir -p "$RPM_BUILD_DIR/BUILD/lh-1.0.0"
 
 # Create the Makefile using printf to ensure correct tabs
 echo "Creating Makefile..."
-{
-    printf "CC = gcc\n"
-    printf "CFLAGS = -Wall -Wextra -std=c99 -g\n"
-    printf "LIBS = -lreadline -ljson-c\n"
-    printf "EXEC = lh\n"
-    printf "SRC = lh.c\n\n"
-    printf "all:\n"
-    printf "\t\$(CC) \$(CFLAGS) \$(SRC) -o \$(EXEC) \$(LIBS)\n\n"
-    printf "clean:\n"
-    printf "\trm -f \$(EXEC)\n"
-} > "$RPM_BUILD_DIR/BUILD/lh-1.0.0/Makefile"
+printf 'CC = gcc\nCFLAGS = -Wall -Wextra -std=c99 -g\nLIBS = -lreadline -ljson-c\nEXEC = lh\nSRC = lh.c\n\nall:\n\t$(CC) $(CFLAGS) $(SRC) -o $(EXEC) $(LIBS)\n\nclean:\n\trm -f $(EXEC)\n' > "$RPM_BUILD_DIR/BUILD/lh-1.0.0/Makefile"
 
 # Create a tarball of the source code
 echo "Creating tarball..."
