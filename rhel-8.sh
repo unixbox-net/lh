@@ -20,13 +20,17 @@ prepare_environment() {
 prepare_source() {
     echo "Preparing source files..."
     mkdir -p "${RPM_BUILD_DIR}/SOURCES"
-    cp -r "${BASE_DIR}/src/"* "${RPM_BUILD_DIR}/SOURCES/"  # Make sure all source files and the Makefile are in src/
-    cp "${BASE_DIR}/LICENSE" "${BASE_DIR}/README.md" "${RPM_BUILD_DIR}/SOURCES/"
     
-    # Tar all necessary files, ensuring the correct project structure
-    tar czf "${RPM_BUILD_DIR}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${BASE_DIR}/src" . --transform "s,^,${PACKAGE_NAME}-${VERSION}/,"
+    # Copy all source files and additional necessary files to the SOURCES directory
+    cp -r "${BASE_DIR}/src/"* "${RPM_BUILD_DIR}/SOURCES/"
+    cp "${BASE_DIR}/LICENSE" "${BASE_DIR}/README.md" "${RPM_BUILD_DIR}/SOURCES/"
+    cp "${BASE_DIR}/Makefile" "${RPM_BUILD_DIR}/SOURCES/"  # Ensure the Makefile is also copied if it's in the root
+
+    # Create a tarball of the entire SOURCES directory, correctly structuring it within a directory named after the package-version
+    tar czf "${RPM_BUILD_DIR}/SOURCES/${PACKAGE_NAME}-${VERSION}.tar.gz" -C "${RPM_BUILD_DIR}/SOURCES" . --transform "s,^,${PACKAGE_NAME}-${VERSION}/,"
     cp "${BASE_DIR}/${PACKAGE_NAME}.spec" "${RPM_BUILD_DIR}/SPECS/"
 }
+
 
 # Function to build the RPM package
 build_rpm() {
