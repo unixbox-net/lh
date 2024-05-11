@@ -11,7 +11,7 @@ RPMS_DIR="${RPMBUILD_DIR}/RPMS"
 SRPMS_DIR="${RPMBUILD_DIR}/SRPMS"
 BUILDROOT_DIR="${RPMBUILD_DIR}/BUILDROOT"
 
-# Ensure all necessary directories are created
+# Create necessary directories
 echo "Creating necessary directories..."
 mkdir -p "$BUILD_DIR" "$RPMBUILD_DIR" "$SOURCES_DIR" "$SPECS_DIR" "$RPMS_DIR" "$SRPMS_DIR" "$BUILDROOT_DIR"
 
@@ -19,7 +19,7 @@ mkdir -p "$BUILD_DIR" "$RPMBUILD_DIR" "$SOURCES_DIR" "$SPECS_DIR" "$RPMS_DIR" "$
 echo "Installing necessary development tools and libraries..."
 sudo dnf install -y gcc make rpm-build readline-devel json-c-devel git
 
-# Navigate to the project directory
+# Assuming that lh.c and other project files are already in $INSTALL_DIR
 cd "$INSTALL_DIR"
 
 # Compile the source code
@@ -28,7 +28,8 @@ gcc -Wall -o lh lh.c -lreadline -ljson-c
 
 # Prepare the source directory for RPM build
 echo "Preparing the source directory for RPM build..."
-cp -R ./* "$BUILD_DIR/"
+# Copy project files to BUILD_DIR but do not include the build directory itself
+rsync -av --exclude='build' ./* "$BUILD_DIR/"
 
 # Creating the source tarball
 echo "Creating source tarball..."
@@ -40,7 +41,7 @@ cat > "${SPECS_DIR}/lh.spec" <<EOF
 Name: lh
 Version: 1.0.0
 Release: 1%{?dist}
-Summary: No-nonsense digital forensics
+Summary: No-nonsense digital forensics tool
 
 License: GPL
 URL: $REPO_URL
