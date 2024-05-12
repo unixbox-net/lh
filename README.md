@@ -3,7 +3,9 @@
 # How to Install
 
   ```bash
+  sudo su -
   curl -sL https://github.com/unixbox-net/lh/raw/main/rhel-8.sh | sudo bash
+  lh
   ```
   
   The installer automatically builds .rpm packages and a binary file. It will attempt to install
