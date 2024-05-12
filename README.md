@@ -13,10 +13,11 @@
   lh
   ```
 
-  Output:
+  Output files can be found
   ```bash
   ~/lh/rpmbuild/BUILD/lh-1.0.0/lh (compiled binary)
   ~/lh/rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm (package)
+  etc
   ```
    
   Depedicies
