@@ -1,25 +1,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <unistd.h>
 #include <signal.h>
 #include <json-c/json.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
-#define BUFFER_SIZE 4096  // Buffer size for command strings and general usage
+#define BUFFER_SIZE 4096
 
-// ANSI color codes
-#define ANSI_COLOR_RESET "\x1b[0m"
-#define ANSI_COLOR_RED "\x1b[31;1m"
-#define ANSI_COLOR_GREEN "\x1b[32;1m"
-#define ANSI_COLOR_YELLOW "\x1b[33;1m"
-#define ANSI_COLOR_BLUE "\x1b[34;1m"
-#define ANSI_COLOR_MAGENTA "\x1b[35;1m"
-#define ANSI_COLOR_CYAN "\x1b[36;1m"
-#define ANSI_COLOR_WHITE "\x1b[37;1m"
-#define ANSI_COLOR_DARK "\x1b[30m"
+// ANSI Color Definitions
+#define ANSI_COLOR_RESET       "\x1b[0m"
+#define ANSI_COLOR_RED         "\x1b[31m"
+#define ANSI_COLOR_GREEN       "\x1b[32m"
+#define ANSI_COLOR_YELLOW      "\x1b[33m"
+#define ANSI_COLOR_BLUE        "\x1b[34m"
+#define ANSI_COLOR_MAGENTA     "\x1b[35m"
+#define ANSI_COLOR_CYAN        "\x1b[36m"
+#define ANSI_COLOR_WHITE       "\x1b[37m"
 
 typedef enum {
     MENU_LIVE_AUTH_LOG = 1,
@@ -47,12 +45,10 @@ void display_help(void);
 void main_menu(void);
 void sigint_handler(int sig);
 
-// Global variables
 char log_search_path[BUFFER_SIZE] = "/var/log";
 
-// Function definitions
-void find_logs_command(char *buffer, size_t size, const char *search_path) {
-    snprintf(buffer, size, "find %s -type f \\( -name '*.log' -o -name 'messages' -o -name 'cron' -o -name 'maillog' -o -name 'secure' -o -name 'firewalld' \\) -exec tail -f -n +1 {} +", search_path);
+void find_logs_command(char *buffer, const char *search_path) {
+    snprintf(buffer, BUFFER_SIZE, "find %s -type f \\( -name '*.log' -o -name 'messages' -o -name 'cron' -o -name 'maillog' -o -name 'secure' -o -name 'firewalld' \\) -exec tail -f -n +1 {} +", search_path);
 }
 
 void display_buffer_with_less(const char *buffer) {
@@ -63,21 +59,21 @@ void display_buffer_with_less(const char *buffer) {
         return;
     }
 
-    FILE *tmp_file = fdopen(tmp_fd, "w+");
-    if (tmp_file == NULL) {
+    FILE *tmp_file = fdopen(tmp_fd, "w");
+    if (!tmp_file) {
         perror("fdopen");
         close(tmp_fd);
         return;
     }
 
-    fwrite(buffer, 1, strlen(buffer), tmp_file);
+    fputs(buffer, tmp_file);
     fflush(tmp_file);
     fclose(tmp_file);
 
     char cmd[BUFFER_SIZE];
-    snprintf(cmd, sizeof(cmd), "less -R %s", tmp_filename);
+    snprintf(cmd, BUFFER_SIZE, "less -R %s", tmp_filename);
     system(cmd);
-    remove(tmp_filename);
+    unlink(tmp_filename);
 }
 
 void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *)) {
@@ -87,42 +83,53 @@ void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *
         return;
     }
 
-    char *output = NULL;
-    size_t total_length = 0;
     char buffer[BUFFER_SIZE];
-    while (fgets(buffer, sizeof(buffer), proc)) {
-        size_t buffer_length = strlen(buffer);
-        char *temp = realloc(output, total_length + buffer_length + 1);
-        if (!temp) {
-            perror("realloc");
-            free(output);
-            pclose(proc);
-            return;
-        }
-        output = temp;
-        memcpy(output + total_length, buffer, buffer_length);
-        total_length += buffer_length;
-        output[total_length] = '\0';
+    while (fgets(buffer, BUFFER_SIZE, proc) != NULL) {
+        buffer_action(buffer);
     }
 
-    if (buffer_action && output) {
-        buffer_action(output);
-    }
-
-    free(output);
     pclose(proc);
 }
+
+char *get_user_input(const char *prompt) {
+    char *input = readline(prompt);
+    if (input && *input) {
+        add_history(input);
+    }
+    return input;
+}
+
+int sanitize_input(const char *input) {
+    if (input == NULL || strlen(input) == 0) {
+        return 0;
+    }
+
+    if (strlen(input) >= BUFFER_SIZE) {
+        fprintf(stderr, "Input too long. Please try again.\n");
+        return 0;
+    }
+
+    return 1;
+}
+
+void live_auth_log(void) {
+    char cmd[BUFFER_SIZE];
+    find_logs_command(cmd, log_search_path);
+    strncat(cmd, " | egrep --color=always -i \"authentication(\\s*failed)?|permission(\\s*denied)?|invalid\\s*(user|password|token)|(unauthorized|illegal)\\s*(access|attempt)|SQL\\s*injection|cross-site\\s*(scripting|request\\s*Forgery)|directory\\s*traversal|(brute-?force|DoS|DDoS)\\s*attack|(vulnerability|exploit)\\s*(detected|scan)\"", BUFFER_SIZE - strlen(cmd));
+    run_command_with_buffer(cmd, display_buffer_with_less);
+}
+
 void live_error_log(void) {
     char cmd[BUFFER_SIZE];
-    find_logs_command(cmd, sizeof(cmd), log_search_path);
-    strncat(cmd, " | egrep --color=always -i \"\\b(?:error|fail(?:ed|ure)?|warn(?:ing)?|critical|socket|denied|refused|retry|reset|timeout|dns|network)\"", sizeof(cmd) - strlen(cmd), log_search_path);
+    find_logs_command(cmd, log_search_path);
+    strncat(cmd, " | egrep --color=always -i \"\\b(?:error|fail(?:ed|ure)?|warn(?:ing)?|critical|socket|denied|refused|retry|reset|timeout|dns|network)\"", BUFFER_SIZE - strlen(cmd));
     run_command_with_buffer(cmd, display_buffer_with_less);
 }
 
 void live_network_log(void) {
     char cmd[BUFFER_SIZE];
-    find_logs_command(cmd, sizeof(cmd), log_search_path);
-    strncat(cmd, " | egrep --color=always -i 'https?://|ftps?://|telnet://|ssh://|sftp://|ldap(s)?://|nfs://|tftp://|gopher://|imap(s)?://|pop3(s)?://|smtp(s)?://|rtsp://|rtmp://|mms://|xmpp://|ipp://|xrdp://'", sizeof(cmd) - strlen(cmd), log_search_path);
+    find_logs_command(cmd, log_search_path);
+    strncat(cmd, " | egrep --color=always -i 'https?://|ftps?://|telnet://|ssh://|sftp://|ldap(s)?://|nfs://|tftp://|gopher://|imap(s)?://|pop3(s)?://|smtp(s)?://|rtsp://|rtmp://|mms://|xmpp://|ipp://|xrdp://'", BUFFER_SIZE - strlen(cmd));
     run_command_with_buffer(cmd, display_buffer_with_less);
 }
 
@@ -132,10 +139,11 @@ void run_regex(void) {
         free(egrep_args);
         return;
     }
+
     char cmd[BUFFER_SIZE];
-    find_logs_command(cmd, sizeof(cmd), log_search_path);
-    strncat(cmd, " | egrep --color=always -i ", sizeof(cmd) - strlen(cmd));
-    strncat(cmd, egrep_args, sizeof(cmd) - strlen(cmd));
+    find_logs_command(cmd, log_search_path);
+    strncat(cmd, " | egrep --color=always -i ", BUFFER_SIZE - strlen(cmd));
+    strncat(cmd, egrep_args, BUFFER_SIZE - strlen(cmd));
     run_command_with_buffer(cmd, display_buffer_with_less);
     free(egrep_args);
 }
@@ -146,10 +154,11 @@ void search_ip(void) {
         free(ip_regex);
         return;
     }
+
     char cmd[BUFFER_SIZE];
-    find_logs_command(cmd, sizeof(cmd), log_search_path);
-    strncat(cmd, " | egrep --color=always -i ", sizeof(cmd) - strlen(cmd));
-    strncat(cmd, ip_regex, sizeof(cmd) - strlen(cmd));
+    find_logs_command(cmd, log_search_path);
+    strncat(cmd, " | egrep --color=always -i ", BUFFER_SIZE - strlen(cmd));
+    strncat(cmd, ip_regex, BUFFER_SIZE - strlen(cmd));
     run_command_with_buffer(cmd, display_buffer_with_less);
     free(ip_regex);
 }
@@ -160,10 +169,11 @@ void edit_log_paths(void) {
         free(new_paths);
         return;
     }
+
     strncpy(log_search_path, new_paths, BUFFER_SIZE - 1);
     log_search_path[BUFFER_SIZE - 1] = '\0';
-    printf(ANSI_COLOR_GREEN "Updated log paths: %s\n" ANSI_COLOR_RESET, log_search_path);
     free(new_paths);
+    printf("Updated log paths: %s\n", log_search_path);
 }
 
 void export_search_results_to_json(void) {
@@ -172,32 +182,38 @@ void export_search_results_to_json(void) {
         free(egrep_args);
         return;
     }
+
     char cmd[BUFFER_SIZE];
-    find_logs_command(cmd, sizeof(cmd), log_search_path);
-    strncat(cmd, " | egrep --color=never -i ", sizeof(cmd) - strlen(cmd));
-    strncat(cmd, egrep_args, sizeof(cmd) - strlen(cmd));
-    char *output = NULL;
+    find_logs_command(cmd, log_search_path);
+    strncat(cmd, " | egrep --color=never -i ", BUFFER_SIZE - strlen(cmd));
+    strncat(cmd, egrep_args, BUFFER_SIZE - strlen(cmd));
+
     FILE *proc = popen(cmd, "r");
     if (proc) {
-        char buffer[BUFFER_SIZE];
         json_object *jarray = json_object_new_array();
+        char buffer[BUFFER_SIZE];
+
         while (fgets(buffer, sizeof(buffer), proc) != NULL) {
-            json_object *jentry = json_object_new_object();
-            json_object_object_add(jentry, "log_entry", json_object_new_string(buffer));
-            json_object_array_add(jarray, jentry);
+            json_object *jstring = json_object_new_string(buffer);
+            json_object_array_add(jarray, jstring);
         }
         pclose(proc);
+
         if (json_object_array_length(jarray) > 0) {
-            FILE *outfile = fopen("log_search_results.json", "w");
-            if (outfile) {
-                fputs(json_object_to_json_string_ext(jarray, JSON_C_TO_STRING_PRETTY), outfile);
-                fclose(outfile);
-                printf("Logs have been exported to 'log_search_results.json'.\n");
+            const char *json_str = json_object_to_json_string_ext(jarray, JSON_C_TO_STRING_PRETTY);
+            printf("%s\n", json_str);
+
+            char output_file[] = "log_search_results.json";
+            FILE *output = fopen(output_file, "w");
+            if (output) {
+                fputs(json_str, output);
+                fclose(output);
+                printf("Exported to %s\n", output_file);
             } else {
                 perror("Failed to open file for writing");
             }
         } else {
-            printf("No logs matched the criteria.\n");
+            printf("No results found.\n");
         }
         json_object_put(jarray);
     } else {
@@ -233,51 +249,63 @@ void main_menu(void) {
         printf("J: JSON Export\n");
         printf("H: Help\n");
         printf("Q: Quit\n");
+        input = get_user_input("> ");
 
-        input = readline("> ");
-        if (input && *input) {
-            switch (input[0]) {
-                case 'A': case 'a':
-                    live_auth_log();
-                    break;
-                case 'E': case 'e':
-                    live_error_log();
-                    break;
-                case 'N': case 'n':
-                    live_network_log();
-                    break;
-                case 'R': case 'r':
-                    run_regex();
-                    break;
-                case 'I': case 'i':
-                    search_ip();
-                    break;
-                case 'S': case 's':
-                    edit_log_paths();
-                    break;
-                case 'J': case 'j':
-                    export_search_results_to_json();
-                    break;
-                case 'H': case 'h':
-                    display_help();
-                    break;
-                case 'Q': case 'q':
-                    free(input);
-                    return;
-                default:
-                    printf("Invalid option.\n");
-            }
+        if (!input || strlen(input) != 1) {
+            printf("Invalid input. Please enter one of the listed options.\n");
+            continue;
+        }
+
+        switch (input[0]) {
+            case 'A':
+            case 'a':
+                live_auth_log();
+                break;
+            case 'E':
+            case 'e':
+                live_error_log();
+                break;
+            case 'N':
+            case 'n':
+                live_network_log();
+                break;
+            case 'R':
+            case 'r':
+                run_regex();
+                break;
+            case 'I':
+            case 'i':
+                search_ip();
+                break;
+            case 'S':
+            case 's':
+                edit_log_paths();
+                break;
+            case 'J':
+            case 'j':
+                export_search_results_to_json();
+                break;
+            case 'H':
+            case 'h':
+                display_help();
+                break;
+            case 'Q':
+            case 'q':
+                free(input);
+                return;
+            default:
+                printf("Invalid option. Please try again.\n");
         }
         free(input);
     } while (1);
 }
 
-void sigint_handler(int sig) {
-    printf("Caught SIGINT, ignoring and returning to menu...\n");
-}
-
-int main(int argc, char **argv) {
+int main(void) {
     signal(SIGINT, sigint_handler);
     main_menu();
     return 0;
+}
+
+void sigint_handler(int sig) {
+    printf("\nInterrupt received. Returning to main menu...\n");
 }
