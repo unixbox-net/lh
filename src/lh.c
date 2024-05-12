@@ -299,7 +299,7 @@ void display_help() {
         ANSI_COLOR_BLUE "real time log analysis " ANSI_COLOR_CYAN "(h for help)" ANSI_COLOR_BLUE " or " ANSI_COLOR_CYAN "(q to quit)\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN "MENU OVERVIEW\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "A" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "uthentication (Tail)\n" ANSI_COLOR_RESET
+        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "A" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "uthentication (Tail)ANSI_COLOR_CYAN "- a preset that hunts down pesky autthention issues\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN " - Identify events such as.\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'authentication failed'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'permission denied'\n" ANSI_COLOR_RESET
