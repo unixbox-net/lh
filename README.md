@@ -3,20 +3,26 @@
 
 # How to Install
 
-dnf/yum/rpm
   ```bash
   curl -sL https://github.com/unixbox-net/lh/raw/main/rhel-8.sh | sudo bash
   ```
-  or compile
-  ```bash
-  clang loghog.c -o loghog -lreadline -ljson-c
-  ```
+  
+  This installer automatically builds and installs the .rpm to most systems that 
+  can use dnf. ie: Rhel, Fedora, CentOS, Alma, Rocky and maybe Oracle, Scientific, 
+  and Amazon Linux.
+
+
+    output includes: binaries & rpm
+      ~/lh/rpmbuild/BUILD/lh-1.0.0/lh (compiled binary)
+      ~/lh/rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm (package)
+
+  but it should compile on any system that supports clang
+  
+  
   Depedicies
   ```bash
   json-c readline
   ```
-NOTE: there is a compiled version simply called lh in the working directoy, this binary should work
-on any POSIX UNIX-like system.
 
 
 ## Purpose
