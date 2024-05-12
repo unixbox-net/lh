@@ -40,6 +40,48 @@
 
 // Global variable
 char log_search_path[BUFFER_SIZE] = "/var/log";
+volatile sig_atomic_t sigint_received = 0;
+
+void sigint_handler(int sig) {
+    // Signal handler for SIGINT
+    sigint_received = 1;
+}
+
+void run_command_with_tail_and_less(const char *cmd) {
+    char full_cmd[CMD_MAX_SIZE];
+    snprintf(full_cmd, sizeof(full_cmd), "%s | tee /tmp/loghog_buffer.log", cmd);
+
+    // Set up signal handling
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = sigint_handler;
+    sigaction(SIGINT, &sa, NULL);
+
+    FILE *proc = popen(full_cmd, "r");
+    if (!proc) {
+        perror("Failed to run command");
+        return;
+    }
+
+    // Display output to stdout in real-time
+    char buffer[1024];
+    while (!sigint_received && fgets(buffer, sizeof(buffer), proc) != NULL) {
+        fputs(buffer, stdout);
+        fflush(stdout);
+    }
+
+    // Clean up and close process
+    int status = pclose(proc);
+    if (status == -1) {
+        perror("Failed to close the command stream");
+    }
+
+    if (sigint_received) {
+        printf("\nCTRL+C detected, opening less...\n");
+        snprintf(full_cmd, sizeof(full_cmd), "less /tmp/loghog_buffer.log");
+        system(full_cmd);
+    }
+}
 
 void find_logs_command(char *buffer, size_t size, const char *search_path) {
     snprintf(buffer, size, "find %s -type f \\( -name '*.log' -o -name 'messages' -o -name 'cron' -o -name 'maillog' -o -name 'secure' -o -name 'firewalld' \\) -exec tail -f -n +1 {} +", search_path);
@@ -413,7 +455,7 @@ void sigint_handler(int sig) {
 }
 
 int main() {
-    signal(SIGINT, sigint_handler);
-    main_menu();
+    const char *log_search_command = "tail -f /var/log/syslog";  // Example log path
+    run_command_with_tail_and_less(log_search_command);
     return 0;
 }
