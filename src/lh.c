@@ -41,50 +41,6 @@
 // Global variable
 char log_search_path[BUFFER_SIZE] = "/var/log";
 
-// Function prototypes
-void sigint_handler(int sig);
-void main_menu(void);
-void run_regex(const char *log_search_path);
-char *get_user_input(const char *prompt);
-int sanitize_input(char *input);
-
-char *get_user_input(const char *prompt) {
-    return readline(prompt);
-}
-
-int sanitize_input(char *input) {
-    if (input == NULL || strlen(input) == 0) {
-        return 0;
-    }
-    return strlen(input) < BUFFER_SIZE;
-}
-
-void sigint_handler(int sig) {
-    printf("\nReturning to menu...\n");
-    fflush(stdout);
-}
-
-void main_menu(void) {
-    char *option;
-    while (1) {
-        printf(ANSI_COLOR_GREEN ASCII_ART ANSI_COLOR_RESET);
-        option = get_user_input("Choose an option: ");
-        if (option == NULL) {
-            continue;
-        }
-        printf("Option chosen: %s\n", option);  // Example usage
-        free(option);
-    }
-}
-
-int main() {
-    signal(SIGINT, sigint_handler);
-    main_menu();
-    return 0;
-}
-
-
-
 void find_logs_command(char *buffer, size_t size, const char *search_path) {
     snprintf(buffer, size, "find %s -type f \\( -name '*.log' -o -name 'messages' -o -name 'cron' -o -name 'maillog' -o -name 'secure' -o -name 'firewalld' \\) -exec tail -f -n +1 {} +", search_path);
 }
@@ -151,87 +107,83 @@ void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *
 void live_auth_log(const char *log_search_path) {
     char find_cmd[BUFFER_SIZE];
     find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
-
-    // Calculate command length
-    int cmd_len = snprintf(NULL, 0, "%s | egrep --color=always -i \"authentication(\\s*failed)?|permission(\\s*denied)?|invalid\\s*(user|password|token)|(unauthorized|illegal)\\s*(access|attempt)|SQL\\s*injection|cross-site\\s*(scripting|request\\s*Forgery)|directory\\s*traversal|(brute-?force|DoS|DDoS)\\s*attack|(vulnerability|exploit)\\s*(detected|scan)\"", find_cmd) + 1;
-
-    char *cmd = malloc(cmd_len);
-    if (!cmd) {
-        perror("malloc");
-        return;
-    }
-
-    snprintf(cmd, cmd_len, "%s | egrep --color=always -i \"authentication(\\s*failed)?|permission(\\s*denied)?|invalid\\s*(user|password|token)|(unauthorized|illegal)\\s*(access|attempt)|SQL\\s*injection|cross-site\\s*(scripting|request\\s*Forgery)|directory\\s*traversal|(brute-?force|DoS|DDoS)\\s*attack|(vulnerability|exploit)\\s*(detected|scan)\"", find_cmd);
+    char cmd[BUFFER_SIZE];
+    snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i \"authentication(\\s*failed)?|permission(\\s*denied)?|invalid\\s*(user|password|token)|(unauthorized|illegal)\\s*(access|attempt)|SQL\\s*injection|cross-site\\s*(scripting|request\\s*Forgery)|directory\\s*traversal|(brute-?force|DoS|DDoS)\\s*attack|(vulnerability|exploit)\\s*(detected|scan)\"", find_cmd);
     run_command_with_buffer(cmd, display_buffer_with_less);
-    free(cmd);
 }
 
 void live_error_log(const char *log_search_path) {
     char find_cmd[BUFFER_SIZE];
     find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
-
-    // Calculate command length
-    int cmd_len = snprintf(NULL, 0, "%s | egrep --color=always -i \"\\b(?:error|fail(?:ed|ure)?|warn(?:ing)?|critical|socket|denied|refused|retry|reset|timeout|dns|network)\"", find_cmd) + 1;
-
-    char *cmd = malloc(cmd_len);
-    if (!cmd) {
-        perror("malloc");
-        return;
-    }
-
-    snprintf(cmd, cmd_len, "%s | egrep --color=always -i \"\\b(?:error|fail(?:ed|ure)?|warn(?:ing)?|critical|socket|denied|refused|retry|reset|timeout|dns|network)\"", find_cmd);
+    char cmd[BUFFER_SIZE];
+    snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i \"\\b(?:error|fail(?:ed|ure)?|warn(?:ing)?|critical|socket|denied|refused|retry|reset|timeout|dns|network)\"", find_cmd);
     run_command_with_buffer(cmd, display_buffer_with_less);
-    free(cmd);
 }
 
 void live_log(const char *log_search_path) {
     char find_cmd[BUFFER_SIZE];
     find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
-
-    // Direct execution without grep
-    run_command_with_buffer(find_cmd, display_buffer_with_less);
+    char cmd[BUFFER_SIZE];
+    snprintf(cmd, sizeof(cmd), "%s", find_cmd);
+    run_command_with_buffer(cmd, display_buffer_with_less);
 }
 
 void live_network_log(const char *log_search_path) {
     char find_cmd[BUFFER_SIZE];
     find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
+    char cmd[BUFFER_SIZE];
+    snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i 'https?://|ftps?://|telnet://|ssh://|sftp://|ldap(s)?://|nfs://|tftp://|gopher://|imap(s)?://|pop3(s)?://|smtp(s)?://|rtsp://|rtmp://|mms://|xmpp://|ipp://|xrdp://'", find_cmd);
+    run_command_with_buffer(cmd, display_buffer_with_less);
+}
 
-    // Calculate command length
-    int cmd_len = snprintf(NULL, 0, "%s | egrep --color=always -i 'https?://|ftps?://|telnet://|ssh://|sftp://|ldap(s)?://|nfs://|tftp://|gopher://|imap(s)?://|pop3(s)?://|smtp(s)?://|rtsp://|rtmp://|mms://|xmpp://|ipp://|xrdp://'", find_cmd) + 1;
+char *get_user_input(const char *prompt) {
+    char *input = readline(prompt);
+    if (input && *input) {
+        add_history(input);
+    }
+    return input;
+}
 
-    char *cmd = malloc(cmd_len);
-    if (!cmd) {
-        perror("malloc");
+int sanitize_input(char *input) {
+    if (input == NULL || strlen(input) == 0) {
+        return 0;
+    }
+
+    if (strlen(input) >= BUFFER_SIZE) {
+        printf(ANSI_COLOR_RED "Input too long. Please try again.\n" ANSI_COLOR_RESET);
+        return 0;
+    }
+
+    return 1;
+}
+
+void run_regex(const char *log_search_path) {
+    char *egrep_args = get_user_input("\nRegEX > ");
+    if (!sanitize_input(egrep_args)) {
+        free(egrep_args);
         return;
     }
 
-    snprintf(cmd, cmd_len, "%s | egrep --color=always -i 'https?://|ftps?://|telnet://|ssh://|sftp://|ldap(s)?://|nfs://|tftp://|gopher://|imap(s)?://|pop3(s)?://|smtp(s)?://|rtsp://|rtmp://|mms://|xmpp://|ipp://|xrdp://'", find_cmd);
+    char find_cmd[BUFFER_SIZE];
+    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
+    char cmd[BUFFER_SIZE];
+    snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i \"%s\"", find_cmd, egrep_args);
     run_command_with_buffer(cmd, display_buffer_with_less);
-    free(cmd);
+    free(egrep_args);
 }
 
 void search_ip(const char *log_search_path) {
-    char find_cmd[BUFFER_SIZE];
-    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
-
     char *ip_regex = get_user_input("\nIP / RegEX > ");
     if (!sanitize_input(ip_regex)) {
         free(ip_regex);
         return;
     }
 
-    // Calculate command length
-    int cmd_len = snprintf(NULL, 0, "%s | egrep --color=always -i \"%s\"", find_cmd, ip_regex) + 1;
-
-    char *cmd = malloc(cmd_len);
-    if (!cmd) {
-        perror("malloc");
-        return;
-    }
-
-    snprintf(cmd, cmd_len, "%s | egrep --color=always -i \"%s\"", find_cmd, ip_regex);
+    char find_cmd[BUFFER_SIZE];
+    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
+    char cmd[BUFFER_SIZE];
+    snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i \"%s\"", find_cmd, ip_regex);
     run_command_with_buffer(cmd, display_buffer_with_less);
-    free(cmd);
     free(ip_regex);
 }
 
@@ -249,30 +201,20 @@ void edit_log_paths(char *log_search_path) {
 }
 
 void export_search_results_to_json(const char *log_search_path) {
-    char find_cmd[BUFFER_SIZE];
-    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
-
     char *egrep_args = get_user_input("\nRegEX / Text > ");
     if (!sanitize_input(egrep_args)) {
         free(egrep_args);
         return;
     }
 
-    // Calculate command length
-    int cmd_len = snprintf(NULL, 0, "%s | egrep --color=never -i \"%s\"", find_cmd, egrep_args) + 1;
-
-    char *cmd = malloc(cmd_len);
-    if (!cmd) {
-        perror("malloc");
-        return;
-    }
-
-    snprintf(cmd, cmd_len, "%s | egrep --color=never -i \"%s\"", find_cmd, egrep_args);
+    char find_cmd[BUFFER_SIZE];
+    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
+    char cmd[BUFFER_SIZE];
+    snprintf(cmd, sizeof(cmd), "%s | egrep --color=never -i \"%s\"", find_cmd, egrep_args);
 
     FILE *proc = popen(cmd, "r");
     if (!proc) {
         perror("popen");
-        free(cmd);
         free(egrep_args);
         return;
     }
@@ -292,7 +234,6 @@ void export_search_results_to_json(const char *log_search_path) {
     }
 
     pclose(proc);
-    free(cmd);
 
     if (has_entries) {
         char output_file[BUFFER_SIZE] = "log_search_results.json";
@@ -384,7 +325,7 @@ void display_help() {
         ANSI_COLOR_BLUE "     '/var/log /opt/logs'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     '/var/lib/docker /var/log/nginx'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     '/usr/local/logs /home/user/logs'\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "J" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "SON (Export tool)\n" ANSI_COLOR_RESET
+        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT GREEN "J" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "SON (Export tool)\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN " - Exports filtered logs to a JSON file in the home directory called log_search_results.json.\n" ANSI_COLOR_RESET
         ANSI_COLOR_MAGENTA "     'log_search_results.json'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'jq '.[] | .log_entry' log_search_results.json\n\n" ANSI_COLOR_RESET
@@ -404,8 +345,8 @@ void main_menu() {
         printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "N" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "etwork\n" ANSI_COLOR_RESET);
         printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "R" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "egEx\n" ANSI_COLOR_RESET);
         printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "I" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "pEx\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "S" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "et dir\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "J" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "sonEx\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT GREEN "S" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "et dir\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT GREEN "J" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "sonEx\n" ANSI_COLOR_RESET);
         printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "H" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "elp!\n" ANSI_COLOR_RESET);
         printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "Q" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "uit!\n" ANSI_COLOR_RESET);
         printf(ANSI_COLOR_DARK "\n-" ANSI_COLOR_LIGHT_GRAY "> " ANSI_COLOR_RESET);
