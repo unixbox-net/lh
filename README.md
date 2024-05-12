@@ -2,10 +2,10 @@
 
 # How to Install
 
-  The installer automatically builds both .rpm and a binary. It will attempt to install
-  via DNF (aka) it "should" install to **ANY** version of Rhel, Fedora, CentOS, Alma, Rocky... 
-  perhaps Oracle, Scientific, Amazon?. I test on rocky 8.9 but in theory the applciation its self
-  is 100% clang and should compile on all UNIX/UNIX-like and GNU-Linux systems.
+  The installer automatically builds both an .rpm package and binary. It will attempt to install
+  via DNF (aka) **ANY** version of Rhel, Fedora, CentOS, Alma, Rocky... may work on Oracle, Scientific
+  or Amazon Linux?. But I test on rocky 8.9 and the applciation its self only uses standard posix
+  so it should compile on all UNIX/UNIX-like and GNU-Linux systems.
 
     output includes: binaries & rpm
       ~/lh/rpmbuild/BUILD/lh-1.0.0/lh (compiled binary)
