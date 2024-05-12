@@ -38,55 +38,120 @@
     ANSI_COLOR_MAGENTA "                  Y8b d88P " ANSI_COLOR_RED " NO" ANSI_COLOR_LIGHT_GRAY "-nonsense digital forensics" ANSI_COLOR_RESET "\n" \
     ANSI_COLOR_MAGENTA "                   \"Y88P\"" ANSI_COLOR_RESET "\n"
 
-// Global variable
+// Global variable for the log search path
 char log_search_path[BUFFER_SIZE] = "/var/log";
-volatile sig_atomic_t sigint_received = 0;
 
+// Function declarations
+void sigint_handler(int sig);
+void main_menu(void);
+void run_regex(const char *log_search_path);
+char *get_user_input(const char *prompt);
+int sanitize_input(char *input);
+void find_logs_command(char *buffer, size_t size, const char *search_path);
+void display_buffer_with_less(const char *buffer, size_t length);
+void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *, size_t));
+void live_auth_log(const char *log_search_path);
+void live_error_log(const char *log_search_path);
+void live_log(const char *log_search_path);
+void live_network_log(const char *log_search_path);
+void search_ip(const char *log_search_path);
+void edit_log_paths(char *log_search_path);
+void export_search_results_to_json(const char *log_search_path);
+void display_help(void);
+
+// Signal handler for graceful exit
 void sigint_handler(int sig) {
-    // Signal handler for SIGINT
-    sigint_received = 1;
+    printf("\nInterrupt signal received. Exiting...\n");
+    exit(0);
 }
 
-void run_command_with_tail_and_less(const char *cmd) {
-    char full_cmd[CMD_MAX_SIZE];
-    snprintf(full_cmd, sizeof(full_cmd), "%s | tee /tmp/loghog_buffer.log", cmd);
-
-    // Set up signal handling
+// Main function that displays the menu and handles user interaction
+int main() {
+    // Setup signal handling for SIGINT
     struct sigaction sa;
     memset(&sa, 0, sizeof(sa));
     sa.sa_handler = sigint_handler;
     sigaction(SIGINT, &sa, NULL);
 
-    FILE *proc = popen(full_cmd, "r");
-    if (!proc) {
-        perror("Failed to run command");
-        return;
-    }
+    // Run the main menu
+    main_menu();
+    return 0;
+}
 
-    // Display output to stdout in real-time
-    char buffer[1024];
-    while (!sigint_received && fgets(buffer, sizeof(buffer), proc) != NULL) {
-        fputs(buffer, stdout);
-        fflush(stdout);
-    }
+// Displays the main menu and handles user choices
+void main_menu() {
+    char *option;
+    printf(ANSI_COLOR_GREEN ASCII_ART ANSI_COLOR_RESET);
+    while (1) {
+        printf("Menu options here.\n");
+        option = get_user_input("Choose option: ");
+        if (option == NULL) {
+            continue;
+        }
 
-    // Clean up and close process
-    int status = pclose(proc);
-    if (status == -1) {
-        perror("Failed to close the command stream");
-    }
-
-    if (sigint_received) {
-        printf("\nCTRL+C detected, opening less...\n");
-        snprintf(full_cmd, sizeof(full_cmd), "less /tmp/loghog_buffer.log");
-        system(full_cmd);
+        switch (option[0]) {
+            case '1':
+                live_auth_log(log_search_path);
+                break;
+            case '2':
+                live_error_log(log_search_path);
+                break;
+            case '3':
+                live_log(log_search_path);
+                break;
+            case '4':
+                live_network_log(log_search_path);
+                break;
+            case '5':
+                run_regex(log_search_path);
+                break;
+            case '6':
+                search_ip(log_search_path);
+                break;
+            case '7':
+                edit_log_paths(log_search_path);
+                break;
+            case '8':
+                export_search_results_to_json(log_search_path);
+                break;
+            case '9':
+                display_help();
+                break;
+            case 'q':
+            case 'Q':
+                free(option);
+                printf("Exiting program.\n");
+                exit(0);
+            default:
+                printf("Invalid option. Please try again.\n");
+        }
+        free(option);
     }
 }
 
+// Retrieves user input with readline and adds it to history
+char *get_user_input(const char *prompt) {
+    char *input = readline(prompt);
+    if (input && *input) {
+        add_history(input);
+    }
+    return input;
+}
+
+// Checks if user input is valid and within acceptable length
+int sanitize_input(char *input) {
+    if (input == NULL || strlen(input) == 0) {
+        return 0;
+    }
+    return strlen(input) < BUFFER_SIZE;
+}
+
+// Generates the command to find logs and tail them
 void find_logs_command(char *buffer, size_t size, const char *search_path) {
     snprintf(buffer, size, "find %s -type f \\( -name '*.log' -o -name 'messages' -o -name 'cron' -o -name 'maillog' -o -name 'secure' -o -name 'firewalld' \\) -exec tail -f -n +1 {} +", search_path);
 }
 
+// Displays a given buffer in less
 void display_buffer_with_less(const char *buffer, size_t length) {
     char tmp_filename[] = "/tmp/logsearchXXXXXX";
     int tmp_fd = mkstemp(tmp_filename);
@@ -113,6 +178,7 @@ void display_buffer_with_less(const char *buffer, size_t length) {
     remove(tmp_filename);
 }
 
+// Runs a given command and applies a buffer action function
 void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *, size_t)) {
     FILE *proc = popen(cmd, "r");
     if (!proc) {
@@ -146,6 +212,7 @@ void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *
     pclose(proc);
 }
 
+// Log monitoring functions for different purposes
 void live_auth_log(const char *log_search_path) {
     char find_cmd[BUFFER_SIZE];
     find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
@@ -165,9 +232,7 @@ void live_error_log(const char *log_search_path) {
 void live_log(const char *log_search_path) {
     char find_cmd[BUFFER_SIZE];
     find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
-    char cmd[BUFFER_SIZE];
-    snprintf(cmd, sizeof(cmd), "%s", find_cmd);
-    run_command_with_buffer(cmd, display_buffer_with_less);
+    run_command_with_buffer(find_cmd, display_buffer_with_less);
 }
 
 void live_network_log(const char *log_search_path) {
@@ -178,51 +243,14 @@ void live_network_log(const char *log_search_path) {
     run_command_with_buffer(cmd, display_buffer_with_less);
 }
 
-char *get_user_input(const char *prompt) {
-    char *input = readline(prompt);
-    if (input && *input) {
-        add_history(input);
-    }
-    return input;
-}
-
-int sanitize_input(char *input) {
-    if (input == NULL || strlen(input) == 0) {
-        return 0;
-    }
-
-    if (strlen(input) >= BUFFER_SIZE) {
-        printf(ANSI_COLOR_RED "Input too long. Please try again.\n" ANSI_COLOR_RESET);
-        return 0;
-    }
-
-    return 1;
-}
-
-void run_regex(const char *log_search_path) {
-    char *egrep_args = get_user_input("\nRegEX > ");
-    if (!sanitize_input(egrep_args)) {
-        free(egrep_args);
-        return;
-    }
-
+void search_ip(const char *log_search_path) {
     char find_cmd[BUFFER_SIZE];
     find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
-    char cmd[BUFFER_SIZE];
-    snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i \"%s\"", find_cmd, egrep_args);
-    run_command_with_buffer(cmd, display_buffer_with_less);
-    free(egrep_args);
-}
-
-void search_ip(const char *log_search_path) {
     char *ip_regex = get_user_input("\nIP / RegEX > ");
     if (!sanitize_input(ip_regex)) {
         free(ip_regex);
         return;
     }
-
-    char find_cmd[BUFFER_SIZE];
-    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
     char cmd[BUFFER_SIZE];
     snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i \"%s\"", find_cmd, ip_regex);
     run_command_with_buffer(cmd, display_buffer_with_less);
@@ -235,7 +263,6 @@ void edit_log_paths(char *log_search_path) {
         free(new_paths);
         return;
     }
-
     strncpy(log_search_path, new_paths, BUFFER_SIZE - 1);
     log_search_path[BUFFER_SIZE - 1] = '\0';
     free(new_paths);
@@ -243,40 +270,33 @@ void edit_log_paths(char *log_search_path) {
 }
 
 void export_search_results_to_json(const char *log_search_path) {
+    char find_cmd[BUFFER_SIZE];
+    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
     char *egrep_args = get_user_input("\nRegEX / Text > ");
     if (!sanitize_input(egrep_args)) {
         free(egrep_args);
         return;
     }
-
-    char find_cmd[BUFFER_SIZE];
-    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
     char cmd[BUFFER_SIZE];
     snprintf(cmd, sizeof(cmd), "%s | egrep --color=never -i \"%s\"", find_cmd, egrep_args);
-
     FILE *proc = popen(cmd, "r");
     if (!proc) {
         perror("popen");
         free(egrep_args);
         return;
     }
-
     json_object *json_arr = json_object_new_array();
     char buffer[BUFFER_SIZE];
     int has_entries = 0;
     char all_entries[BUFFER_SIZE * 10] = "";
-
     while (fgets(buffer, sizeof(buffer), proc)) {
         json_object *json_obj = json_object_new_object();
         json_object_object_add(json_obj, "log_entry", json_object_new_string(buffer));
         json_object_array_add(json_arr, json_obj);
-
         strcat(all_entries, buffer);
         has_entries = 1;
     }
-
     pclose(proc);
-
     if (has_entries) {
         char output_file[BUFFER_SIZE] = "log_search_results.json";
         FILE *output = fopen(output_file, "w");
@@ -287,13 +307,11 @@ void export_search_results_to_json(const char *log_search_path) {
         } else {
             perror("fopen");
         }
-
         // Print the results to the screen using `less`
         display_buffer_with_less(all_entries, strlen(all_entries));
     } else {
         printf("\nNo matching log entries found.\n");
     }
-
     json_object_put(json_arr);
     free(egrep_args);
 }
@@ -377,85 +395,15 @@ void display_help() {
     display_buffer_with_less(help_text, strlen(help_text));
 }
 
-void main_menu() {
-    char *option;
-    while (1) {
-        printf(ANSI_COLOR_GREEN ASCII_ART ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "A" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "uth\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "E" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "rror\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "L" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "ogHOG\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "N" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "etwork\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "R" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "egEx\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "I" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "pEx\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "S" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "et dir\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "J" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "sonEx\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "H" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "elp!\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "Q" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "uit!\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "\n-" ANSI_COLOR_LIGHT_GRAY "> " ANSI_COLOR_RESET);
-
-        option = readline(NULL);
-        if (option == NULL) {
-            while (getchar() != '\n'); // Clear input buffer
-            continue;
-        }
-
-        char opt = option[0];
-        switch (opt) {
-            case 'A':
-            case 'a':
-                live_auth_log(log_search_path);
-                break;
-            case 'E':
-            case 'e':
-                live_error_log(log_search_path);
-                break;
-            case 'L':
-            case 'l':
-                live_log(log_search_path);
-                break;
-            case 'N':
-            case 'n':
-                live_network_log(log_search_path);
-                break;
-            case 'R':
-            case 'r':
-                run_regex(log_search_path);
-                break;
-            case 'I':
-            case 'i':
-                search_ip(log_search_path);
-                break;
-            case 'S':
-            case 's':
-                edit_log_paths(log_search_path);
-                break;
-            case 'J':
-            case 'j':
-                export_search_results_to_json(log_search_path);
-                break;
-            case 'H':
-            case 'h':
-                display_help();
-                break;
-            case 'Q':
-            case 'q':
-                free(option);
-                exit(0);
-                break;
-            default:
-                printf(ANSI_COLOR_BLUE "oops!\n" ANSI_COLOR_RESET);
-        }
-        free(option);
-    }
-}
-
+// Handles SIGINT signal, allowing the user to return to the main menu
 void sigint_handler(int sig) {
-    printf("\nReturning to menu...\n");
-    fflush(stdout);
+    printf("\nInterrupt signal received. Returning to main menu...\n");
+    main_menu();  // Restart the main menu
 }
 
+// Main entry point for the program
 int main() {
-    const char *log_search_command = "tail -f /var/log/syslog";  // Example log path
-    run_command_with_tail_and_less(log_search_command);
+    signal(SIGINT, sigint_handler); // Setup the SIGINT handler
+    main_menu(); // Start the main menu
     return 0;
 }
