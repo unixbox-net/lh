@@ -351,7 +351,7 @@ void display_help() {
         ANSI_COLOR_LIGHT_GRAY "     ':(?::[A-Fa-f0-9]{1,4}){1,7}'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     '192\\.168\\.\\d{1,3}\\.\\d{1,3}'\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "S" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "et (Log Paths) - " ANSI_COLOR_CYAN "Allows setting custom log paths such as" ANSI_COLOR_DARK ":\n" ANSI_COLOR_RESET
-        ANSI_COLOR_CYAN " - can be used as a remote log monitoring tool" ANSI_COLOR_DARK ":\n" ANSI_COLOR_RESET    
+        ANSI_COLOR_CYAN " - Can be used as a remote log monitoring tool" ANSI_COLOR_DARK ":\n" ANSI_COLOR_RESET    
         ANSI_COLOR_LIGHT_GRAY "     '/nfs/shre /mnt/'\n" ANSI_COLOR_RESET    
         ANSI_COLOR_LIGHT_GRAY "     '/var/log /opt/logs'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     '/var/lib/docker /var/log/nginx'\n" ANSI_COLOR_RESET
