@@ -25,32 +25,6 @@
 #define ANSI_COLOR_DARK "\x1b[30m"
 #define ANSI_COLOR_BG "\x1b[48;5;235m"
 
-#define ASCII_ART \
-    ANSI_COLOR_MAGENTA "\n888                       888    888  .d88888b.   .d8888b. " ANSI_COLOR_RESET "\n" \
-    ANSI_COLOR_MAGENTA "888                       888    888 d88P\" \"Y88b d88P  Y88b" ANSI_COLOR_RESET "\n" \
-    ANSI_COLOR_MAGENTA "888                       888    888 888     888 888    888" ANSI_COLOR_RESET "\n" \
-    ANSI_COLOR_MAGENTA "888      .d88b.   .d88b.  8888888888 888     888 888       " ANSI_COLOR_RESET "\n" \
-    ANSI_COLOR_MAGENTA "888     d88\"\"88b d88P\"88b 888    888 888     888 888  88888" ANSI_COLOR_RESET "\n" \
-    ANSI_COLOR_MAGENTA "888     888  888 888  888 888    888 888     888 888    888" ANSI_COLOR_RESET "\n" \
-    ANSI_COLOR_MAGENTA "888     Y88..88P Y88b 888 888    888 Y88b. .d88P Y88b  d88P" ANSI_COLOR_RESET "\n" \
-    ANSI_COLOR_MAGENTA "88888888 \"Y88P\"   \"Y88888 888    888  \"Y88888P\"   \"Y8888P88" ANSI_COLOR_RESET "\n" \
-    ANSI_COLOR_MAGENTA "                       888" ANSI_COLOR_RESET "\n" \
-    ANSI_COLOR_MAGENTA "                  Y8b d88P " ANSI_COLOR_RED " NO" ANSI_COLOR_LIGHT_GRAY "-nonsense digital forensics" ANSI_COLOR_RESET "\n" \
-    ANSI_COLOR_MAGENTA "                   \"Y88P\"" ANSI_COLOR_RESET "\n"
-
-typedef enum {
-    MENU_LIVE_AUTH_LOG = 1,
-    MENU_LIVE_ERROR_LOG,
-    MENU_LIVE_LOG,
-    MENU_LIVE_NETWORK_LOG,
-    MENU_RUN_REGEX,
-    MENU_SEARCH_IP,
-    MENU_EDIT_LOG_PATHS,
-    MENU_EXPORT_JSON,
-    MENU_HELP,
-    MENU_EXIT
-} MenuOptions;
-
 // Function declarations
 char *get_user_input(const char *prompt);
 int sanitize_input(char *input);
@@ -58,6 +32,64 @@ void run_regex(const char *log_search_path);
 
 // Global variable
 char log_search_path[BUFFER_SIZE] = "/var/log";
+
+// Function implementations
+char *get_user_input(const char *prompt) {
+    return readline(prompt);
+}
+
+int sanitize_input(char *input) {
+    if (input == NULL || strlen(input) == 0) {
+        return 0;
+    }
+    return strlen(input) < BUFFER_SIZE;
+}
+
+void run_regex(const char *log_search_path) {
+    // Implementation for running regex; placeholder for actual implementation
+    printf("Running regex on log path: %s\n", log_search_path);
+}
+
+void find_logs_command(char *buffer, size_t size, const char *search_path) {
+    snprintf(buffer, size, "find %s -type f \\( -name '*.log' -o -name 'messages' -o -name 'cron' -o -name 'maillog' -o -name 'secure' -o -name 'firewalld' \\) -exec tail -f -n +1 {} +", search_path);
+}
+
+void display_buffer_with_less(const char *buffer, size_t length) {
+    char tmp_filename[] = "/tmp/logsearchXXXXXX";
+    int tmp_fd = mkstemp(tmp_filename);
+    if (tmp_fd == -1) {
+        perror("mkstemp");
+        return;
+    }
+
+    FILE *tmp_file = fdopen(tmp_fd, "w+");
+    if (tmp_file == NULL) {
+        perror("fdopen");
+        close(tmp_fd);
+        return;
+    }
+
+    fwrite(buffer, 1, length, tmp_file);
+    fflush(tmp_file);
+
+    char cmd[BUFFER_SIZE];
+    snprintf(cmd, sizeof(cmd), "less -R %s", tmp_filename);
+    system(cmd);
+
+    fclose(tmp_file);
+    remove(tmp_filename);
+}
+
+// Other function definitions remain unchanged...
+
+int main() {
+    signal(SIGINT, sigint_handler);
+    main_menu();
+    return 0;
+}
+
+
+
 
 void find_logs_command(char *buffer, size_t size, const char *search_path) {
     snprintf(buffer, size, "find %s -type f \\( -name '*.log' -o -name 'messages' -o -name 'cron' -o -name 'maillog' -o -name 'secure' -o -name 'firewalld' \\) -exec tail -f -n +1 {} +", search_path);
