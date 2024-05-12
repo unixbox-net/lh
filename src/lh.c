@@ -322,6 +322,7 @@ void display_help() {
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "L" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "ogHOG (Every log stitched together in timestamp order) - Troubleshoot anything\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN " - Displays every log in real time, sorted by timestamp.\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "N" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "etwork Protocol Filter " ANSI_COLOR_DARK "(" ANSI_COLOR_CYAN "Tail" ANSI_COLOR_DARK ") - " ANSI_COLOR_BLUE "Filters logs by protocol such as" ANSI_COLOR_DARK ":\n" ANSI_COLOR_RESET
+        ANSI_COLOR_CYAN " - Identify events such as" ANSI_COLOR_DARK ":\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     'http://'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     'https://'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     'ftp://'\n" ANSI_COLOR_RESET
@@ -330,6 +331,7 @@ void display_help() {
         ANSI_COLOR_LIGHT_GRAY "     'smtp://'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     'sftp://'\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "R" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "egex " ANSI_COLOR_DARK "(" ANSI_COLOR_CYAN "Tail" ANSI_COLOR_DARK ") - " ANSI_COLOR_BLUE "Search EVERYTHING using standard regular expressions such as" ANSI_COLOR_DARK ":\n" ANSI_COLOR_RESET
+        ANSI_COLOR_CYAN " - Search everylog instantly for any regular expression, pattermatching, rnges and wild cards" ANSI_COLOR_DARK ":\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     'error|failure'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     'REGEX_PATTERN'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     '(?:[0-9]{1,3}\\.){3}[0-9]{1,3}'\n" ANSI_COLOR_RESET
@@ -342,16 +344,20 @@ void display_help() {
         ANSI_COLOR_LIGHT_GRAY "     '(GET|POST|PUT|DELETE|PATCH) /[a-zA-Z0-9/_-]*'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     'cron.*\\((root|admin)\\)'\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "I" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "P (Log Search) - " ANSI_COLOR_CYAN "Filters logs by IP, ranges, and regular expressions such as" ANSI_COLOR_DARK ":\n" ANSI_COLOR_RESET
+        ANSI_COLOR_CYAN " - Complex IP range searchs, made easy with standard [] .. | () queries" ANSI_COLOR_DARK ":\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     '(192.168.[1..25].[40..120])'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     '(192\\.168\\.[0-9]+\\.[0-9]+)'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     '(192|172|10)'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     ':(?::[A-Fa-f0-9]{1,4}){1,7}'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     '192\\.168\\.\\d{1,3}\\.\\d{1,3}'\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "S" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "et (Log Paths) - " ANSI_COLOR_CYAN "Allows setting custom log paths such as" ANSI_COLOR_DARK ":\n" ANSI_COLOR_RESET
+        ANSI_COLOR_CYAN " - can be used as a remote log monitoring tool" ANSI_COLOR_DARK ":\n" ANSI_COLOR_RESET    
+        ANSI_COLOR_LIGHT_GRAY "     '/nfs/shre /mnt/'\n" ANSI_COLOR_RESET    
         ANSI_COLOR_LIGHT_GRAY "     '/var/log /opt/logs'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     '/var/lib/docker /var/log/nginx'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     '/usr/local/logs /home/user/logs'\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "J" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "SON (Export tool) - " ANSI_COLOR_CYAN "Exports filtered logs to a JSON file in the home directory called" ANSI_COLOR_MAGENTA " log_search_results.json" ANSI_COLOR_DARK ".\n" ANSI_COLOR_RESET
+        ANSI_COLOR_CYAN " - Export any regular expression into JSON format" ANSI_COLOR_DARK ":\n" ANSI_COLOR_RESET    
         ANSI_COLOR_LIGHT_GRAY "     'jq '.[] | .log_entry' log_search_results.json'\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "H" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "elp - " ANSI_COLOR_CYAN "Displays this Help.\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "Q" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "uit - " ANSI_COLOR_CYAN "Exits the application.\n\n" ANSI_COLOR_RESET
