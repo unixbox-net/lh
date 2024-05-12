@@ -79,7 +79,7 @@ void display_buffer_with_less(const char *buffer, size_t length) {
     fwrite(buffer, 1, length, tmp_file);
     fflush(tmp_file);
 
-    char cmd[BUFFER_SIZE];
+    char cmd[BUFFER_SIZE * 2];  // Consider increasing buffer or dynamically allocating
     snprintf(cmd, sizeof(cmd), "less -R %s", tmp_filename);
     system(cmd);
 
@@ -124,11 +124,18 @@ void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *
 }
 
 void live_auth_log(const char *log_search_path) {
-    char cmd[BUFFER_SIZE];
     char find_cmd[BUFFER_SIZE];
     find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
-    snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i \"authentication(\\s*failed)?|permission(\\s*denied)?|invalid\\s*(user|password|token)|(unauthorized|illegal)\\s*(access|attempt)|SQL\\s*injection|cross-site\\s*(scripting|request\\s*Forgery)|directory\\s*traversal|(brute-?force|DoS|DDoS)\\s*attack|(vulnerability|exploit)\\s*(detected|scan)\"", find_cmd);
-    run_command_with_buffer(cmd, display_buffer_with_less);
+
+    size_t cmd_len = strlen(find_cmd) + 500;  // Adjust size to handle the full command
+    char *cmd = malloc(cmd_len);
+    if (cmd) {
+        snprintf(cmd, cmd_len, "%s | egrep --color=always -i \"authentication(\\s*failed)?|permission(\\s*denied)?|invalid\\s*(user|password|token)|(unauthorized|illegal)\\s*(access|attempt)|SQL\\s*injection|cross-site\\s*(scripting|request\\s*Forgery)|directory\\s*traversal|(brute-?force|DoS|DDoS)\\s*attack|(vulnerability|exploit)\\s*(detected|scan)\"", find_cmd);
+        run_command_with_buffer(cmd, display_buffer_with_less);
+        free(cmd);
+    } else {
+        fprintf(stderr, "Failed to allocate memory for command buffer\n");
+    }
 }
 
 void live_error_log(const char *log_search_path) {
