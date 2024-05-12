@@ -2,7 +2,7 @@ Name:           lh
 Version:        1.0.0
 Release:        1%{?dist}
 Summary:        Lightweight log monitoring tool
-License:        MIT
+License:        BSD-2
 URL:            https://github.com/unixbox-net/lh
 Source0:        %{name}-%{version}.tar.gz
 BuildRequires:  gcc, json-c-devel, readline-devel
