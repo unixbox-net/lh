@@ -38,19 +38,7 @@
     ANSI_COLOR_MAGENTA "                  Y8b d88P " ANSI_COLOR_RED " NO" ANSI_COLOR_LIGHT_GRAY "-nonsense digital forensics" ANSI_COLOR_RESET "\n" \
     ANSI_COLOR_MAGENTA "                   \"Y88P\"" ANSI_COLOR_RESET "\n"
 
-typedef enum {
-    MENU_LIVE_AUTH_LOG = 1,
-    MENU_LIVE_ERROR_LOG,
-    MENU_LIVE_LOG,
-    MENU_LIVE_NETWORK_LOG,
-    MENU_RUN_REGEX,
-    MENU_SEARCH_IP,
-    MENU_EDIT_LOG_PATHS,
-    MENU_EXPORT_JSON,
-    MENU_HELP,
-    MENU_EXIT
-} MenuOptions;
-
+// Function declarations
 void find_logs_command(char *buffer, size_t size, const char *search_path);
 void display_buffer_with_less(const char *buffer, size_t length);
 void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *, size_t));
@@ -62,6 +50,7 @@ void run_regex(const char *log_search_path);
 void search_ip(const char *log_search_path);
 void edit_log_paths(char *log_search_path);
 void export_search_results_to_json(const char *log_search_path);
+void run_tcp_tracer();
 void display_help();
 void main_menu();
 void sigint_handler(int sig);
@@ -277,7 +266,7 @@ void export_search_results_to_json(const char *log_search_path) {
         }
 
         // Print the results to the screen using `less`
-        display_buffer_with_less(all_entries, strlen(all_entries));
+        display_buffer with_less(all_entries, strlen(all_entries));
     } else {
         printf("\nNo matching log entries found.\n");
     }
@@ -291,15 +280,15 @@ void display_help() {
         ANSI_COLOR_LIGHT_GRAY "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN "LogHOG " ANSI_COLOR_BLUE "is a " ANSI_COLOR_CYAN "FAST" ANSI_COLOR_BLUE " comprehensive log search tool with 2 modes\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_YELLOW "TAIL MODE\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "Logs are automatically stiched together by timestamp making \n" ANSI_COLOR_RESET
+        ANSI_COLOR_BLUE "Logs are automatically stitched together by timestamp making \n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "events easy to follow in real time " ANSI_COLOR_CYAN "(CTRL+C to quit)\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_YELLOW "LESS MODE\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "Buffers from tail mode are sent directly to less, a powerful\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "text editing tool that allows for indepth review, searches and\n" ANSI_COLOR_RESET
+        ANSI_COLOR_BLUE "text editing tool that allows for in-depth review, searches and\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "real time log analysis " ANSI_COLOR_CYAN "(h for help)" ANSI_COLOR_BLUE " or " ANSI_COLOR_CYAN "(q to quit)\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN "MENU OVERVIEW\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "A" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "uthentication (Tail) - Track down security and authentication issues in realtim.\n" ANSI_COLOR_RESET
+        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "A" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "uthentication (Tail) - Track down security and authentication issues in real time.\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN " - Identify events such as.\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'authentication failed'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'permission denied'\n" ANSI_COLOR_RESET
@@ -319,7 +308,7 @@ void display_help() {
         ANSI_COLOR_BLUE "     'DNS resolution failure'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'permission denied'\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'and more .. '\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "L" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "ogHOG (Every log stiched together in timestamp order) - Troubleshoot anything\n" ANSI_COLOR_RESET
+        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "L" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "ogHOG (Every log stitched together in timestamp order) - Troubleshoot anything\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN " - Displays every log in real time, sorted by timestamp.\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "N" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "etwork Protocol Filter (Tail)\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN " - Filters logs by protocol.\n" ANSI_COLOR_RESET
@@ -378,6 +367,7 @@ void main_menu() {
         printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "S" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "et dir\n" ANSI_COLOR_RESET);
         printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "J" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "sonEx\n" ANSI_COLOR_RESET);
         printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "H" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "elp!\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "T" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "CP Trace\n" ANSI_COLOR_RESET);
         printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "Q" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "uit!\n" ANSI_COLOR_RESET);
         printf(ANSI_COLOR_DARK "\n-" ANSI_COLOR_LIGHT_GRAY "> " ANSI_COLOR_RESET);
 
@@ -425,21 +415,34 @@ void main_menu() {
             case 'h':
                 display_help();
                 break;
+            case 'T':
+            case 't':
+                run_tcp_tracer();
+                break;
             case 'Q':
             case 'q':
                 free(option);
                 exit(0);
                 break;
             default:
-                printf(ANSI_COLOR_BLUE "oops!\n" ANSI_COLOR_RESET);
+                printf(ANSI_COLOR_BLUE "Invalid choice. Please try again.\n" ANSI_COLOR_RESET);
         }
         free(option);
     }
 }
 
+void run_tcp_tracer() {
+    printf(ANSI_COLOR_CYAN "Starting TCP Tracer...\n" ANSI_COLOR_RESET);
+    int status = system("/usr/share/bcc/tools/tcptracer");
+    if (status != 0) {
+        printf(ANSI_COLOR_RED "Failed to start TCP Tracer. Please ensure you have the necessary permissions.\n" ANSI_COLOR_RESET);
+    }
+}
+
 void sigint_handler(int sig) {
-    printf("\nReturning to menu...\n");
+    printf("\nInterrupt signal received. Exiting...\n");
     fflush(stdout);
+    exit(sig);
 }
 
 int main() {
