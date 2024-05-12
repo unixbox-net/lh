@@ -41,14 +41,13 @@
 // Global variable
 char log_search_path[BUFFER_SIZE] = "/var/log";
 
-// Function declarations
+// Function prototypes
 void sigint_handler(int sig);
 void main_menu(void);
 void run_regex(const char *log_search_path);
 char *get_user_input(const char *prompt);
 int sanitize_input(char *input);
 
-// Function implementations
 char *get_user_input(const char *prompt) {
     return readline(prompt);
 }
@@ -60,11 +59,6 @@ int sanitize_input(char *input) {
     return strlen(input) < BUFFER_SIZE;
 }
 
-void run_regex(const char *log_search_path) {
-    // Placeholder function for running regex; actual implementation needed
-    printf("Running regex on log path: %s\n", log_search_path);
-}
-
 void sigint_handler(int sig) {
     printf("\nReturning to menu...\n");
     fflush(stdout);
@@ -72,13 +66,13 @@ void sigint_handler(int sig) {
 
 void main_menu(void) {
     char *option;
-    printf(ANSI_COLOR_GREEN ASCII_ART ANSI_COLOR_RESET);
     while (1) {
-        printf("Menu options here.\n");
-        option = get_user_input("Choose option: ");
+        printf(ANSI_COLOR_GREEN ASCII_ART ANSI_COLOR_RESET);
+        option = get_user_input("Choose an option: ");
         if (option == NULL) {
             continue;
         }
+        printf("Option chosen: %s\n", option);  // Example usage
         free(option);
     }
 }
@@ -88,6 +82,7 @@ int main() {
     main_menu();
     return 0;
 }
+
 
 
 void find_logs_command(char *buffer, size_t size, const char *search_path) {
