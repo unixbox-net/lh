@@ -4,8 +4,8 @@
 
   The installer automatically builds both .rpm and a binary. It will attempt to install
   via DNF (aka) it "should" install to **ANY** version of Rhel, Fedora, CentOS, Alma, Rocky... 
-  perhaps Oracle, Scientific, Amazon? ikd I build on rocky 8.9 but this applciation is built in
-  c and should work on all UNIX/UNIX-like and GNU-Linux systems
+  perhaps Oracle, Scientific, Amazon?. I test on rocky 8.9 but in theory the applciation its self
+  is 100% clang and should compile on all UNIX/UNIX-like and GNU-Linux systems.
 
     output includes: binaries & rpm
       ~/lh/rpmbuild/BUILD/lh-1.0.0/lh (compiled binary)
