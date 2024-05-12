@@ -357,10 +357,10 @@ void display_help() {
         ANSI_COLOR_LIGHT_GRAY "     '/var/lib/docker /var/log/nginx'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     '/usr/local/logs /home/user/logs'\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "J" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "SON (Export tool) - " ANSI_COLOR_CYAN "Exports filtered logs to a JSON file in the home directory called" ANSI_COLOR_MAGENTA " log_search_results.json" ANSI_COLOR_DARK ".\n" ANSI_COLOR_RESET
-        ANSI_COLOR_LIGHT_GRAY "     'jq '.[] | .log_entry' log_search_results.json'\n\n\n\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'jq '.[] | .log_entry' log_search_results.json'\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "H" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "elp - " ANSI_COLOR_CYAN "Displays this Help.\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "Q" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "uit - " ANSI_COLOR_CYAN "Exits the application.\n" ANSI_COLOR_RESET
-        ANSI_COLOR_CYAN "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n" ANSI_COLOR_RESET;
+        ANSI_COLOR_CYAN "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n" ANSI_COLOR_RESET;
 
     display_buffer_with_less(help_text, strlen(help_text));
 }
