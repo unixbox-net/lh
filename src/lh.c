@@ -218,7 +218,7 @@ void search_ip(const char *log_search_path) {
 }
 
 void edit_log_paths(char *log_search_path) {
-    char *new_paths = get_user_input("\nCurrent log paths: /var/lib/docker /var/log\nEnter new log paths (separated by spaces) > ");
+    char *new_paths = get_user_input("\nCurrent log paths: /var/lib/docker /var/log\nie: /var/lib/docker/containers /opt /nfsshare etc\n Enter new log paths (separated by spaces) > ");
     if (!sanitize_input(new_paths)) {
         free(new_paths);
         return;
