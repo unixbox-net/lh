@@ -25,13 +25,28 @@
 #define ANSI_COLOR_DARK "\x1b[30m"
 #define ANSI_COLOR_BG "\x1b[48;5;235m"
 
-// Function declarations
-char *get_user_input(const char *prompt);
-int sanitize_input(char *input);
-void run_regex(const char *log_search_path);
+#define ASCII_ART \
+    ANSI_COLOR_MAGENTA "\n888                       888    888  .d88888b.   .d8888b. " ANSI_COLOR_RESET "\n" \
+    ANSI_COLOR_MAGENTA "888                       888    888 d88P\" \"Y88b d88P  Y88b" ANSI_COLOR_RESET "\n" \
+    ANSI_COLOR_MAGENTA "888                       888    888 888     888 888    888" ANSI_COLOR_RESET "\n" \
+    ANSI_COLOR_MAGENTA "888      .d88b.   .d88b.  8888888888 888     888 888       " ANSI_COLOR_RESET "\n" \
+    ANSI_COLOR_MAGENTA "888     d88\"\"88b d88P\"88b 888    888 888     888 888  88888" ANSI_COLOR_RESET "\n" \
+    ANSI_COLOR_MAGENTA "888     888  888 888  888 888    888 888     888 888    888" ANSI_COLOR_RESET "\n" \
+    ANSI_COLOR_MAGENTA "888     Y88..88P Y88b 888 888    888 Y88b. .d88P Y88b  d88P" ANSI_COLOR_RESET "\n" \
+    ANSI_COLOR_MAGENTA "88888888 \"Y88P\"   \"Y88888 888    888  \"Y88888P\"   \"Y8888P88" ANSI_COLOR_RESET "\n" \
+    ANSI_COLOR_MAGENTA "                       888" ANSI_COLOR_RESET "\n" \
+    ANSI_COLOR_MAGENTA "                  Y8b d88P " ANSI_COLOR_RED " NO" ANSI_COLOR_LIGHT_GRAY "-nonsense digital forensics" ANSI_COLOR_RESET "\n" \
+    ANSI_COLOR_MAGENTA "                   \"Y88P\"" ANSI_COLOR_RESET "\n"
 
 // Global variable
 char log_search_path[BUFFER_SIZE] = "/var/log";
+
+// Function declarations
+void sigint_handler(int sig);
+void main_menu(void);
+void run_regex(const char *log_search_path);
+char *get_user_input(const char *prompt);
+int sanitize_input(char *input);
 
 // Function implementations
 char *get_user_input(const char *prompt) {
@@ -46,49 +61,33 @@ int sanitize_input(char *input) {
 }
 
 void run_regex(const char *log_search_path) {
-    // Implementation for running regex; placeholder for actual implementation
+    // Placeholder function for running regex; actual implementation needed
     printf("Running regex on log path: %s\n", log_search_path);
 }
 
-void find_logs_command(char *buffer, size_t size, const char *search_path) {
-    snprintf(buffer, size, "find %s -type f \\( -name '*.log' -o -name 'messages' -o -name 'cron' -o -name 'maillog' -o -name 'secure' -o -name 'firewalld' \\) -exec tail -f -n +1 {} +", search_path);
+void sigint_handler(int sig) {
+    printf("\nReturning to menu...\n");
+    fflush(stdout);
 }
 
-void display_buffer_with_less(const char *buffer, size_t length) {
-    char tmp_filename[] = "/tmp/logsearchXXXXXX";
-    int tmp_fd = mkstemp(tmp_filename);
-    if (tmp_fd == -1) {
-        perror("mkstemp");
-        return;
+void main_menu(void) {
+    char *option;
+    printf(ANSI_COLOR_GREEN ASCII_ART ANSI_COLOR_RESET);
+    while (1) {
+        printf("Menu options here.\n");
+        option = get_user_input("Choose option: ");
+        if (option == NULL) {
+            continue;
+        }
+        free(option);
     }
-
-    FILE *tmp_file = fdopen(tmp_fd, "w+");
-    if (tmp_file == NULL) {
-        perror("fdopen");
-        close(tmp_fd);
-        return;
-    }
-
-    fwrite(buffer, 1, length, tmp_file);
-    fflush(tmp_file);
-
-    char cmd[BUFFER_SIZE];
-    snprintf(cmd, sizeof(cmd), "less -R %s", tmp_filename);
-    system(cmd);
-
-    fclose(tmp_file);
-    remove(tmp_filename);
 }
-
-// Other function definitions remain unchanged...
 
 int main() {
     signal(SIGINT, sigint_handler);
     main_menu();
     return 0;
 }
-
-
 
 
 void find_logs_command(char *buffer, size_t size, const char *search_path) {
