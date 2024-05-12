@@ -6,20 +6,16 @@
   via DNF (aka) **ANY** version of Rhel, Fedora, CentOS, Alma, Rocky... It may work on Oracle, Scientific
   or Amazon Linux?. But in theory the applciation its self only uses standard posix so it should compile
   and run on all UNIX/UNIX-like and GNU-Linux systems.  I test on Rocky 8.9
-
-    output includes: binaries & rpm
-      ~/lh/rpmbuild/BUILD/lh-1.0.0/lh (compiled binary)
-      ~/lh/rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm (package)
-
-  or build to taste with lh.c
-
-  
+    
   ```bash
   sudo su -
   curl -sL https://github.com/unixbox-net/lh/raw/main/rhel-8.sh | sudo bash
   lh
   ```
-    
+~/lh/rpmbuild/BUILD/lh-1.0.0/lh (compiled binary)
+~/lh/rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm (package)
+
+   
   Depedicies
   ```bash
   json-c readline
