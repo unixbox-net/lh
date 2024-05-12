@@ -31,7 +31,7 @@ typedef enum {
 } MenuOptions;
 
 // Function prototypes
-void find_logs_command(char *buffer, size_t size, const char *search_path);
+void find_logs_command(char *buffer, const char *search_path);
 void display_buffer_with_less(const char *buffer);
 void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *));
 void live_auth_log(void);
@@ -115,21 +115,21 @@ int sanitize_input(const char *input) {
 void live_auth_log(void) {
     char cmd[BUFFER_SIZE];
     find_logs_command(cmd, log_search_path);
-    strncat(cmd, " | egrep --color=always -i \"authentication(\\s*failed)?|permission(\\s*denied)?|invalid\\s*(user|password|token)|(unauthorized|illegal)\\s*(access|attempt)|SQL\\s*injection|cross-site\\s*(scripting|request\\s*Forgery)|directory\\s*traversal|(brute-?force|DoS|DDoS)\\s*attack|(vulnerability|exploit)\\s*(detected|scan)\"", BUFFER_SIZE - strlen(cmd));
+    strncat(cmd, " | egrep --color=always -i \"authentication(\\s*failed)?|permission(\\s*denied)?|invalid\\s*(user|password|token)|(unauthorized|illegal)\\s*(access|attempt)|SQL\\s*injection|cross-site\\s*(scripting|request\\s*Forgery)|directory\\s*traversal|(brute-?force|DoS|DDoS)\\s*attack|(vulnerability|exploit)\\s*(detected|scan)\"", BUFFER_SIZE - strlen(cmd) - 1);
     run_command_with_buffer(cmd, display_buffer_with_less);
 }
 
 void live_error_log(void) {
     char cmd[BUFFER_SIZE];
     find_logs_command(cmd, log_search_path);
-    strncat(cmd, " | egrep --color=always -i \"\\b(?:error|fail(?:ed|ure)?|warn(?:ing)?|critical|socket|denied|refused|retry|reset|timeout|dns|network)\"", BUFFER_SIZE - strlen(cmd));
+    strncat(cmd, " | egrep --color=always -i \"\\b(?:error|fail(?:ed|ure)?|warn(?:ing)?|critical|socket|denied|refused|retry|reset|timeout|dns|network)\"", BUFFER_SIZE - strlen(cmd) - 1);
     run_command_with_buffer(cmd, display_buffer_with_less);
 }
 
 void live_network_log(void) {
     char cmd[BUFFER_SIZE];
     find_logs_command(cmd, log_search_path);
-    strncat(cmd, " | egrep --color=always -i 'https?://|ftps?://|telnet://|ssh://|sftp://|ldap(s)?://|nfs://|tftp://|gopher://|imap(s)?://|pop3(s)?://|smtp(s)?://|rtsp://|rtmp://|mms://|xmpp://|ipp://|xrdp://'", BUFFER_SIZE - strlen(cmd));
+    strncat(cmd, " | egrep --color=always -i 'https?://|ftps?://|telnet://|ssh://|sftp://|ldap(s)?://|nfs://|tftp://|gopher://|imap(s)?://|pop3(s)?://|smtp(s)?://|rtsp://|rtmp://|mms://|xmpp://|ipp://|xrdp://'", BUFFER_SIZE - strlen(cmd) - 1);
     run_command_with_buffer(cmd, display_buffer_with_less);
 }
 
@@ -142,8 +142,8 @@ void run_regex(void) {
 
     char cmd[BUFFER_SIZE];
     find_logs_command(cmd, log_search_path);
-    strncat(cmd, " | egrep --color=always -i ", BUFFER_SIZE - strlen(cmd));
-    strncat(cmd, egrep_args, BUFFER_SIZE - strlen(cmd));
+    strncat(cmd, " | egrep --color=always -i ", BUFFER_SIZE - strlen(cmd) - 1);
+    strncat(cmd, egrep_args, BUFFER_SIZE - strlen(cmd) - 1);
     run_command_with_buffer(cmd, display_buffer_with_less);
     free(egrep_args);
 }
@@ -157,8 +157,8 @@ void search_ip(void) {
 
     char cmd[BUFFER_SIZE];
     find_logs_command(cmd, log_search_path);
-    strncat(cmd, " | egrep --color=always -i ", BUFFER_SIZE - strlen(cmd));
-    strncat(cmd, ip_regex, BUFFER_SIZE - strlen(cmd));
+    strncat(cmd, " | egrep --color=always -i ", BUFFER_SIZE - strlen(cmd) - 1);
+    strncat(cmd, ip_regex, BUFFER_SIZE - strlen(cmd) - 1);
     run_command_with_buffer(cmd, display_buffer_with_less);
     free(ip_regex);
 }
@@ -185,8 +185,8 @@ void export_search_results_to_json(void) {
 
     char cmd[BUFFER_SIZE];
     find_logs_command(cmd, log_search_path);
-    strncat(cmd, " | egrep --color=never -i ", BUFFER_SIZE - strlen(cmd));
-    strncat(cmd, egrep_args, BUFFER_SIZE - strlen(cmd));
+    strncat(cmd, " | egrep --color=never -i ", BUFFER_SIZE - strlen(cmd) - 1);
+    strncat(cmd, egrep_args, BUFFER_SIZE - strlen(cmd) - 1);
 
     FILE *proc = popen(cmd, "r");
     if (proc) {
@@ -309,3 +309,4 @@ int main(void) {
 void sigint_handler(int sig) {
     printf("\nInterrupt received. Returning to main menu...\n");
 }
+
