@@ -1,29 +1,25 @@
 ![loghog](https://github.com/unixbox-net/loghog/assets/104218206/351322c5-0962-427c-bb4c-2eb3ac3244c1)
 
-
 # How to Install
 
   ```bash
   curl -sL https://github.com/unixbox-net/lh/raw/main/rhel-8.sh | sudo bash
   ```
   
-  This installer automatically builds and installs the .rpm to most systems that 
-  can use dnf. ie: Rhel, Fedora, CentOS, Alma, Rocky and maybe Oracle, Scientific, 
-  and Amazon Linux.
-
+  The installer automatically builds .rpm packages and a binary file. It will attempt to install
+  via dnf and should work with any version of Rhel, Fedora, CentOS, Alma, Rocky... maybe Oracle, Scientific, 
+  and Amazon Linux? not sure.. I test with rocky 8. 
 
     output includes: binaries & rpm
       ~/lh/rpmbuild/BUILD/lh-1.0.0/lh (compiled binary)
       ~/lh/rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm (package)
 
-  but it should compile on any system that supports clang
-  
+  it should compile on any clang os and only uses traditional posix commands.
   
   Depedicies
   ```bash
   json-c readline
   ```
-
 
 ## Purpose
 
@@ -38,7 +34,6 @@ injections. **Press `CTRL+C`** to quit.
 Buffers are sent directly to **less** for further editing and in-depth review, searches, and complex log analysis.  
 **Press `h` for help** or **`q` to quit**.
 
-
 ## Other key features include:
   
 **Regex Search**: Allows powerful searches across all logs using regular expressions, making it simple to detect patterns like IP addresses, error messages, and unauthorized access attempts.
@@ -48,6 +43,5 @@ Buffers are sent directly to **less** for further editing and in-depth review, s
 **Export to JSON**: Exports search results to JSON format for further analysis or sharing with others.
 **Live and Less Modes**: Enables real-time log monitoring or in-depth review through the less pager.
 **Ultra Small** weignin in at 21,815 bytes its about the same size as a BLANK word document.
-
 
 Whether you're a system administrator, developer, or security professional, LogHOG offers a comprehensive suite of tools for efficient log analysis and bug hunting. Its simplicity, speed, and robustness make it an indispensable forensics tool.
