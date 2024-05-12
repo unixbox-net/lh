@@ -51,6 +51,14 @@ typedef enum {
     MENU_EXIT
 } MenuOptions;
 
+// Function declarations
+char *get_user_input(const char *prompt);
+int sanitize_input(char *input);
+void run_regex(const char *log_search_path);
+
+// Global variable
+char log_search_path[BUFFER_SIZE] = "/var/log";
+
 void find_logs_command(char *buffer, size_t size, const char *search_path) {
     snprintf(buffer, size, "find %s -type f \\( -name '*.log' -o -name 'messages' -o -name 'cron' -o -name 'maillog' -o -name 'secure' -o -name 'firewalld' \\) -exec tail -f -n +1 {} +", search_path);
 }
