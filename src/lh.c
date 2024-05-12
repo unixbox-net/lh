@@ -336,7 +336,8 @@ void display_help() {
         ANSI_COLOR_BLUE "     'network reset'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'DNS resolution failure'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'permission denied'\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "L" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "ive (LIVE, timestamp order)\n" ANSI_COLOR_RESET
+        ANSI_COLOR_BLUE "     'and more .. '\n\n" ANSI_COLOR_RESET
+        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "L" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "ogHOG (Every log stiched into timestamp order)\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN " - Displays every log in real time, sorted by timestamp.\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "N" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "etwork Protocol Filter (Tail)\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN " - Filters logs by protocol.\n" ANSI_COLOR_RESET
@@ -386,10 +387,10 @@ void main_menu() {
     char *option;
     while (1) {
         printf(ANSI_COLOR_GREEN ASCII_ART ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "A" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "uth spy\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "A" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "uth\n" ANSI_COLOR_RESET);
         printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "E" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "rror\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "L" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "ogHOG (unfiltered, timestamped)\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "N" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "etwork snoop\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "L" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "ogHOG\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "N" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "etwork\n" ANSI_COLOR_RESET);
         printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "R" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "egEx\n" ANSI_COLOR_RESET);
         printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "I" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "PEx\n" ANSI_COLOR_RESET);
         printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "S" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "earch path\n" ANSI_COLOR_RESET);
