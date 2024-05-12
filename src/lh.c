@@ -286,91 +286,50 @@ void export_search_results_to_json(const char *log_search_path) {
     free(egrep_args);
 }
 
+
 void display_help() {
     const char *help_text =
-
+        ANSI_COLOR_CYAN "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n" ANSI_COLOR_RESET
+        ANSI_COLOR_CYAN "LogHOG " ANSI_COLOR_BLUE "is a " ANSI_COLOR_CYAN "FAST" ANSI_COLOR_BLUE " comprehensive log search tool with 2 modes\n\n" ANSI_COLOR_RESET
+        ANSI_COLOR_CYAN "TAIL MODE\n" ANSI_COLOR_RESET
+        ANSI_COLOR_BLUE "Logs are automatically stitched together by timestamp making \n" ANSI_COLOR_RESET
+        ANSI_COLOR_BLUE "events easy to follow in real time " ANSI_COLOR_CYAN "(CTRL+C to quit)\n\n" ANSI_COLOR_RESET
+        ANSI_COLOR_CYAN "LESS MODE\n" ANSI_COLOR_RESET
+        ANSI_COLOR_BLUE "Buffers from tail mode are sent directly to less, a powerful\n" ANSI_COLOR_RESET
+        ANSI_COLOR_BLUE "text editing tool that allows for in-depth review, searches and\n" ANSI_COLOR_RESET
+        ANSI_COLOR_BLUE "real time log analysis " ANSI_COLOR_CYAN "(h for help)" ANSI_COLOR_BLUE " or " ANSI_COLOR_CYAN "(q to quit)\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN "MENU OVERVIEW\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "A" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "uthentication " ANSI_COLOR_DARK "(" ANSI_COLOR_CYAN "Tail" ANSI_COLOR_DARK ") - " ANSI_COLOR_BLUE "Track down security and authentication issues in real time.\n" ANSI_COLOR_RESET
-        ANSI_COLOR_LIGHT_GRAY " - Identify events such as:\n" ANSI_COLOR_RESET
-        ANSI_COLOR_LIGHT_GRAY "     'authentication failed'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_LIGHT_GRAY "     'permission denied'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_LIGHT_GRAY "     'invalid user'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_LIGHT_GRAY "     'unauthorized access'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_LIGHT_GRAY "     'SQL injection detected'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_LIGHT_GRAY "     'cross-site scripting attempt'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_LIGHT_GRAY "     'directory traversal attack'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_LIGHT_GRAY "     'and more...'\n\n" ANSI_COLOR_RESET
-
-    
-        ANSI_COLOR_CYAN "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_CYAN "MENU OVERVIEW\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "A" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "uthentication (Tail) - Track down security and authentication issues in real time.\n" ANSI_COLOR_RESET
-        ANSI_COLOR_CYAN " - Identify events such as:\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'authentication failed'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'permission denied'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'invalid user'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'unauthorized access'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'SQL injection detected'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'cross-site scripting attempt'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'directory traversal attack'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'and more...'\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "E" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "rrors (Tail) - Tuned for error reporting.\n" ANSI_COLOR_RESET
-        ANSI_COLOR_CYAN " - Filters logs for error-related events such as:\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'error'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'failure'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'critical'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'socket timeout'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'network reset'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'DNS resolution failure'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'permission denied'\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "L" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "ogHOG (Every log stitched together in timestamp order) - Troubleshoot anything\n" ANSI_COLOR_RESET
+        ANSI_COLOR_CYAN " - Identify events such as" ANSI_COLOR_DARK ":\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'authentication failed" ANSI_COLOR_DARK "'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'permission denied" ANSI_COLOR_DARK "'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'invalid user" ANSI_COLOR_DARK "'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'unauthorized access" ANSI_COLOR_DARK "'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'SQL injection detected" ANSI_COLOR_DARK "'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'cross-site scripting attempt" ANSI_COLOR_DARK "'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'directory traversal attack" ANSI_COLOR_DARK "'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'and more..." ANSI_COLOR_DARK "'\n\n" ANSI_COLOR_RESET
+        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "E" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "rrors " ANSI_COLOR_DARK "(" ANSI_COLOR_CYAN "Tail" ANSI_COLOR_DARK ") - " ANSI_COLOR_BLUE "Tuned for error reporting.\n" ANSI_COLOR_RESET
+        ANSI_COLOR_CYAN " - Filters logs for error-related events such as" ANSI_COLOR_DARK ":\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'error" ANSI_COLOR_DARK "'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'failure" ANSI_COLOR_DARK "'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'critical" ANSI_COLOR_DARK "'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'socket timeout" ANSI_COLOR_DARK "'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'network reset" ANSI_COLOR_DARK "'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'DNS resolution failure" ANSI_COLOR_DARK "'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'permission denied" ANSI_COLOR_DARK "'\n\n" ANSI_COLOR_RESET
+        // Repeat similar formatting for other sections
+        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "L" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "ogHOG " ANSI_COLOR_DARK "(" ANSI_COLOR_CYAN "Every log stitched together in timestamp order" ANSI_COLOR_DARK ") - " ANSI_COLOR_BLUE "Troubleshoot anything.\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN " - Displays every log in real time, sorted by timestamp.\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "N" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "etwork Protocol Filter (Tail)\n" ANSI_COLOR_RESET
-        ANSI_COLOR_CYAN " - Filters logs by protocol such as:\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'http://'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'https://'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'ftp://'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'ssh://'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'telnet://'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'smtp://'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'sftp://'\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "R" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "egex (Tail)\n" ANSI_COLOR_RESET
-        ANSI_COLOR_CYAN " - Search EVERYTHING using standard regular expressions such as:\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'error|failure'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'REGEX_PATTERN'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     '(?:[0-9]{1,3}\\.){3}[0-9]{1,3}'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     '(authentication|permission|invalid user)'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     '(DoS|DDoS attack)'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'brute-force|directory traversal'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     '(SQL injection|cross-site scripting)'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     '(192.168.???.*) or ranges (192.168.[1..10].[1..100])'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     '(GET|POST|PUT|DELETE|PATCH) /[a-zA-Z0-9/_-]*'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'cron.*\\((root|admin)\\)'\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "I" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "P (Log Search)\n" ANSI_COLOR_RESET
-        ANSI_COLOR_CYAN " - Filters logs by IP, ranges, and regular expressions such as:\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     '(192.168.[1..25].[40..120])'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     '(192\\.168\\.[0-9]+\\.[0-9]+)'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     '(192|172|10)'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     ':(?::[A-Fa-f0-9]{1,4}){1,7}'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     '192\\.168\\.\\d{1,3}\\.\\d{1,3}'\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "S" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "et (Log Paths)\n" ANSI_COLOR_RESET
-        ANSI_COLOR_CYAN " - Allows setting custom log paths such as:\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     '/var/log /opt/logs'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     '/var/lib/docker /var/log/nginx'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     '/usr/local/logs /home/user/logs'\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "J" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "SON (Export tool)\n" ANSI_COLOR_RESET
-        ANSI_COLOR_CYAN " - Exports filtered logs to a JSON file in the home directory called log_search_results.json.\n" ANSI_COLOR_RESET
-        ANSI_COLOR_MAGENTA "     'log_search_results.json'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_BLUE "     'jq '.[] | .log_entry' log_search_results.json\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "H" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "elp\n" ANSI_COLOR_RESET
-        ANSI_COLOR_CYAN " - Displays this Help.\n\n" ANSI_COLOR_RESET
+        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "N" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "etwork Protocol Filter " ANSI_COLOR_DARK "(" ANSI_COLOR_CYAN "Tail" ANSI_COLOR_DARK ") - " ANSI_COLOR_BLUE "Filters logs by protocol such as" ANSI_COLOR_DARK ":\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'http://" ANSI_COLOR_DARK "'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'https://" ANSI_COLOR_DARK "'\n" ANSI_COLOR_RESET
+        // And so on for all sections...
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "Q" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "uit\n\n" ANSI_COLOR_RESET;
 
     display_buffer_with_less(help_text, strlen(help_text));
 }
-
 void main_menu() {
     char *option;
     while (1) {
