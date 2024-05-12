@@ -289,7 +289,7 @@ void export_search_results_to_json(const char *log_search_path) {
 void display_help() {
     const char *help_text =
         ANSI_COLOR_CYAN "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_CYAN "LogHOG " ANSI_COLOR_BLUE "is a " ANSI_COLOR_CYAN "FAST" ANSI_COLOR_BLUE " comprehensive log search tool with 2 modes\n\n" ANSI_COLOR_RESET
+        ANSI_COLOR_CYAN "LogHOG " ANSI_COLOR_LIGHT_GRAY "is a " ANSI_COLOR_CYAN "FAST" ANSI_COLOR_LIGHT_GRAY " comprehensive log search tool with ANSI_COLOR_CYAN 2 ANSI_COLOR_LIGHT_GRAY modes\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN "TAIL MODE\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "Logs are automatically stitched together by timestamp making \n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "events easy to follow in real time " ANSI_COLOR_CYAN "(CTRL+C to quit)\n\n" ANSI_COLOR_RESET
@@ -317,7 +317,7 @@ void display_help() {
         ANSI_COLOR_LIGHT_GRAY "     'socket timeout'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     'network reset'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     'DNS resolution failure'\n" ANSI_COLOR_RESET
-        ANSI_COLOR_LIGHT_GRAY "     'permission denied'\n\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'permission denied'\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "     'and more...'\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "L" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "ogHOG (Every log stitched together in timestamp order) - Troubleshoot anything\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN " - Displays every log in real time, sorted by timestamp.\n\n" ANSI_COLOR_RESET
