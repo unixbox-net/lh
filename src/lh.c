@@ -288,6 +288,21 @@ void export_search_results_to_json(const char *log_search_path) {
 
 void display_help() {
     const char *help_text =
+
+        ANSI_COLOR_CYAN "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n" ANSI_COLOR_RESET
+        ANSI_COLOR_CYAN "MENU OVERVIEW\n\n" ANSI_COLOR_RESET
+        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "A" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "uthentication " ANSI_COLOR_DARK "(" ANSI_COLOR_CYAN "Tail" ANSI_COLOR_DARK ") - " ANSI_COLOR_BLUE "Track down security and authentication issues in real time.\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY " - Identify events such as:\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'authentication failed'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'permission denied'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'invalid user'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'unauthorized access'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'SQL injection detected'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'cross-site scripting attempt'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'directory traversal attack'\n" ANSI_COLOR_RESET
+        ANSI_COLOR_LIGHT_GRAY "     'and more...'\n\n" ANSI_COLOR_RESET
+
+    
         ANSI_COLOR_CYAN "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN "MENU OVERVIEW\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "A" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "uthentication (Tail) - Track down security and authentication issues in real time.\n" ANSI_COLOR_RESET
