@@ -8,15 +8,15 @@
   lh
   ```
   
-  The installer automatically builds .rpm packages and a binary file. It will attempt to install
-  via dnf and should work with any version of Rhel, Fedora, CentOS, Alma, Rocky... maybe Oracle, Scientific, 
-  and Amazon Linux? not sure.. I test with rocky 8. 
+  The installer automatically builds an .rpm packages and binary files. It will attempt to install
+  via DNF (aka) it "should" install to any version of Rhel, Fedora, CentOS, Alma, Rocky... 
+  and perhaps Oracle, Scientific, and Amazon Linux? ikd, this one is tested on rocky 8.9
 
     output includes: binaries & rpm
       ~/lh/rpmbuild/BUILD/lh-1.0.0/lh (compiled binary)
       ~/lh/rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm (package)
 
-  but you can build it on any clang system that uses traditional posix commands.
+  or build to taste on any posix system
   
   Depedicies
   ```bash
@@ -44,6 +44,6 @@ Buffers are sent directly to **less** for further editing and in-depth review, s
 **Custom Log Paths**: Lets users specify custom log paths (local or remote) for precise, targeted searches.
 **Export to JSON**: Exports search results to JSON format for further analysis or sharing with others.
 **Live and Less Modes**: Enables real-time log monitoring or in-depth review through the less pager.
-**Ultra Small** weignin in at 21,815 bytes its about the same size as a BLANK word document.
+**Ultra Small** around 21,815 bytes (21kb) its about the same size as a BLANK word document.
 
 Whether you're a system administrator, developer, or security professional, LogHOG offers a comprehensive suite of tools for efficient log analysis and bug hunting. Its simplicity, speed, and robustness make it an indispensable forensics tool.
