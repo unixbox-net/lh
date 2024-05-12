@@ -385,28 +385,25 @@ void display_help() {
 }
 
 void main_menu() {
-    printf(ASCII_ART);  // Print the ASCII art
-
-    // Print a blank line for spacing, then the menu options in a single line, followed by another blank line
-    printf("\n");
-    printf(ANSI_COLOR_GREEN "(A)uth " ANSI_COLOR_RESET);
-    printf(ANSI_COLOR_BLUE "(E)rrors " ANSI_COLOR_RESET);
-    printf(ANSI_COLOR_GREEN "(L)ive All " ANSI_COLOR_RESET);
-    printf(ANSI_COLOR_BLUE "(N)etwork " ANSI_COLOR_RESET);
-    printf(ANSI_COLOR_GREEN "(R)egex " ANSI_COLOR_RESET);
-    printf(ANSI_COLOR_BLUE "(I)P Search " ANSI_COLOR_RESET);
-    printf(ANSI_COLOR_GREEN "(S)et Log Paths " ANSI_COLOR_RESET);
-    printf(ANSI_COLOR_BLUE "(J)SON Export " ANSI_COLOR_RESET);
-    printf(ANSI_COLOR_GREEN "(H)elp " ANSI_COLOR_RESET);
-    printf(ANSI_COLOR_BLUE "(Q)uit" ANSI_COLOR_RESET);
-    printf("\n\n");
-
     char *option;
     while (1) {
-        printf(ANSI_COLOR_DARK "-" ANSI_COLOR_LIGHT_GRAY "> " ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_GREEN ASCII_ART ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "A" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "uth\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "E" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "rrors\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "L" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "ive All\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "N" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "etwork\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "R" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "egex\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "I" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "P Search\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "S" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "et Log Paths\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "J" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "SON Export\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "H" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "elp\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "Q" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "uit\n" ANSI_COLOR_RESET);
+        printf(ANSI_COLOR_DARK "\n-" ANSI_COLOR_LIGHT_GRAY "> " ANSI_COLOR_RESET);
+
         option = readline(NULL);
         if (option == NULL) {
-            continue;  // Skip the rest of the loop if input is empty
+            while (getchar() != '\n'); // Clear input buffer
+            continue;
         }
 
         char opt = option[0];
