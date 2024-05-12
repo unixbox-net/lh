@@ -12,9 +12,12 @@
   curl -sL https://github.com/unixbox-net/lh/raw/main/rhel-8.sh | sudo bash
   lh
   ```
-~/lh/rpmbuild/BUILD/lh-1.0.0/lh (compiled binary)
-~/lh/rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm (package)
 
+  Output:
+  ```bash
+  ~/lh/rpmbuild/BUILD/lh-1.0.0/lh (compiled binary)
+  ~/lh/rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm (package)
+  ```
    
   Depedicies
   ```bash
