@@ -15,7 +15,6 @@
 #define ANSI_COLOR_RESET "\x1b[0m"
 #define ANSI_COLOR_RED "\x1b[31;1m"
 #define ANSI_COLOR_GREEN "\x1b[32;1m"
-#define ANSI_COLOR_LIGHT_GREEN "\x1b[92;1m"
 #define ANSI_COLOR_YELLOW "\x1b[33;1m"
 #define ANSI_COLOR_BLUE "\x1b[34;1m"
 #define ANSI_COLOR_MAGENTA "\x1b[35;1m"
@@ -26,7 +25,7 @@
 #define ANSI_COLOR_BG "\x1b[48;5;235m"
 
 #define ASCII_ART \
-    ANSI_COLOR_MAGENTA "\n888                       888    888  .d88888b.   .d8888b. " ANSI_COLOR_RESET "\n" \
+    ANSI_COLOR_MAGENTA "888                       888    888  .d88888b.   .d8888b. " ANSI_COLOR_RESET "\n" \
     ANSI_COLOR_MAGENTA "888                       888    888 d88P\" \"Y88b d88P  Y88b" ANSI_COLOR_RESET "\n" \
     ANSI_COLOR_MAGENTA "888                       888    888 888     888 888    888" ANSI_COLOR_RESET "\n" \
     ANSI_COLOR_MAGENTA "888      .d88b.   .d88b.  8888888888 888     888 888       " ANSI_COLOR_RESET "\n" \
@@ -38,7 +37,23 @@
     ANSI_COLOR_MAGENTA "                  Y8b d88P " ANSI_COLOR_RED " NO" ANSI_COLOR_LIGHT_GRAY "-nonsense digital forensics" ANSI_COLOR_RESET "\n" \
     ANSI_COLOR_MAGENTA "                   \"Y88P\"" ANSI_COLOR_RESET "\n"
 
-// Global variable for the log search path
+// Function declarations
+void find_logs_command(char *buffer, size_t size, const char *search_path);
+void display_buffer_with_less(const char *buffer, size_t length);
+void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *, size_t));
+void live_auth_log(const char *log_search_path);
+void live_error_log(const char *log_search_path);
+void live_log(const char *log_search_path);
+void live_network_log(const char *log_search_path);
+void run_regex(const char *log_search_path);
+void search_ip(const char *log_search_path);
+void edit_log_paths(char *log_search_path);
+void export_search_results_to_json(const char *log_search_path);
+void display_help();
+void main_menu();
+void sigint_handler(int sig); // Make sure this is only defined once
+
+// Global variable for log search path
 char log_search_path[BUFFER_SIZE] = "/var/log";
 
 // Function declarations
