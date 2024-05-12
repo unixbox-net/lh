@@ -299,7 +299,7 @@ void display_help() {
         ANSI_COLOR_BLUE "real time log analysis " ANSI_COLOR_CYAN "(h for help)" ANSI_COLOR_BLUE " or " ANSI_COLOR_CYAN "(q to quit)\n" ANSI_COLOR_RESET
         ANSI_COLOR_LIGHT_GRAY "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN "MENU OVERVIEW\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "A" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "uthentication (Tail) - Stitched logs to trackdown issues in real time\n" ANSI_COLOR_RESET
+        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "A" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "uthentication (Tail) - Track down security and authentication issues in realtim.\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN " - Identify events such as.\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'authentication failed'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'permission denied'\n" ANSI_COLOR_RESET
@@ -309,7 +309,7 @@ void display_help() {
         ANSI_COLOR_BLUE "     'cross-site scripting attempt'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'directory traversal attack'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'and more .. '\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "E" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "rrors (Tail)\n" ANSI_COLOR_RESET
+        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "E" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "rrors (Tail) - Tuned for error reporting.\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN " - Filters logs for error-related events.\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'error'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'failure'\n" ANSI_COLOR_RESET
@@ -319,7 +319,7 @@ void display_help() {
         ANSI_COLOR_BLUE "     'DNS resolution failure'\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'permission denied'\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_BLUE "     'and more .. '\n\n" ANSI_COLOR_RESET
-        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "L" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "ogHOG (Every log stiched into timestamp order)\n" ANSI_COLOR_RESET
+        ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "L" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "ogHOG (Every log stiched together in timestamp order) - Troubleshoot anything\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN " - Displays every log in real time, sorted by timestamp.\n\n" ANSI_COLOR_RESET
         ANSI_COLOR_DARK "[" ANSI_COLOR_LIGHT_GREEN "N" ANSI_COLOR_DARK "]" ANSI_COLOR_BLUE "etwork Protocol Filter (Tail)\n" ANSI_COLOR_RESET
         ANSI_COLOR_CYAN " - Filters logs by protocol.\n" ANSI_COLOR_RESET
