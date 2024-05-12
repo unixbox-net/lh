@@ -3,7 +3,7 @@
 
 # How to Install
 
-Rhel-8  (ubuntu coming soon)
+dnf/yum/rpm
   ```bash
   curl -sL https://github.com/unixbox-net/lh/raw/main/rhel-8.sh | sudo bash
   ```
