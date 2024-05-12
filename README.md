@@ -14,7 +14,7 @@
       ~/lh/rpmbuild/BUILD/lh-1.0.0/lh (compiled binary)
       ~/lh/rpmbuild/RPMS/x86_64/lh-1.0.0-1.el8.x86_64.rpm (package)
 
-  it should compile on any clang os and only uses traditional posix commands.
+  but you can build it on any clang system that uses traditional posix commands.
   
   Depedicies
   ```bash
