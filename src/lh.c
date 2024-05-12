@@ -11,7 +11,7 @@
 
 #define BUFFER_SIZE 4096  // Buffer size for command strings and general usage
 
-// ANSI color codes should be defined in a way that they can be concatenated properly in printf statements without causing syntax errors.
+// ANSI color codes
 #define ANSI_COLOR_RESET "\x1b[0m"
 #define ANSI_COLOR_RED "\x1b[31;1m"
 #define ANSI_COLOR_GREEN "\x1b[32;1m"
@@ -50,23 +50,6 @@ typedef enum {
     MENU_HELP,
     MENU_EXIT
 } MenuOptions;
-
-void find_logs_command(char *buffer, size_t size, const char *search_path);
-void display_buffer_with_less(const char *buffer, size_t length);
-void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *, size_t));
-void live_auth_log(const char *log_search_path);
-void live_error_log(const char *log_search_path);
-void live_log(const char *log_search_path);
-void live_network_log(const char *log_search_path);
-void run_regex(const char *log_search_path);
-void search_ip(const char *log_search_path);
-void edit_log_paths(char *log_search_path);
-void export_search_results_to_json(const char *log_search_path);
-void display_help();
-void main_menu();
-void sigint_handler(int sig);
-
-char log_search_path[BUFFER_SIZE] = "/var/log";
 
 void find_logs_command(char *buffer, size_t size, const char *search_path) {
     snprintf(buffer, size, "find %s -type f \\( -name '*.log' -o -name 'messages' -o -name 'cron' -o -name 'maillog' -o -name 'secure' -o -name 'firewalld' \\) -exec tail -f -n +1 {} +", search_path);
@@ -121,9 +104,6 @@ void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *
         memcpy(output + total_length, buffer, buffer_length);
         total_length += buffer_length;
         output[total_length] = '\0';
-
-        fputs(buffer, stdout);
-        fflush(stdout);
     }
 
     if (buffer_action) {
@@ -135,85 +115,89 @@ void run_command_with_buffer(const char *cmd, void (*buffer_action)(const char *
 }
 
 void live_auth_log(const char *log_search_path) {
-    char cmd[BUFFER_SIZE];
     char find_cmd[BUFFER_SIZE];
     find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
-    snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i \"authentication(\\s*failed)?|permission(\\s*denied)?|invalid\\s*(user|password|token)|(unauthorized|illegal)\\s*(access|attempt)|SQL\\s*injection|cross-site\\s*(scripting|request\\s*Forgery)|directory\\s*traversal|(brute-?force|DoS|DDoS)\\s*attack|(vulnerability|exploit)\\s*(detected|scan)\"", find_cmd);
-    run_command_with_buffer(cmd, display_buffer_with_less);
-}
 
-void live_error_log(const char *log_search_path) {
-    char cmd[BUFFER_SIZE];
-    char find_cmd[BUFFER_SIZE];
-    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
-    snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i \"\\b(?:error|fail(?:ed|ure)?|warn(?:ing)?|critical|socket|denied|refused|retry|reset|timeout|dns|network)\"", find_cmd);
-    run_command_with_buffer(cmd, display_buffer_with_less);
-}
+    // Calculate command length
+    int cmd_len = snprintf(NULL, 0, "%s | egrep --color=always -i \"authentication(\\s*failed)?|permission(\\s*denied)?|invalid\\s*(user|password|token)|(unauthorized|illegal)\\s*(access|attempt)|SQL\\s*injection|cross-site\\s*(scripting|request\\s*Forgery)|directory\\s*traversal|(brute-?force|DoS|DDoS)\\s*attack|(vulnerability|exploit)\\s*(detected|scan)\"", find_cmd) + 1;
 
-void live_log(const char *log_search_path) {
-    char cmd[BUFFER_SIZE];
-    char find_cmd[BUFFER_SIZE];
-    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
-    snprintf(cmd, sizeof(cmd), "%s", find_cmd);
-    run_command_with_buffer(cmd, display_buffer_with_less);
-}
-
-void live_network_log(const char *log_search_path) {
-    char cmd[BUFFER_SIZE];
-    char find_cmd[BUFFER_SIZE];
-    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
-    snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i 'https?://|ftps?://|telnet://|ssh://|sftp://|ldap(s)?://|nfs://|tftp://|gopher://|imap(s)?://|pop3(s)?://|smtp(s)?://|rtsp://|rtmp://|mms://|xmpp://|ipp://|xrdp://'", find_cmd);
-    run_command_with_buffer(cmd, display_buffer_with_less);
-}
-
-char *get_user_input(const char *prompt) {
-    char *input = readline(prompt);
-    if (input && *input) {
-        add_history(input);
-    }
-    return input;
-}
-
-int sanitize_input(char *input) {
-    if (input == NULL || strlen(input) == 0) {
-        return 0;
-    }
-
-    if (strlen(input) >= BUFFER_SIZE) {
-        printf(ANSI_COLOR_RED "Input too long. Please try again.\n" ANSI_COLOR_RESET);
-        return 0;
-    }
-
-    return 1;
-}
-
-void run_regex(const char *log_search_path) {
-    char *egrep_args = get_user_input("\nRegEX > ");
-    if (!sanitize_input(egrep_args)) {
-        free(egrep_args);
+    char *cmd = malloc(cmd_len);
+    if (!cmd) {
+        perror("malloc");
         return;
     }
 
-    char cmd[BUFFER_SIZE];
+    snprintf(cmd, cmd_len, "%s | egrep --color=always -i \"authentication(\\s*failed)?|permission(\\s*denied)?|invalid\\s*(user|password|token)|(unauthorized|illegal)\\s*(access|attempt)|SQL\\s*injection|cross-site\\s*(scripting|request\\s*Forgery)|directory\\s*traversal|(brute-?force|DoS|DDoS)\\s*attack|(vulnerability|exploit)\\s*(detected|scan)\"", find_cmd);
+    run_command_with_buffer(cmd, display_buffer_with_less);
+    free(cmd);
+}
+
+void live_error_log(const char *log_search_path) {
     char find_cmd[BUFFER_SIZE];
     find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
-    snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i \"%s\"", find_cmd, egrep_args);
+
+    // Calculate command length
+    int cmd_len = snprintf(NULL, 0, "%s | egrep --color=always -i \"\\b(?:error|fail(?:ed|ure)?|warn(?:ing)?|critical|socket|denied|refused|retry|reset|timeout|dns|network)\"", find_cmd) + 1;
+
+    char *cmd = malloc(cmd_len);
+    if (!cmd) {
+        perror("malloc");
+        return;
+    }
+
+    snprintf(cmd, cmd_len, "%s | egrep --color=always -i \"\\b(?:error|fail(?:ed|ure)?|warn(?:ing)?|critical|socket|denied|refused|retry|reset|timeout|dns|network)\"", find_cmd);
     run_command_with_buffer(cmd, display_buffer_with_less);
-    free(egrep_args);
+    free(cmd);
+}
+
+void live_log(const char *log_search_path) {
+    char find_cmd[BUFFER_SIZE];
+    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
+
+    // Direct execution without grep
+    run_command_with_buffer(find_cmd, display_buffer_with_less);
+}
+
+void live_network_log(const char *log_search_path) {
+    char find_cmd[BUFFER_SIZE];
+    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
+
+    // Calculate command length
+    int cmd_len = snprintf(NULL, 0, "%s | egrep --color=always -i 'https?://|ftps?://|telnet://|ssh://|sftp://|ldap(s)?://|nfs://|tftp://|gopher://|imap(s)?://|pop3(s)?://|smtp(s)?://|rtsp://|rtmp://|mms://|xmpp://|ipp://|xrdp://'", find_cmd) + 1;
+
+    char *cmd = malloc(cmd_len);
+    if (!cmd) {
+        perror("malloc");
+        return;
+    }
+
+    snprintf(cmd, cmd_len, "%s | egrep --color=always -i 'https?://|ftps?://|telnet://|ssh://|sftp://|ldap(s)?://|nfs://|tftp://|gopher://|imap(s)?://|pop3(s)?://|smtp(s)?://|rtsp://|rtmp://|mms://|xmpp://|ipp://|xrdp://'", find_cmd);
+    run_command_with_buffer(cmd, display_buffer_with_less);
+    free(cmd);
 }
 
 void search_ip(const char *log_search_path) {
+    char find_cmd[BUFFER_SIZE];
+    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
+
     char *ip_regex = get_user_input("\nIP / RegEX > ");
     if (!sanitize_input(ip_regex)) {
         free(ip_regex);
         return;
     }
 
-    char cmd[BUFFER_SIZE];
-    char find_cmd[BUFFER_SIZE];
-    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
-    snprintf(cmd, sizeof(cmd), "%s | egrep --color=always -i \"%s\"", find_cmd, ip_regex);
+    // Calculate command length
+    int cmd_len = snprintf(NULL, 0, "%s | egrep --color=always -i \"%s\"", find_cmd, ip_regex) + 1;
+
+    char *cmd = malloc(cmd_len);
+    if (!cmd) {
+        perror("malloc");
+        return;
+    }
+
+    snprintf(cmd, cmd_len, "%s | egrep --color=always -i \"%s\"", find_cmd, ip_regex);
     run_command_with_buffer(cmd, display_buffer_with_less);
+    free(cmd);
     free(ip_regex);
 }
 
@@ -231,20 +215,30 @@ void edit_log_paths(char *log_search_path) {
 }
 
 void export_search_results_to_json(const char *log_search_path) {
+    char find_cmd[BUFFER_SIZE];
+    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
+
     char *egrep_args = get_user_input("\nRegEX / Text > ");
     if (!sanitize_input(egrep_args)) {
         free(egrep_args);
         return;
     }
 
-    char cmd[BUFFER_SIZE];
-    char find_cmd[BUFFER_SIZE];
-    find_logs_command(find_cmd, sizeof(find_cmd), log_search_path);
-    snprintf(cmd, sizeof(cmd), "%s | egrep --color=never -i \"%s\"", find_cmd, egrep_args);
+    // Calculate command length
+    int cmd_len = snprintf(NULL, 0, "%s | egrep --color=never -i \"%s\"", find_cmd, egrep_args) + 1;
+
+    char *cmd = malloc(cmd_len);
+    if (!cmd) {
+        perror("malloc");
+        return;
+    }
+
+    snprintf(cmd, cmd_len, "%s | egrep --color=never -i \"%s\"", find_cmd, egrep_args);
 
     FILE *proc = popen(cmd, "r");
     if (!proc) {
         perror("popen");
+        free(cmd);
         free(egrep_args);
         return;
     }
@@ -264,6 +258,7 @@ void export_search_results_to_json(const char *log_search_path) {
     }
 
     pclose(proc);
+    free(cmd);
 
     if (has_entries) {
         char output_file[BUFFER_SIZE] = "log_search_results.json";
