@@ -34,5 +34,5 @@ install -m 644 README.md %{buildroot}/usr/share/doc/%{name}-%{version}
 %doc /usr/share/doc/%{name}-%{version}/README.md
 
 %changelog
-* Sat May 11 2024 Your Name <you@example.com> - 1.0.0-1
+* Sat May 11 2024 Anthony <info@unixbox.net> - 1.0.0-1
 - Initial release
