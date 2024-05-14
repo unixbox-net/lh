@@ -10,7 +10,7 @@
   cmd:
   ```bash
   sudo su -
-  curl -sL https://github.com/unixbox-net/lh/raw/main/rhel-8.sh | sudo bash
+  curl -sL https://github.com/unixbox-net/lh/raw/main/install.sh | sudo bash
   lh
   ```
 
