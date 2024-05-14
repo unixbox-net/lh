@@ -1,13 +1,9 @@
 ![loghog](https://github.com/unixbox-net/loghog/assets/104218206/351322c5-0962-427c-bb4c-2eb3ac3244c1)
 
-# Install Notes.
+# Install.
 
-  The installer automatically builds both an .rpm package and binary. It will attempt to install
-  via DNF (aka) **ANY** version of Rhel, Fedora, CentOS, Alma, Rocky... It may work on Oracle, Scientific
-  or Amazon Linux?. But in theory the applciation its self only uses standard posix so it should compile
-  and run on all UNIX/UNIX-like and GNU-Linux systems.  I test on Rocky 8.9
-
-  cmd:
+  this bootstrap installer should work on ym/dnf/apt based package installers, tested on rocky 8.9
+  
   ```bash
   sudo su -
   curl -sL https://github.com/unixbox-net/lh/raw/main/install.sh | sudo bash
