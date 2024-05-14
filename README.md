@@ -2,7 +2,7 @@
 
 # Install.
 
-  this bootstrap installer should work on ym/dnf/apt based package installers, tested on rocky 8.9
+  this bootstrap installer should work for yum/dnf/apt based package installers, tested on rocky 8.9
   
   ```bash
   sudo su -
