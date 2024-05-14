@@ -365,21 +365,14 @@ void display_help() {
 }
 
 void main_menu() {
+    printf(ASCII_ART);
+    printf(ANSI_COLOR_BLUE "auth        error       network      loghog\n" ANSI_COLOR_RESET);
+    printf(ANSI_COLOR_BLUE "regex       IP          set dir      json\n" ANSI_COLOR_RESET);
+    printf(ANSI_COLOR_BLUE "            help        quit\n" ANSI_COLOR_RESET);
+
     char *option;
     while (1) {
-        printf(ANSI_COLOR_GREEN ASCII_ART ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "A" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "uth\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "E" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "rror\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "L" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "ogHOG\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "N" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "etwork\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "R" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "egEx\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "I" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "pEx\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "S" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "et dir\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "J" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "sonEx\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "H" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "elp!\n" ANSI_COLOR_RESET);
-        printf(ANSI_COLOR_DARK "(" ANSI_COLOR_LIGHT_GREEN "Q" ANSI_COLOR_DARK ")" ANSI_COLOR_BLUE "uit!\n" ANSI_COLOR_RESET);
         printf(ANSI_COLOR_DARK "\n-" ANSI_COLOR_LIGHT_GRAY "> " ANSI_COLOR_RESET);
-
         option = readline(NULL);
         if (option == NULL) {
             while (getchar() != '\n'); // Clear input buffer
@@ -388,49 +381,39 @@ void main_menu() {
 
         char opt = option[0];
         switch (opt) {
-            case 'A':
-            case 'a':
+            case 'A': case 'a':
                 live_auth_log(log_search_path);
                 break;
-            case 'E':
-            case 'e':
+            case 'E': case 'e':
                 live_error_log(log_search_path);
                 break;
-            case 'L':
-            case 'l':
+            case 'L': case 'l':
                 live_log(log_search_path);
                 break;
-            case 'N':
-            case 'n':
+            case 'N': case 'n':
                 live_network_log(log_search_path);
                 break;
-            case 'R':
-            case 'r':
+            case 'R': case 'r':
                 run_regex(log_search_path);
                 break;
-            case 'I':
-            case 'i':
+            case 'I': case 'i':
                 search_ip(log_search_path);
                 break;
-            case 'S':
-            case 's':
+            case 'S': case 's':
                 edit_log_paths(log_search_path);
                 break;
-            case 'J':
-            case 'j':
+            case 'J': case 'j':
                 export_search_results_to_json(log_search_path);
                 break;
-            case 'H':
-            case 'h':
+            case 'H': case 'h':
                 display_help();
                 break;
-            case 'Q':
-            case 'q':
+            case 'Q': case 'q':
                 free(option);
                 exit(0);
                 break;
             default:
-                printf(ANSI_COLOR_BLUE "oops!\n" ANSI_COLOR_RESET);
+                printf(ANSI_COLOR_BLUE "Invalid option. Please try again.\n" ANSI_COLOR_RESET);
         }
         free(option);
     }
