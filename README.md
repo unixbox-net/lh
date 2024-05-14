@@ -33,22 +33,40 @@ Identify system issues as quickly as possible
 ## "modes"
 
 **TAIL**  *Default*
-Automatically stitches logs together by timestamp, enabling real-time event monitoring. This mode makes it 
-easy to follow and investigate incidents like authentication failures, permission denials, and SQL 
+Automatically stitches logs together by timestamp, enabling real-time event monitoring. This mode makes 
+it easy to follow and investigate incidents like authentication failures, permission denials, and SQL 
 injections. **Press `CTRL+C`** to quit.
 
 **LESS**  *Secondary*
-Buffers are sent directly to **less** for further editing and in-depth review, searches, and complex log analysis.  
-**Press `h` for help** or **`q` to quit**.
+Buffers are sent directly to **less** for further editing and in-depth review, searches, and complex log 
+analysis.  
+**Press `h` for help** or **`q` to quit to menu**.
+
+**Remote Operation**
+Changing paths also works on network shares, allowing for both local and remote operation
+
+IE:
+changeing the loging path to a remote location, or many remote locations can be combined with simple powerful regular expressions
+
+
 
 ## Other key features include:
   
-**Regex Search**: Allows powerful searches across all logs using regular expressions, making it simple to detect patterns like IP addresses, error messages, and unauthorized access attempts.
-**Network Protocol Filter**: Filters logs by protocol (HTTP, FTP, SSH, etc.) to quickly identify network-related issues.
-**Error Filtering**: Isolates error-related events like failures, critical warnings, and socket timeouts for faster troubleshooting.
+**Regex Search**: Allows powerful searches across all logs using regular expressions, making it simple to detect 
+patterns like IP addresses, error messages, and unauthorized access attempts.
+**Network Protocol Filter**: Filters logs by protocol (HTTP, FTP, SSH, etc.) to quickly identify network-related 
+issues.
+**Error Filtering**: Isolates error-related events like failures, critical warnings, and socket timeouts for faster 
+troubleshooting.
 **Custom Log Paths**: Lets users specify custom log paths (local or remote) for precise, targeted searches.
 **Export to JSON**: Exports search results to JSON format for further analysis or sharing with others.
 **Live and Less Modes**: Enables real-time log monitoring or in-depth review through the less pager.
 **Ultra Small** around 21,815 bytes (21kb) its about the same size as a BLANK word document.
 
-Whether you're a system administrator, developer, or security professional, LogHOG offers a comprehensive suite of tools for efficient log analysis and bug hunting. Its simplicity, speed, and robustness make it an indispensable forensics tool.
+Whether you're a system administrator, developer, or security professional, LogHOG offers a comprehensive suite of 
+tools for efficient log analysis and bug hunting. Its simplicity, speed, and robustness make it an indispensable 
+forensics tool.
+
+## Known Issues
+
+RegEx Searches do not display output, however the file is still written to disk
