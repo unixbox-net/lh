@@ -12,7 +12,21 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-# Clone git
+# Function to determine the package manager
+detect_package_manager() {
+    if command -v dnf > /dev/null; then
+        PACKAGE_MANAGER="dnf"
+    elif command -v yum > /dev/null; then
+        PACKAGE_MANAGER="yum"
+    elif command -v apt-get > /dev/null; then
+        PACKAGE_MANAGER="apt-get"
+    else
+        echo "No supported package manager installed on this system."
+        exit 1
+    fi
+}
+
+# Clone git repository
 git clone https://github.com/unixbox-net/lh.git
 
 # Function to prepare directories
@@ -37,8 +51,12 @@ prepare_directories() {
 
 # Function to install necessary dependencies
 install_dependencies() {
-    echo "Installing necessary dependencies..."
-    dnf install -y rpm-build gcc json-c-devel readline-devel
+    echo "Installing necessary dependencies using ${PACKAGE_MANAGER}..."
+    if [ "${PACKAGE_MANAGER}" = "apt-get" ]; then
+        ${PACKAGE_MANAGER} update && ${PACKAGE_MANAGER} install -y gcc libjson-c-dev libreadline-dev
+    else
+        ${PACKAGE_MANAGER} install -y rpm-build gcc json-c-devel readline-devel
+    fi
 }
 
 # Function to prepare source files
@@ -66,15 +84,16 @@ install_or_reinstall_rpm() {
     local rpm_package="${RPM_BUILD_DIR}/RPMS/x86_64/${PACKAGE_NAME}-${VERSION}-1.el8.x86_64.rpm"
     if rpm -q ${PACKAGE_NAME} &> /dev/null; then
         echo "Package is already installed, attempting reinstall..."
-        dnf reinstall -y ${rpm_package}
+        ${PACKAGE_MANAGER} reinstall -y ${rpm_package}
     else
         echo "Package is not installed, attempting install..."
-        dnf install -y ${rpm_package}
+        ${PACKAGE_MANAGER} install -y ${rpm_package}
     fi
 }
 
 # Main function
 main() {
+    detect_package_manager
     prepare_directories
     install_dependencies
     prepare_source
