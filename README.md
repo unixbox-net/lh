@@ -57,7 +57,7 @@ troubleshooting.
 **Custom Log Paths**: Lets users specify custom log paths (local or remote) for precise, targeted searches.
 **Export to JSON**: Exports search results to JSON format for further analysis or sharing with others.
 **Live and Less Modes**: Enables real-time log monitoring or in-depth review through the less pager.
-**Ultra Small** around 21,815 bytes (21kb) its about the same size as a BLANK word document.
+**Ultra Small** around (17kb) aka about half the size of a BLANK word document.
 
 Whether you're a system administrator, developer, or security professional, LogHOG offers a comprehensive suite of 
 tools for efficient log analysis and bug hunting. Its simplicity, speed, and robustness make it an indispensable 
