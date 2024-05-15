@@ -39,11 +39,7 @@ analysis.
 **Press `h` for help** or **`q` to quit to menu**.
 
 **Remote Operation**
-Changing paths also works on network shares, allowing for both local and remote operation
-
-IE:
-changeing the loging path to a remote location, or many remote locations can be combined with simple powerful regular expressions
-
+Changing paths also accepts network shares / mounts and devices, thus allowing for both local and remote operation and the ability to consume and globally search any availiable log source.
 
 
 ## Other key features include:
