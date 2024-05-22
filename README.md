@@ -24,7 +24,7 @@
 
 ## Purpose
 
-Identify system issues as quickly as possible
+Enable ANYONE to identify system issues as quickly as possible
 
 ## "modes"
 
@@ -54,6 +54,7 @@ troubleshooting.
 **Export to JSON**: Exports search results to JSON format for further analysis or sharing with others.
 **Live and Less Modes**: Enables real-time log monitoring or in-depth review through the less pager.
 **Ultra Small** around (17kb) aka about half the size of a BLANK word document.
+**Pattern Matching & Highlighting** All matching is case-insensitive, and matches are automatically stylized.
 
 Whether you're a system administrator, developer, or security professional, LogHOG offers a comprehensive suite of 
 tools for efficient log analysis and bug hunting. Its simplicity, speed, and robustness make it an indispensable 
