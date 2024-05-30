@@ -22,6 +22,9 @@
   json-c readline
   ```
 
+FreeBSD
+clang -I/usr/local/include -L/usr/local/lib -ljson-c -lreadline -lncurses lh.c -o lh
+
 ## Purpose
 
 Enable ANYONE to identify system issues as quickly as possible
