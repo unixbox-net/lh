@@ -49,6 +49,7 @@ Changing paths also accepts network shares / mounts and devices, thus allowing f
   
 **Regex Search**: Allows powerful searches across all logs using regular expressions, making it simple to detect 
 patterns like IP addresses, error messages, and unauthorized access attempts.
+![lh-regex-netow](https://github.com/unixbox-net/lh/assets/104218206/7272eac0-bc1f-4b74-adc4-cf1fcc1aba94)
 
 **Network Protocol Filter**: Filters logs by protocol (HTTP, FTP, SSH, etc.) to quickly identify network-related 
 issues.
