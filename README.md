@@ -48,15 +48,22 @@ Changing paths also accepts network shares / mounts and devices, thus allowing f
 ## Other key features include:
   
 **Regex Search**: Allows powerful searches across all logs using regular expressions, making it simple to detect 
-patterns like IP addresses, error messages, and unauthorized access attempts.\n
+patterns like IP addresses, error messages, and unauthorized access attempts.
+
 **Network Protocol Filter**: Filters logs by protocol (HTTP, FTP, SSH, etc.) to quickly identify network-related 
 issues.
+
 **Error Filtering**: Isolates error-related events like failures, critical warnings, and socket timeouts for faster 
 troubleshooting.
+
 **Custom Log Paths**: Lets users specify custom log paths (local or remote) for precise, targeted searches.
+
 **Export to JSON**: Exports search results to JSON format for further analysis or sharing with others.
+
 **Live and Less Modes**: Enables real-time log monitoring or in-depth review through the less pager.
+
 **Ultra Small** around (17kb) aka about half the size of a BLANK word document.
+
 **Pattern Matching & Highlighting** All matching is case-insensitive, and matches are automatically stylized.
 
 Whether you're a system administrator, developer, or security professional, LogHOG offers a comprehensive suite of 
